@@ -1,0 +1,75 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: vps
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: vps.mwt2.org
+  labels:
+    k8s-app: vps
+spec:
+  type: LoadBalancer
+  ports:
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  selector:
+    k8s-app: vps
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vps  
+  labels:
+    k8s-app: vps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: vps
+  template:
+    metadata:
+      labels:
+        k8s-app: vps
+    spec:
+      containers:
+      - name: vps
+        image: ivukotic/vps:latest
+        ports:
+          - containerPort: 443
+          - containerPort: 80
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /healthz
+            port: 443
+          periodSeconds: 60
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+        volumeMounts:
+        - name: https-certs-volume
+          mountPath: "/etc/https-certs/"
+          readOnly: true
+        - name: frontend-conf-volume
+          mountPath: "/etc/vps/"
+      volumes:
+      - name: https-certs-volume
+        secret:
+          secretName: cert-secret
+          items:
+          - key: key
+            path: key.pem
+            mode: 256 
+          - key: cert
+            path: cert.pem
+      - name: frontend-conf-volume
+        secret:
+          secretName: config
+          items:
+          - key: conf
+            path: config.json      
+      serviceAccountName: vps-fronter
