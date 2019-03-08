@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
       - name: vps
-        image: ivukotic/vps:latest
+        image: ivukotic/vpservice:latest
         ports:
           - containerPort: 443
           - containerPort: 80
@@ -70,4 +70,3 @@ spec:
           items:
           - key: conf
             path: config.json      
-      serviceAccountName: vps-fronter

@@ -16,12 +16,12 @@ var certificate;
 
 if (testing) {
     config = require('./kube/test_config.json');
-    // privateKey = fs.readFileSync('./kube/secrets/certificates/gates.key.pem');//, 'utf8'
-    // certificate = fs.readFileSync('./kube/secrets/certificates/gates.cert.cer');
+    // privateKey = fs.readFileSync('./kube/secrets/certificates/vps.key.pem');//, 'utf8'
+    // certificate = fs.readFileSync('./kube/secrets/certificates/vps.cert.cer');
     // config.SITENAME = 'localhost'
 }
 else {
-    config = require('/etc/gates/config.json');
+    config = require('/etc/vps/config.json');
     // privateKey = fs.readFileSync('/etc/https-certs/key.pem');//, 'utf8'
     // certificate = fs.readFileSync('/etc/https-certs/cert.pem');
 }
