@@ -1,6 +1,5 @@
-// var fs = require('fs');
 var express = require('express');
-var https = require('https');
+// var https = require('https');
 var http = require('http');
 
 // var request = require('request');
@@ -16,7 +15,7 @@ var privateKey;
 var certificate;
 
 if (testing) {
-    config = require('./kube/config.json');
+    config = require('./kube/test_config.json');
     // privateKey = fs.readFileSync('./kube/secrets/certificates/gates.key.pem');//, 'utf8'
     // certificate = fs.readFileSync('./kube/secrets/certificates/gates.cert.cer');
     // config.SITENAME = 'localhost'
@@ -38,12 +37,12 @@ const app = express();
 
 // app.use(express.json());       // to support JSON-encoded bodies
 
-async function get_user(id) {
-    // var user = new ent.User();
-    // user.id = id;
-    // await user.get();
-    // return user;
-}
+// async function get_user(id) {
+// var user = new ent.User();
+// user.id = id;
+// await user.get();
+// return user;
+// }
 
 
 // app.get('/delete/:jservice', requiresLogin, function (request, response) {
@@ -78,40 +77,33 @@ app.get('/healthz', function (request, response) {
 //     res.status(200).send(services);
 // });
 
-
-app.get('/login', (request, response) => {
-    console.log('Logging in');
-    red = `${gConfig.AUTHORIZE_URI}?scope=urn%3Aglobus%3Aauth%3Ascope%3Aauth.globus.org%3Aview_identities+openid+email+profile&state=garbageString&redirect_uri=${gConfig.redirect_link}&response_type=code&client_id=${gConfig.CLIENT_ID}`;
-    // console.log('redirecting to:', red);
-    response.redirect(red);
-});
-
-
-
 app.get('/test', async function (req, res) {
     console.log('TEST starting...');
-    console.log('User...');
-    // create user
-    u = new ent.User();
-    u.name = "test user";
-    u.organization = "test organization";
-    u.username = "testUser";
-    u.email = "testUser@test.organization.org";
-    u.create();
 
-    t = new ent.Team();
-    t.name = "test team";
-    t.desription = "test description";
-    t.create();
-    res.render("index");
+    rclient.set('framework', 'AngularJS', function (err, reply) {
+        console.log(reply);
+    });
+
+    rclient.get('framework', function (err, reply) {
+        console.log(reply);
+        res.send(reply);
+    });
+
+    res.send('something bad happened.');
 });
 
-// app.get('/authorize/:user_id', async function (req, res) {
-//     console.log('Authorizing user...');
-//     var user = await get_user(req.params.user_id);
-//     user.approve();
-//     res.redirect("/users.html");
-// });
+app.get('/ds/:dataset', async function (req, res) {
+    var ds = req.params.dataset
+    console.log('ds to vp:', ds);
+
+    rclient.exists(ds, function (err, reply) {
+        console.log(reply);
+        res.send(reply);
+    });
+    //     var user = await get_user(req.params.user_id);
+    //     user.approve();
+    //     res.redirect("/users.html");
+});
 
 
 app.use((err, req, res, next) => {
@@ -120,13 +112,15 @@ app.use((err, req, res, next) => {
 });
 
 
-var httpsServer = https.createServer(credentials, app).listen(443);
+// var httpsServer = https.createServer(credentials, app).listen(443);
 
 // redirects if someone comes on http.
-http.createServer(function (req, res) {
-    res.writeHead(302, { 'Location': 'https://' + config.SITENAME });
-    res.end();
-}).listen(80);
+http.createServer(
+    //     function (req, res) {
+    //     res.writeHead(302, { 'Location': 'https://' + config.SITENAME });
+    //     res.end();
+    // }
+).listen(80);
 
 
 async function main() {

@@ -2,8 +2,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: vps
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: vps.mwt2.org
   labels:
     k8s-app: vps
 spec:
