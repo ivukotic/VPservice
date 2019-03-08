@@ -5,7 +5,7 @@ var http = require('http');
 // var request = require('request');
 // const JSONStream = require('json-stream'); need for events only
 
-testing = false;
+testing = true;
 
 console.log('VPs server starting ... ');
 
@@ -44,52 +44,36 @@ const app = express();
 // return user;
 // }
 
+app.get('/site/:sitename/:weight', async function (req, res) {
+    var site = req.params.sitename;
+    var weight = req.params.weight;
 
-// app.get('/delete/:jservice', requiresLogin, function (request, response) {
-//     var jservice = request.params.jservice;
-//     cleanup(jservice);
-//     response.redirect("/index.html");
-// });
+    console.log('adding a site to vp:', site, 'with weight', weight);
 
-// app.get('/log/:podname', requiresLogin, async function (request, response) {
-//     var podname = request.params.podname;
-//     plog = await get_log(podname);
-//     console.log(plog.body);
-//     response.render("podlog", { pod_name: podname, content: plog.body });
-// });
+    rclient.set(site, weight, function (err, reply) {
+        console.log(reply);
+        res.status(400).send('set: ' + reply);
+    });
 
-
-app.get('/healthz', function (request, response) {
-    try {
-        response.status(200).send('OK');
-    } catch (err) {
-        console.log("something wrong", err);
-    }
 });
 
-// app.get('/get_services_from_es/:servicetype', async function (req, res) {
-//     console.log(req.params);
-//     var servicetype = req.params.servicetype;
-//     console.log('user:', req.session.user_id, 'service:', servicetype);
-//     var user = await get_user(req.session.user_id);
-//     var services = await user.get_services(servicetype);
-//     console.log(services);
-//     res.status(200).send(services);
-// });
+app.get('/site/:sitename', async function (req, res) {
+    var site = req.params.sitename;
 
-app.get('/test', async function (req, res) {
-    console.log('TEST starting...');
+    console.log('looking up site:', site);
 
-    rclient.set('framework', 'AngularJS', function (err, reply) {
-        console.log(reply);
+    rclient.exists(site, function (err, reply) {
+        if (reply == 0) {
+            console.log('not found');
+            res.status(400).send('not found.');
+        } else {
+            rclient.get(site, function (err, reply) {
+                console.log("found: ", reply);
+                res.status(400).send('found: ' + reply);
+            });
+        }
     });
 
-    rclient.get('framework', function (err, reply) {
-        console.log(reply);
-        res.send(reply);
-    });
-
-    res.send('something bad happened.');
 });
 
 app.get('/ds/:dataset', async function (req, res) {
@@ -98,29 +82,63 @@ app.get('/ds/:dataset', async function (req, res) {
 
     rclient.exists(ds, function (err, reply) {
         console.log(reply);
-        res.send(reply);
+        if (reply == 0) {
+            console.log('not found');
+            rclient.rpush([ds, 'aglt2', 'mwt2'], function (err, reply) {
+                console.log(reply);
+                res.status(400).send('not found. added');
+            });
+        } else {
+            rclient.lrange(ds, 0, -1, function (err, reply) {
+                console.log("found", reply);
+                res.status(400).send('found: ' + reply);
+            });
+        }
     });
-    //     var user = await get_user(req.params.user_id);
-    //     user.approve();
-    //     res.redirect("/users.html");
 });
 
+
+app.get('/test', async function (req, res) {
+    console.log('TEST starting...');
+
+    rclient.set('ds', 'ilija_ds', function (err, reply) {
+        console.log(reply);
+    });
+
+    rclient.get('ds', function (err, reply) {
+        console.log(reply);
+        res.send(reply);
+    });
+
+});
+
+app.get('/healthz', function (request, response) {
+    console.log('healtcall');
+    try {
+        response.status(200).send('OK');
+    } catch (err) {
+        console.log("something wrong", err);
+    }
+});
 
 app.use((err, req, res, next) => {
     console.error('Error in error handler: ', err.message);
     res.status(err.status).send(err.message);
 });
 
+app.get('/', (req, res) => res.send('Hello from the Virtual Placement Service.'))
+
+app.listen(80, () => console.log(`Listening on port 80!`))
 
 // var httpsServer = https.createServer(credentials, app).listen(443);
 
-// redirects if someone comes on http.
-http.createServer(
-    //     function (req, res) {
-    //     res.writeHead(302, { 'Location': 'https://' + config.SITENAME });
-    //     res.end();
-    // }
-).listen(80);
+// // redirects if someone comes on http.
+// http.createServer(
+//     //     function (req, res) {
+//     //     res.writeHead(302, { 'Location': 'https://' + config.SITENAME });
+//     //     res.end();
+//     // }
+// ).listen(80);
 
 
 async function main() {
@@ -134,11 +152,11 @@ async function main() {
         if (!testing) {
             // await LoadUpRedis();
         } else {
-            rclient.set('framework', 'AngularJS', function (err, reply) {
+            rclient.set('ds', 'ilija_ds', function (err, reply) {
                 console.log(reply);
             });
 
-            rclient.get('framework', function (err, reply) {
+            rclient.get('ds', function (err, reply) {
                 console.log(reply);
             });
         }
