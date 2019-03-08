@@ -5,7 +5,7 @@ var http = require('http');
 // var request = require('request');
 // const JSONStream = require('json-stream'); need for events only
 
-testing = true;
+testing = false;
 
 console.log('VPs server starting ... ');
 
