@@ -96,11 +96,11 @@ app.get('/site/:cloud/:sitename', async function (req, res) {
 
 app.get('/ds/:sites/:dataset', async function (req, res) {
     var ds = req.params.dataset
-    console.log('ds to vp:', ds);
+    // console.log('ds to vp:', ds);
 
     rclient.exists(ds, function (err, reply) {
         if (reply == 0) {
-            console.log('not found');
+            // console.log('not found');
             rclient.blpop('unas', 1000, function (err, reply) {
                 if (!reply) {
                     res.status(400).send('Timeout');
@@ -115,7 +115,7 @@ app.get('/ds/:sites/:dataset', async function (req, res) {
             });
         } else {
             rclient.lrange(ds, 0, -1, function (err, reply) {
-                console.log("found", reply);
+                // console.log("found", reply);
                 res.status(200).send(reply);
             });
         }

@@ -5,8 +5,7 @@ Virtual Placement Service
 
 * fix filler's liveness probe 
 * publish mkdoc
-* site/cloud weights should be in a conf file.
-* calculate correct VPs
+* site/cloud weights should be in a conf file. what about upates?
 * set site XCache servers with weights
 * calculate server a file will be on
 * getter for path to a file

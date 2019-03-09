@@ -17,28 +17,51 @@ grid = require('./grid.json');
 var redis = require('redis');
 var rclient = redis.createClient(config.PORT, config.HOST); //creates a new client
 
+var c = require('./choice.js');
+
 function recalculate_grid() {
+    other = grid.grid_cores;
     for (cloud in grid.cores) {
         sites = grid.cores[cloud]
-        grid.cloud_weights[cloud] = 0
-        grid.site_weights[cloud] = {}
-        for (site in sites) {
-            scores = sites[site]
-            grid.cloud_weights[cloud] += scores
-            grid.site_weights[cloud][site] = scores
+        console.log(cloud, sites)
+        cloud_cores = 0
+        for (sitei in sites) {
+            site = sites[sitei][0]
+            scores = sites[sitei][1]
+            console.log(sitei, site, scores)
+            cloud_cores += scores
+            other -= scores
         }
+        grid.cloud_cores.push([cloud, cloud_cores])
+        console.log('--------------------')
     }
-    for (cloud in grid.site_weights) {
-        sites = grid.site_weights[cloud]
-        for (site in sites) {
-            grid.site_weights[cloud][site] /= grid.cloud_weights[cloud]
-        }
-        grid.cloud_weights[cloud] /= grid.grid_cores
+    grid.cloud_cores.push(['other', other])
+
+    grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
+    for (cloud in grid.cores) {
+        sites = grid.cores[cloud]
+        console.log(cloud, sites)
+        grid.site_weights[cloud] = (new c.WeightedList(sites))
     }
+
+
+
 }
 
 function generate() {
-    return 'asdf,asdf1,asdf2';
+    sel_cloud = grid.cloud_weights.peek()[0];
+    if (sel_cloud === 'other') {
+        return 'other'
+    }
+
+    ss = config.N;
+    if (grid.cores[sel_cloud].length < ss) {
+        ss = grid.cores[sel_cloud].length;
+    }
+
+    res = grid.site_weights[sel_cloud].peek(ss);
+    console.log(sel_cloud, ss, res);
+    return res.join(',');
 }
 
 function fill() {
@@ -52,9 +75,11 @@ function fill() {
         console.log('count:', count)
         if (count < config.PRECALCULATED_LWM) {
             for (i = 0; i < config.PRECALCULATED_HWM - count; i++) {
-                rclient.lpush('unas', generate(), function (err, reply) {
-                    console.log('current length', reply);
-                })
+                rclient.lpush('unas', generate());
+                // , function (err, reply) {
+                // console.log('current length', reply);
+                // }
+                // )
             }
         }
     });
@@ -67,7 +92,7 @@ async function main() {
         console.log(grid);
         setInterval(recalculate_grid, 3600010);
 
-        setInterval(fill, 60000);
+        setInterval(fill, 2000);
 
     } catch (err) {
         console.error('Error: ', err);
