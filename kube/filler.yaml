@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filler  
+  labels:
+    k8s-app: filler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: filler
+  template:
+    metadata:
+      labels:
+        k8s-app: filler
+    spec:
+      containers:
+      - name: filler
+        image: ivukotic/vpservice:latest
+        command: "node"
+        args: ['filler.js']
+        livenessProbe:
+          periodSeconds: 60
+          initialDelaySeconds: 10
+          timeoutSeconds: 10
+        volumeMounts:
+        - name: conf-volume
+          mountPath: "/etc/vps/"
+      volumes:
+      - name: conf-volume
+        secret:
+          secretName: config
+          items:
+          - key: conf
+            path: config.json      

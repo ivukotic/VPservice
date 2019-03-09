@@ -1,0 +1,5 @@
+site_name: VP service
+pages:
+    - Home: index.md
+theme: readthedocs
+repo_url: https://github.com/ivukotic/vpservice

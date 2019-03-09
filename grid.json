@@ -1,0 +1,14 @@
+{
+    "grid_cores": 340000,
+    "cores": {
+        "US": {
+            "MWT2": 1000,
+            "AGLT2": 1000
+        },
+        "DE": {
+            "LRZ-LMU": 1000
+        }
+    },
+    "cloud_weights": {},
+    "site_weights": {}
+}
