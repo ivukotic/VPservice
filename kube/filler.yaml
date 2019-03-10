@@ -17,8 +17,8 @@ spec:
       containers:
       - name: filler
         image: ivukotic/vpservice:latest
-        command: "node"
-        args: ['filler.js']
+        command: ["node"]
+        args: ["filler.js"]
         livenessProbe:
           periodSeconds: 60
           initialDelaySeconds: 10
