@@ -1,6 +1,6 @@
 // This code makes sure there is always more then 100 unassigned VPs in Radis. 
 
-testing = true;
+testing = false;
 
 if (testing) {
     config = require('./kube/test_config.json');
