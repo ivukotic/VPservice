@@ -1,0 +1,19 @@
+{
+    "docs": [
+        {
+            "location": "/",
+            "text": "Virtual Placement service\n\n\n\n\nSource \nGitHub\n.\n\n\nDocker image [DockerHub] (https://hub.docker.com/r/ivukotic/vpservice/).\n\n\ndocumentation\n.\n\n\nPresentation\n\n\n\n\nREST API\n\n\n\n\n/test - should always return \"TEST_OK\"\n\n\n/ds/\nn\n/\nds_name\n - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to \nn\n sites. Dataset that should not be in the sistem returns: \nother\n.\n\n\n/site/\ncloud\n/\nsite\n/\ncores\n - sets or updates number of CPUs cores available for Virtual Placement. \n\n\n/site/\nsite\n - returns probability that a dataset will have \nsite\n to be the first choice to place the data at.\n\n\n/grid/\ncores\n - sets or updates total number of cores available on the grid.",
+            "title": "Home"
+        },
+        {
+            "location": "/#virtual-placement-service",
+            "text": "Source  GitHub .  Docker image [DockerHub] (https://hub.docker.com/r/ivukotic/vpservice/).  documentation .  Presentation",
+            "title": "Virtual Placement service"
+        },
+        {
+            "location": "/#rest-api",
+            "text": "/test - should always return \"TEST_OK\"  /ds/ n / ds_name  - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to  n  sites. Dataset that should not be in the sistem returns:  other .  /site/ cloud / site / cores  - sets or updates number of CPUs cores available for Virtual Placement.   /site/ site  - returns probability that a dataset will have  site  to be the first choice to place the data at.  /grid/ cores  - sets or updates total number of cores available on the grid.",
+            "title": "REST API"
+        }
+    ]
+}
