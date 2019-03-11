@@ -122,6 +122,23 @@ app.get('/ds/:sites/:dataset', async function (req, res) {
     });
 });
 
+app.get('/ds/reassign/:dataset', async function (req, res) {
+    var ds = req.params.dataset
+    // console.log('reassigning ds:', ds);
+
+    rclient.blpop('unas', 1000, function (err, reply) {
+        if (!reply) {
+            res.status(400).send('Timeout');
+            return;
+        }
+        sites = reply[1].split(',')
+        rclient.del(ds,);
+        rclient.rpush(ds, sites);
+        res.status(200).send(sites);
+    });
+
+});
+
 
 app.get('/test', async function (req, res) {
     console.log('TEST starting...');

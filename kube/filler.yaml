@@ -19,10 +19,6 @@ spec:
         image: ivukotic/vpservice:latest
         command: ["node"]
         args: ["filler.js"]
-        livenessProbe:
-          periodSeconds: 60
-          initialDelaySeconds: 10
-          timeoutSeconds: 10
         volumeMounts:
         - name: conf-volume
           mountPath: "/etc/vps/"

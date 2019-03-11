@@ -1,14 +1,15 @@
 # Virtual Placement service
 
-* Source [GitHub](https://github.com/ivukotic/vpservice).
-* Docker image [DockerHub] (https://hub.docker.com/r/ivukotic/vpservice/).
-* [documentation](http://ivukotic.io/vpservice/).
-* [Presentation](google doc...)
+* Source [GitHub](https://github.com/ivukotic/vpservice)
+* Docker image [DockerHub](https://cloud.docker.com/repository/docker/ivukotic/vpservice)
+* [Documentation](https://ivukotic.github.io/VPservice/)
+* [Presentation](https://docs.google.com/presentation/d/145aZDrp_rG5lZxyju1Diqidde4XGYNCUIU8VpKdo0OQ/edit?usp=sharing)
 
 ## REST API
 
 * /test - should always return "TEST_OK"
-* /ds/`n`/`ds_name` - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to `n` sites. Dataset that should not be in the sistem returns: _other_.
+* /grid - returns current core counts for all grid, clouds, and sites.
 * /site/`cloud`/`site`/`cores` - sets or updates number of CPUs cores available for Virtual Placement. 
-* /site/`site` - returns probability that a dataset will have `site` to be the first choice to place the data at.
 * /grid/`cores` - sets or updates total number of cores available on the grid.
+* /ds/`n`/`ds_name` - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to `n` sites. Dataset that should not be in the system returns: _other_.
+* /ds/reassign/`ds_name` - to be used only for datasets that need new Virtual Placement (eg. it was assigned to _other_).
