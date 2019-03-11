@@ -101,18 +101,19 @@
               
                 <h1 id="virtual-placement-service">Virtual Placement service</h1>
 <ul>
-<li>Source <a href="https://github.com/ivukotic/vpservice">GitHub</a>.</li>
-<li>Docker image [DockerHub] (https://hub.docker.com/r/ivukotic/vpservice/).</li>
-<li><a href="https://ivukotic.github.io/VPservice/">documentation</a>.</li>
-<li><a href="./google doc...">Presentation</a></li>
+<li>Source <a href="https://github.com/ivukotic/vpservice">GitHub</a></li>
+<li>Docker image <a href="https://cloud.docker.com/repository/docker/ivukotic/vpservice">DockerHub</a></li>
+<li><a href="https://ivukotic.github.io/VPservice/">Documentation</a></li>
+<li><a href="https://docs.google.com/presentation/d/145aZDrp_rG5lZxyju1Diqidde4XGYNCUIU8VpKdo0OQ/edit?usp=sharing">Presentation</a></li>
 </ul>
 <h2 id="rest-api">REST API</h2>
 <ul>
 <li>/test - should always return "TEST_OK"</li>
-<li>/ds/<code>n</code>/<code>ds_name</code> - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to <code>n</code> sites. Dataset that should not be in the sistem returns: <em>other</em>.</li>
+<li>/grid - returns current core counts for all grid, clouds, and sites.</li>
 <li>/site/<code>cloud</code>/<code>site</code>/<code>cores</code> - sets or updates number of CPUs cores available for Virtual Placement. </li>
-<li>/site/<code>site</code> - returns probability that a dataset will have <code>site</code> to be the first choice to place the data at.</li>
 <li>/grid/<code>cores</code> - sets or updates total number of cores available on the grid.</li>
+<li>/ds/<code>n</code>/<code>ds_name</code> - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to <code>n</code> sites. Dataset that should not be in the system returns: <em>other</em>.</li>
+<li>/ds/reassign/<code>ds_name</code> - to be used only for datasets that need new Virtual Placement (eg. it was assigned to <em>other</em>).</li>
 </ul>
               
             </div>
@@ -156,5 +157,5 @@
 
 <!--
 MkDocs version : 0.17.2
-Build Date UTC : 2019-03-11 16:26:41
+Build Date UTC : 2019-03-11 16:45:22
 -->
