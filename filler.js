@@ -1,6 +1,8 @@
 // This code makes sure there is always more then 100 unassigned VPs in Radis. 
 
 testing = false;
+
+var grid;
 var grid_description_version = 0;
 
 if (testing) {

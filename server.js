@@ -51,6 +51,36 @@ const app = express();
 //     });
 // }
 
+app.delete('/grid/', async function (req, res) {
+    console.log('deleting all of the grid info ');
+
+    rclient.del(rclient.smembers('sites'), function (err, reply) {
+        console.log('sites removed:', reply);
+    });
+
+    rclient.del('sites');
+    rclient.del('grid_cores');
+
+    console.log('resetting grid description version ...');
+    rclient.set('grid_description_version', '0');
+
+    res.status(200).send('OK');
+});
+
+app.put('/grid/:cores', async function (req, res) {
+    const cores = req.params.cores;
+    console.log('setting all of the grid: ', cores, 'cores');
+
+    rclient.set('grid_cores', cores, function (err, reply) {
+        console.log(reply);
+    });
+
+    console.log('updating grid description version ...');
+    rclient.incr('grid_description_version');
+
+    res.status(200).send('OK');
+});
+
 app.put('/site/:cloud/:sitename/:cores', async function (req, res) {
     const cloud = req.params.cloud;
     const site = req.params.sitename;
@@ -58,13 +88,17 @@ app.put('/site/:cloud/:sitename/:cores', async function (req, res) {
 
     console.log('adding a site', site, 'to', cloud, 'cloud with', cores, 'cores');
 
-    rclient.set(cloud + ':' + site, weight, function (err, reply) {
+    rclient.sadd('sites', cloud + ':' + site, function (err, reply) {
+        console.log(reply);
+    });
+
+    rclient.set(cloud + ':' + site, cores, function (err, reply) {
         console.log(reply);
     });
 
     console.log('updating grid description version ...');
     rclient.incr('grid_description_version');
-    
+
     res.status(200).send('OK');
 
 });
