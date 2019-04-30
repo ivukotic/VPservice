@@ -67,6 +67,14 @@ app.delete('/grid/', async function (req, res) {
     res.status(200).send('OK');
 });
 
+app.delete('/all_data', async function (req, res) {
+    console.log('deleting all of the database.');
+    await rclient.flushdb(function (err, reply) {
+        console.log('reply:', reply);
+    });
+    res.status(200).send(reply);
+});
+
 app.put('/grid/:cores', async function (req, res) {
     const cores = req.params.cores;
     console.log('setting all of the grid: ', cores, 'cores');

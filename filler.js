@@ -29,14 +29,14 @@ var c = require('./choice.js');
 async function recalculate_grid() {
     await rclient.get('grid_description_version', async function (err, reply) {
         console.log("GD version:", reply);
-        if (int(reply) <= grid_description_version) {
+        if (Number(reply) <= grid_description_version) {
             console.log('update not needed.');
             return;
         }
         console.log("here updating GD version.");
-        grid_description_version = int(reply);
+        grid_description_version = Number(reply);
         await rclient.get('grid_cores', function (err, reply) {
-            grid.grid_cores = int(reply);
+            grid.grid_cores = Number(reply);
         });
 
         await rclient.smembers('sites'), function (err, reply) {
@@ -44,7 +44,9 @@ async function recalculate_grid() {
         };
 
     });
-
+    if (grid.grid_cores == 0) {
+        return;
+    }
     other = grid.grid_cores;
     for (cloud in grid.cores) {
         sites = grid.cores[cloud]
@@ -97,7 +99,7 @@ function fill() {
     rclient.llen('unas', function (err, count) {
         console.log('count:', count)
         if (count < config.PRECALCULATED_LWM) {
-            recalculate_grid()
+            recalculate_grid();
             for (i = 0; i < config.PRECALCULATED_HWM - count; i++) {
                 rclient.lpush('unas', generate());
                 // , function (err, reply) {
