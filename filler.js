@@ -2,8 +2,15 @@
 
 testing = false;
 
-var grid;
-var grid_description_version = 0;
+var grid = {
+    grid_cores: 0,
+    cores: {},
+    cloud_cores: [],
+    cloud_weights: [],
+    site_weights: {}
+};
+
+var grid_description_version = 1;
 
 if (testing) {
     config = require('./kube/test_config.json');
@@ -14,9 +21,6 @@ else {
 
 console.log(config);
 
-// grid = require('./grid.json');
-// console.log(grid);
-
 const redis = require('redis');
 const rclient = redis.createClient(config.PORT, config.HOST); //creates a new client
 
@@ -25,54 +29,62 @@ var c = require('./choice.js');
 async function recalculate_grid() {
     await rclient.get('grid_description_version', function (err, reply) {
         console.log("GD version:", reply);
-        if (reply === grid_description_version) {
+        if (int(reply) <= grid_description_version) {
             console.log('update not needed.');
             return;
         }
         console.log("here updating GD version.");
+        grid_description_version = int(reply);
+        await rclient.get('grid_cores', function (err, reply) {
+            grid.grid_cores = int(reply);
+        });
+
+        await rclient.smembers('sites'), function (err, reply) {
+            console.log('sites found:', reply);
+        };
+
     });
 
-    // other = grid.grid_cores;
-    // for (cloud in grid.cores) {
-    //     sites = grid.cores[cloud]
-    //     console.log(cloud, sites)
-    //     cloud_cores = 0
-    //     for (sitei in sites) {
-    //         site = sites[sitei][0]
-    //         scores = sites[sitei][1]
-    //         console.log(sitei, site, scores)
-    //         cloud_cores += scores
-    //         other -= scores
-    //     }
-    //     grid.cloud_cores.push([cloud, cloud_cores])
-    //     console.log('--------------------')
-    // }
-    // grid.cloud_cores.push(['other', other])
+    other = grid.grid_cores;
+    for (cloud in grid.cores) {
+        sites = grid.cores[cloud]
+        console.log(cloud, sites)
+        cloud_cores = 0
+        for (sitei in sites) {
+            site = sites[sitei][0]
+            scores = sites[sitei][1]
+            console.log(sitei, site, scores)
+            cloud_cores += scores
+            other -= scores
+        }
+        grid.cloud_cores.push([cloud, cloud_cores])
+        console.log('--------------------')
+    }
+    grid.cloud_cores.push(['other', other])
 
-    // grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
-    // for (cloud in grid.cores) {
-    //     sites = grid.cores[cloud]
-    //     console.log(cloud, sites)
-    //     grid.site_weights[cloud] = (new c.WeightedList(sites))
-    // }
+    grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
+    for (cloud in grid.cores) {
+        sites = grid.cores[cloud]
+        console.log(cloud, sites)
+        grid.site_weights[cloud] = (new c.WeightedList(sites))
+    }
 
 }
 
 function generate() {
-    // sel_cloud = grid.cloud_weights.peek()[0];
-    // if (sel_cloud === 'other') {
-    //     return 'other';
-    // }
+    sel_cloud = grid.cloud_weights.peek()[0];
+    if (sel_cloud === 'other') {
+        return 'other';
+    }
 
-    // ss = config.N;
-    // if (grid.cores[sel_cloud].length < ss) {
-    //     ss = grid.cores[sel_cloud].length;
-    // }
+    ss = config.N;
+    if (grid.cores[sel_cloud].length < ss) {
+        ss = grid.cores[sel_cloud].length;
+    }
 
-    // res = grid.site_weights[sel_cloud].peek(ss);
-    // console.log(sel_cloud, ss, res);
-    return 'other';
-    // return res.join(',');
+    res = grid.site_weights[sel_cloud].peek(ss);
+    console.log(sel_cloud, ss, res);
+    return res.join(',');
 }
 
 function fill() {
@@ -85,6 +97,7 @@ function fill() {
     rclient.llen('unas', function (err, count) {
         console.log('count:', count)
         if (count < config.PRECALCULATED_LWM) {
+            recalculate_grid()
             for (i = 0; i < config.PRECALCULATED_HWM - count; i++) {
                 rclient.lpush('unas', generate());
                 // , function (err, reply) {
@@ -103,7 +116,7 @@ async function main() {
         });
         recalculate_grid();
         console.log(grid);
-        setInterval(recalculate_grid, 3600010);
+        // setInterval(recalculate_grid, 3600010);
 
         setInterval(fill, 2000);
 

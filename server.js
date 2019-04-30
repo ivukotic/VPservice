@@ -54,7 +54,7 @@ const app = express();
 app.delete('/grid/', async function (req, res) {
     console.log('deleting all of the grid info ');
 
-    rclient.del(rclient.smembers('sites'), function (err, reply) {
+    rclient.del(await rclient.smembers('sites'), function (err, reply) {
         console.log('sites removed:', reply);
     });
 
