@@ -4,8 +4,7 @@ import random
 
 N = 1000
 print('starting test...')
-host = 'http://localhost/'
-host = 'http://35.198.118.222/'
+host = 'http://vpservice.cern.ch/'
 st = time.time()
 for i in range(N):
     rn = random.randint(0, 10000)

@@ -35,15 +35,6 @@ var credentials = { key: privateKey, cert: certificate };
 
 const app = express();
 
-// app.use(express.json());       // to support JSON-encoded bodies
-
-// async function get_user(id) {
-// var user = new ent.User();
-// user.id = id;
-// await user.get();
-// return user;
-// }
-
 // function backup() { This is blocked by Google.
 //     console.log('Starting hourly backup...');
 
@@ -60,18 +51,21 @@ const app = express();
 //     });
 // }
 
+app.put('/site/:cloud/:sitename/:cores', async function (req, res) {
+    const cloud = req.params.cloud;
+    const site = req.params.sitename;
+    const cores = req.params.cores;
 
-
-app.get('/site/:cloud/:sitename/:weight', async function (req, res) {
-    var site = req.params.sitename;
-    var weight = req.params.weight;
-
-    console.log('adding a site to vp:', site, 'with weight', weight);
+    console.log('adding a site', site, 'to', cloud, 'cloud with', cores, 'cores');
 
     rclient.set(cloud + ':' + site, weight, function (err, reply) {
         console.log(reply);
-        res.status(200).send('set: ' + reply);
     });
+
+    console.log('updating grid description version ...');
+    rclient.incr('grid_description_version');
+    
+    res.status(200).send('OK');
 
 });
 
@@ -132,7 +126,7 @@ app.get('/ds/reassign/:dataset', async function (req, res) {
             return;
         }
         sites = reply[1].split(',')
-        rclient.del(ds,);
+        rclient.del(ds);
         rclient.rpush(ds, sites);
         res.status(200).send(sites);
     });
@@ -155,7 +149,7 @@ app.get('/test', async function (req, res) {
 });
 
 app.get('/healthz', function (request, response) {
-    console.log('healtcall');
+    console.log('health call');
     try {
         response.status(200).send('OK');
     } catch (err) {
@@ -163,12 +157,13 @@ app.get('/healthz', function (request, response) {
     }
 });
 
+app.get('/', (req, res) => res.send('Hello from the Virtual Placement Service.'))
+
 app.use((err, req, res, next) => {
     console.error('Error in error handler: ', err.message);
     res.status(err.status).send(err.message);
 });
 
-app.get('/', (req, res) => res.send('Hello from the Virtual Placement Service.'))
 
 app.listen(80, () => console.log(`Listening on port 80!`))
 
@@ -188,6 +183,8 @@ async function main() {
         await rclient.on('connect', function () {
             console.log('connected');
         });
+
+        await rclient.setnx('grid_description_version', '1');
 
         // setInterval(backup, 3600000);
         // setInterval(backup, 86400000);

@@ -1,0 +1,72 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: vps
+  labels:
+    k8s-app: vps
+spec:
+  type: ClusterIP
+  port:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  selector:
+    k8s-app: vps
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: vps-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.entryPoints: "http"
+spec:
+  rules:
+  - host: vpservice.cern.ch
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: vps
+          servicePort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vps  
+  labels:
+    k8s-app: vps
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      k8s-app: vps
+  template:
+    metadata:
+      labels:
+        k8s-app: vps
+    spec:
+      containers:
+      - name: vps
+        image: ivukotic/vpservice:latest
+        ports:
+          - containerPort: 80
+        volumeMounts:
+        - name: frontend-conf-volume
+          mountPath: "/etc/vps/"
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /healthz
+            port: 80
+          periodSeconds: 60
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+      volumes:
+      - name: frontend-conf-volume
+        secret:
+          secretName: config
+          items:
+          - key: conf
+            path: config.json      
