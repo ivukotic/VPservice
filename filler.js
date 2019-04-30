@@ -27,7 +27,7 @@ const rclient = redis.createClient(config.PORT, config.HOST); //creates a new cl
 var c = require('./choice.js');
 
 async function recalculate_grid() {
-    await rclient.get('grid_description_version', function (err, reply) {
+    await rclient.get('grid_description_version', async function (err, reply) {
         console.log("GD version:", reply);
         if (int(reply) <= grid_description_version) {
             console.log('update not needed.');
