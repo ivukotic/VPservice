@@ -12,7 +12,7 @@ else {
 
 console.log(config);
 
-grid = require('./grid.json');
+// grid = require('./grid.json');
 // console.log(grid);
 
 const redis = require('redis');
