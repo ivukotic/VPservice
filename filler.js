@@ -33,17 +33,24 @@ async function recalculate_grid() {
             console.log('update not needed.');
             return;
         }
-        console.log("here updating GD version.");
+
         grid_description_version = Number(reply);
+        console.log("Updating GD version to:", grid_description_version);
+
         await rclient.get('grid_cores', function (err, reply) {
+            console.log('grid cores:', reply);
             grid.grid_cores = Number(reply);
         });
 
         await rclient.smembers('sites'), function (err, reply) {
+            console.log('sites:', reply);
             console.log('sites found:', reply);
         };
 
     });
+
+    console.log(grid);
+
     if (grid.grid_cores == 0) {
         return;
     }
