@@ -28,7 +28,7 @@ const rclient = redis.createClient(config.PORT, config.HOST); //creates a new cl
 var c = require('./choice.js');
 
 
-function recalculate_grid() {
+async function recalculate_grid() {
     rclient.get('grid_description_version', function (err, reply) {
 
         console.log("GD version:", reply);
@@ -42,6 +42,8 @@ function recalculate_grid() {
 
         grid_description_version = Number(reply);
         console.log("Updating GD version to:", grid_description_version);
+        grid.grid_cores = await rclient.get('grid_cores');
+        console.log('first try grid_cores:', grid.grid_cores);
 
         rclient.get('grid_cores', function (err, reply) {
             if (err) {
@@ -52,14 +54,22 @@ function recalculate_grid() {
 
             grid.grid_cores = Number(reply);
 
-            rclient.smembers('sites', function (err, reply) {
+            rclient.smembers('sites', function (err, sites) {
                 if (err) {
                     console.log('err. sites', err);
                     return;
                 }
 
-                console.log('sites:', reply);
-                // console.log('sites found:', reply);
+                grid.cores = {};
+                console.log('sites:', sites);
+                for (site in sites) {
+                    site_cores = Numeric(await rclient.get(site));
+                    [cloud, site_name] = site.split(':');
+                    if (!grid.cores.includes(cloud)) {
+                        grid.cores[cloud] = [];
+                    }
+                    grid.cores[cloud].append([site_name, site_cores]);
+                }
 
                 console.log(grid);
 
@@ -151,7 +161,7 @@ async function main() {
             console.log('redis connected');
         });
 
-        recalculate_grid();
+        await recalculate_grid();
         // console.log(grid);
         // setInterval(recalculate_grid, 3600010);
 
