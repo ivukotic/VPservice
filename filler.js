@@ -45,9 +45,12 @@ function load_grid() {
 
         grid.cores = {};
         console.log('sites:', sites);
-        for (si in sites) {
-            site = sites[si]
-            console.log('outside:',si, site)
+
+        (function next(index) {
+            if (index === sites.length) { // No items left
+                return;
+            }
+            var site = sites[index];
             rclient.get(site, function (err, site_cores) {
                 [cloud, site_name] = site.split(':');
                 console.log('inside:', site, cloud, site_name);
@@ -56,7 +59,20 @@ function load_grid() {
                 }
                 grid.cores[cloud].push([site_name, site_cores]);
             });
-        }
+        })(0);
+
+        // for (si in sites) {
+        //     site = sites[si]
+        //     console.log('outside:',si, site)
+        //     rclient.get(site, function (err, site_cores) {
+        //         [cloud, site_name] = site.split(':');
+        //         console.log('inside:', site, cloud, site_name);
+        //         if (!(cloud in grid.cores)) {
+        //             grid.cores[cloud] = [];
+        //         }
+        //         grid.cores[cloud].push([site_name, site_cores]);
+        //     });
+        // }
     });
 
 }
