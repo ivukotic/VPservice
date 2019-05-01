@@ -38,7 +38,7 @@ function recalculate_grid() {
             return;
         }
 
-        ready=false;
+        ready = false;
 
         grid_description_version = Number(reply);
         console.log("Updating GD version to:", grid_description_version);
@@ -52,7 +52,7 @@ function recalculate_grid() {
 
             grid.grid_cores = Number(reply);
 
-            rclient.smembers('sites'), function (err, reply) {
+            rclient.smembers('sites', function (err, reply) {
                 if (err) {
                     console.log('err. sites', err);
                     return;
