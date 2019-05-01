@@ -35,21 +35,20 @@ var credentials = { key: privateKey, cert: certificate };
 
 const app = express();
 
-// function backup() { This is blocked by Google.
-//     console.log('Starting hourly backup...');
-
-//     rclient.lastsave(function (err, reply) {
-//         if (new Date() < (reply + 3600000)) {
-//             console.log("last backup at less then one hour. Skipping.");
-//             res.status(200).send('backup: skipped.');
-//         } else {
-//             rclient.bgsave(function (err, reply) {
-//                 console.log(reply);
-//                 res.status(200).send('backup: ' + reply);
-//             });
-//         };
-//     });
-// }
+function backup() {
+    console.log('Starting hourly backup...');
+    rclient.lastsave(function (err, reply) {
+        if (new Date() < (reply + 3600000)) {
+            console.log("last backup at less then one hour. Skipping.");
+            res.status(200).send('backup: skipped.');
+        } else {
+            rclient.bgsave(function (err, reply) {
+                console.log(reply);
+                res.status(200).send('backup: ' + reply);
+            });
+        };
+    });
+}
 
 app.delete('/grid/', async function (req, res) {
     console.log('deleting all of the grid info ');
@@ -111,8 +110,41 @@ app.put('/site/:cloud/:sitename/:cores', async function (req, res) {
 
 });
 
+app.get('/grid/', async function (req, res) {
+
+    console.log('returning all grid info');
+
+    rclient.smembers('sites', function (err, sites) {
+        if (err) {
+            console.log('err. sites', err);
+            res.status(500).send('could not find sites list.');
+        }
+
+        cores = {};
+        console.log('sites:', sites);
+
+        (function next(index) {
+            if (index === sites.length) { // No items left
+                return;
+            }
+            var site = sites[index];
+            rclient.get(site, function (err, site_cores) {
+                [cloud, site_name] = site.split(':');
+                if (!(cloud in cores)) {
+                    cores[cloud] = [];
+                }
+                cores[cloud].push([site_name, Number(site_cores)]);
+                next(index + 1);
+            });
+        })(0);
+
+        res.status(200).send(cores);
+    });
+
+});
+
 app.get('/site/:cloud/:sitename', async function (req, res) {
-    var site = req.params.sitename;
+    var site = req.params.cloud + ':' + req.params.sitename;
 
     console.log('looking up site:', site);
 
@@ -127,9 +159,9 @@ app.get('/site/:cloud/:sitename', async function (req, res) {
             });
         }
     });
-
 });
 
+// no idea what was this for...
 app.get('/ds/:sites/:dataset', async function (req, res) {
     var ds = req.params.dataset
     // console.log('ds to vp:', ds);
@@ -228,7 +260,7 @@ async function main() {
 
         await rclient.setnx('grid_description_version', '1');
 
-        // setInterval(backup, 3600000);
+        setInterval(backup, 3600000);
         // setInterval(backup, 86400000);
 
     } catch (err) {
