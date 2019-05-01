@@ -100,10 +100,6 @@ app.put('/site/:cloud/:sitename/:cores', async function (req, res) {
         console.log(reply);
     });
 
-    rclient.set(cloud + ':' + site, cores, function (err, reply) {
-        console.log(reply);
-    });
-
     console.log('updating grid description version ...');
     rclient.incr('grid_description_version');
 
