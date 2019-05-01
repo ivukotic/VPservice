@@ -42,7 +42,9 @@ async function recalculate_grid() {
 
         grid_description_version = Number(reply);
         console.log("Updating GD version to:", grid_description_version);
-        grid.grid_cores = await rclient.get('grid_cores');
+        await rclient.get('grid_cores', function (err, val) {
+            grid.grid_cores = Number(val);
+        });
         console.log('first try grid_cores:', grid.grid_cores);
 
         rclient.get('grid_cores', async function (err, reply) {
@@ -63,7 +65,7 @@ async function recalculate_grid() {
                 grid.cores = {};
                 console.log('sites:', sites);
                 for (site in sites) {
-                    site_cores = Numeric(await rclient.get(site));
+                    site_cores = Number(await rclient.get(site));
                     [cloud, site_name] = site.split(':');
                     if (!grid.cores.includes(cloud)) {
                         grid.cores[cloud] = [];
