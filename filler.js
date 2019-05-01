@@ -26,21 +26,11 @@ const rclient = redis.createClient(config.PORT, config.HOST); //creates a new cl
 
 var c = require('./choice.js');
 
-async function load_grid() {
-
-    grid.grid_cores = Number(await rclient.get('grid_cores'))
-
-    var sites = await rclient.smembers('sites');
-    // rclient.smembers('sites'), function (err, reply) {
-    console.log('sites:', sites);
-    // console.log('sites found:', reply);
-    // };
-
-    return grid;
-}
 
 async function recalculate_grid() {
+
     await rclient.get('grid_description_version', async function (err, reply) {
+
         console.log("GD version:", reply);
         if (Number(reply) <= grid_description_version) {
             console.log('update not needed.');
@@ -50,37 +40,50 @@ async function recalculate_grid() {
         grid_description_version = Number(reply);
         console.log("Updating GD version to:", grid_description_version);
 
-        await load_grid();
+        rclient.get('grid_cores', function (err, reply) {
+            grid.grid_cores = Number(reply);
 
-        console.log(grid);
+            rclient.smembers('sites'), function (err, reply) {
+                console.log('sites:', reply);
+                // console.log('sites found:', reply);
 
-        if (grid.grid_cores == 0) {
-            return;
-        }
 
-        other = grid.grid_cores;
-        for (cloud in grid.cores) {
-            sites = grid.cores[cloud]
-            console.log(cloud, sites)
-            cloud_cores = 0
-            for (sitei in sites) {
-                site = sites[sitei][0]
-                scores = sites[sitei][1]
-                console.log(sitei, site, scores)
-                cloud_cores += scores
-                other -= scores
-            }
-            grid.cloud_cores.push([cloud, cloud_cores])
-            console.log('--------------------')
-        }
-        grid.cloud_cores.push(['other', other])
+                console.log(grid);
 
-        grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
-        for (cloud in grid.cores) {
-            sites = grid.cores[cloud]
-            console.log(cloud, sites)
-            grid.site_weights[cloud] = (new c.WeightedList(sites))
-        }
+                if (grid.grid_cores == 0) {
+                    return;
+                }
+
+                other = grid.grid_cores;
+                for (cloud in grid.cores) {
+                    sites = grid.cores[cloud]
+                    console.log(cloud, sites)
+                    cloud_cores = 0
+                    for (sitei in sites) {
+                        site = sites[sitei][0]
+                        scores = sites[sitei][1]
+                        console.log(sitei, site, scores)
+                        cloud_cores += scores
+                        other -= scores
+                    }
+                    grid.cloud_cores.push([cloud, cloud_cores])
+                    console.log('--------------------')
+                }
+                grid.cloud_cores.push(['other', other])
+
+                grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
+                for (cloud in grid.cores) {
+                    sites = grid.cores[cloud]
+                    console.log(cloud, sites)
+                    grid.site_weights[cloud] = (new c.WeightedList(sites))
+                }
+
+
+            };
+
+        });
+
+
 
     });
 
@@ -132,7 +135,8 @@ async function main() {
         await rclient.on('connect', function () {
             console.log('redis connected');
         });
-        recalculate_grid();
+
+        await recalculate_grid();
         console.log(grid);
         // setInterval(recalculate_grid, 3600010);
 
