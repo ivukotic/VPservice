@@ -47,36 +47,39 @@ async function recalculate_grid() {
             console.log('sites found:', reply);
         };
 
+        console.log(grid);
+
+        if (grid.grid_cores == 0) {
+            return;
+        }
+        other = grid.grid_cores;
+        for (cloud in grid.cores) {
+            sites = grid.cores[cloud]
+            console.log(cloud, sites)
+            cloud_cores = 0
+            for (sitei in sites) {
+                site = sites[sitei][0]
+                scores = sites[sitei][1]
+                console.log(sitei, site, scores)
+                cloud_cores += scores
+                other -= scores
+            }
+            grid.cloud_cores.push([cloud, cloud_cores])
+            console.log('--------------------')
+        }
+        grid.cloud_cores.push(['other', other])
+
+        grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
+        for (cloud in grid.cores) {
+            sites = grid.cores[cloud]
+            console.log(cloud, sites)
+            grid.site_weights[cloud] = (new c.WeightedList(sites))
+        }
+
     });
 
-    console.log(grid);
 
-    if (grid.grid_cores == 0) {
-        return;
-    }
-    other = grid.grid_cores;
-    for (cloud in grid.cores) {
-        sites = grid.cores[cloud]
-        console.log(cloud, sites)
-        cloud_cores = 0
-        for (sitei in sites) {
-            site = sites[sitei][0]
-            scores = sites[sitei][1]
-            console.log(sitei, site, scores)
-            cloud_cores += scores
-            other -= scores
-        }
-        grid.cloud_cores.push([cloud, cloud_cores])
-        console.log('--------------------')
-    }
-    grid.cloud_cores.push(['other', other])
 
-    grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
-    for (cloud in grid.cores) {
-        sites = grid.cores[cloud]
-        console.log(cloud, sites)
-        grid.site_weights[cloud] = (new c.WeightedList(sites))
-    }
 
 }
 
