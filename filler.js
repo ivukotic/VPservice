@@ -27,11 +27,12 @@ const rclient = redis.createClient(config.PORT, config.HOST); //creates a new cl
 var c = require('./choice.js');
 
 
-async function recalculate_grid() {
+function recalculate_grid() {
 
-    await rclient.get('grid_description_version', async function (err, reply) {
+    rclient.get('grid_description_version', function (err, reply) {
 
         console.log("GD version:", reply);
+
         if (Number(reply) <= grid_description_version) {
             console.log('update not needed.');
             return;
@@ -41,12 +42,22 @@ async function recalculate_grid() {
         console.log("Updating GD version to:", grid_description_version);
 
         rclient.get('grid_cores', function (err, reply) {
+            if (err) {
+                console.log('err. grid_cores', err);
+                return;
+            }
+            console.log('grid_cores:', reply);
+
             grid.grid_cores = Number(reply);
 
             rclient.smembers('sites'), function (err, reply) {
+                if (err) {
+                    console.log('err. sites', err);
+                    return;
+                }
+
                 console.log('sites:', reply);
                 // console.log('sites found:', reply);
-
 
                 console.log(grid);
 
@@ -118,7 +129,6 @@ function fill() {
     rclient.llen('unas', function (err, count) {
         console.log('count:', count)
         if (count < config.PRECALCULATED_LWM) {
-            recalculate_grid();
             for (i = 0; i < config.PRECALCULATED_HWM - count; i++) {
                 rclient.lpush('unas', generate());
                 // , function (err, reply) {
@@ -127,6 +137,7 @@ function fill() {
                 // )
             }
         }
+        recalculate_grid();
     });
 }
 
@@ -136,8 +147,8 @@ async function main() {
             console.log('redis connected');
         });
 
-        await recalculate_grid();
-        console.log(grid);
+        recalculate_grid();
+        // console.log(grid);
         // setInterval(recalculate_grid, 3600010);
 
         setInterval(fill, 2000);
