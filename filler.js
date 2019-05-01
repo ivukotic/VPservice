@@ -29,7 +29,7 @@ var c = require('./choice.js');
 
 
 async function recalculate_grid() {
-    rclient.get('grid_description_version', function (err, reply) {
+    rclient.get('grid_description_version', async function (err, reply) {
 
         console.log("GD version:", reply);
 
@@ -45,7 +45,7 @@ async function recalculate_grid() {
         grid.grid_cores = await rclient.get('grid_cores');
         console.log('first try grid_cores:', grid.grid_cores);
 
-        rclient.get('grid_cores', function (err, reply) {
+        rclient.get('grid_cores', async function (err, reply) {
             if (err) {
                 console.log('err. grid_cores', err);
                 return;
@@ -54,7 +54,7 @@ async function recalculate_grid() {
 
             grid.grid_cores = Number(reply);
 
-            rclient.smembers('sites', function (err, sites) {
+            rclient.smembers('sites', async function (err, sites) {
                 if (err) {
                     console.log('err. sites', err);
                     return;
