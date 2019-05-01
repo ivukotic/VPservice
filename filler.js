@@ -49,6 +49,7 @@ function load_grid() {
             site = sites[si]
             rclient.get(site, function (err, site_cores) {
                 [cloud, site_name] = site.split(':');
+                console.log('inside:', site, cloud, site_name);
                 if (!(cloud in grid.cores)) {
                     grid.cores[cloud] = [];
                 }
