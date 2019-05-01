@@ -26,6 +26,19 @@ const rclient = redis.createClient(config.PORT, config.HOST); //creates a new cl
 
 var c = require('./choice.js');
 
+async function load_grid() {
+
+    grid.grid_cores = Number(await rclient.get('grid_cores'))
+
+    var sites = await rclient.smembers('sites');
+    // rclient.smembers('sites'), function (err, reply) {
+    console.log('sites:', sites);
+    // console.log('sites found:', reply);
+    // };
+
+    return grid;
+}
+
 async function recalculate_grid() {
     await rclient.get('grid_description_version', async function (err, reply) {
         console.log("GD version:", reply);
@@ -37,21 +50,14 @@ async function recalculate_grid() {
         grid_description_version = Number(reply);
         console.log("Updating GD version to:", grid_description_version);
 
-        await rclient.get('grid_cores', function (err, reply) {
-            console.log('grid cores:', reply);
-            grid.grid_cores = Number(reply);
-        });
-
-        await rclient.smembers('sites'), function (err, reply) {
-            console.log('sites:', reply);
-            console.log('sites found:', reply);
-        };
+        await load_grid();
 
         console.log(grid);
 
         if (grid.grid_cores == 0) {
             return;
         }
+
         other = grid.grid_cores;
         for (cloud in grid.cores) {
             sites = grid.cores[cloud]
