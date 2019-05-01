@@ -5,7 +5,6 @@ var ready = false;
 
 var grid = {
     grid_cores: 0,
-    cloud_cores: [],
     cloud_weights: [],
     site_weights: {}
 };
@@ -53,7 +52,6 @@ function load_grid() {
             var site = sites[index];
             rclient.get(site, function (err, site_cores) {
                 [cloud, site_name] = site.split(':');
-                console.log('inside:', site, cloud, site_name);
                 if (!(cloud in grid.cores)) {
                     grid.cores[cloud] = [];
                 }
@@ -62,24 +60,16 @@ function load_grid() {
             });
         })(0);
 
-        // for (si in sites) {
-        //     site = sites[si]
-        //     console.log('outside:',si, site)
-        //     rclient.get(site, function (err, site_cores) {
-        //         [cloud, site_name] = site.split(':');
-        //         console.log('inside:', site, cloud, site_name);
-        //         if (!(cloud in grid.cores)) {
-        //             grid.cores[cloud] = [];
-        //         }
-        //         grid.cores[cloud].push([site_name, site_cores]);
-        //     });
-        // }
     });
 
 }
 
 function recalculate_weigths() {
     console.log(grid);
+
+    grid.cloud_cores = [];
+    grid.cloud_weights = [];
+    grid.site_weights = [];
 
     ready = false;
     other = grid.grid_cores;
@@ -156,10 +146,6 @@ function fill() {
         if (count < config.PRECALCULATED_LWM) {
             for (i = 0; i < config.PRECALCULATED_HWM - count; i++) {
                 rclient.lpush('unas', generate());
-                // , function (err, reply) {
-                // console.log('current length', reply);
-                // }
-                // )
             }
         }
         recalculate_grid();
