@@ -93,7 +93,7 @@ function recalculate_grid() {
 
                 ready = true;
 
-            };
+            });
 
         });
 
