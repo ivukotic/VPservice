@@ -27,96 +27,86 @@ const rclient = redis.createClient(config.PORT, config.HOST); //creates a new cl
 
 var c = require('./choice.js');
 
+function load_grid() {
 
-async function recalculate_grid() {
-    rclient.get('grid_description_version', async function (err, reply) {
+    rclient.get('grid_cores', function (err, reply) {
+        if (err) {
+            console.log('err. grid_cores', err);
+            return;
+        }
+        console.log('grid_cores:', reply);
+        grid.grid_cores = Number(reply);
+    });
 
+    rclient.smembers('sites', function (err, sites) {
+        if (err) {
+            console.log('err. sites', err);
+            return;
+        }
+
+        grid.cores = {};
+        console.log('sites:', sites);
+        for (site in sites) {
+            rclient.get(site, function (err, site_cores) {
+                [cloud, site_name] = site.split(':');
+                if (!(cloud in grid.cores)) {
+                    grid.cores[cloud] = [];
+                }
+                grid.cores[cloud].append([site_name, site_cores]);
+            });
+        }
+    });
+
+}
+
+function recalculate_weigths() {
+    console.log(grid);
+
+    ready = false;
+    other = grid.grid_cores;
+    for (cloud in grid.cores) {
+        sites = grid.cores[cloud]
+        console.log(cloud, sites)
+        cloud_cores = 0
+        for (sitei in sites) {
+            site = sites[sitei][0]
+            scores = sites[sitei][1]
+            console.log(sitei, site, scores)
+            cloud_cores += scores
+            other -= scores
+        }
+        grid.cloud_cores.push([cloud, cloud_cores])
+        console.log('--------------------')
+    }
+    grid.cloud_cores.push(['other', other])
+
+    grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
+    for (cloud in grid.cores) {
+        sites = grid.cores[cloud]
+        console.log(cloud, sites)
+        grid.site_weights[cloud] = (new c.WeightedList(sites))
+    }
+
+    ready = true;
+}
+
+function recalculate_grid() {
+    rclient.get('grid_description_version', function (err, reply) {
         console.log("GD version:", reply);
-
         if (Number(reply) <= grid_description_version) {
             console.log('update not needed.');
             return;
         }
 
-        ready = false;
-
         grid_description_version = Number(reply);
         console.log("Updating GD version to:", grid_description_version);
-        await rclient.get('grid_cores', function (err, val) {
-            grid.grid_cores = Number(val);
-        });
-        console.log('first try grid_cores:', grid.grid_cores);
 
-        rclient.get('grid_cores', async function (err, reply) {
-            if (err) {
-                console.log('err. grid_cores', err);
-                return;
-            }
-            console.log('grid_cores:', reply);
-
-            grid.grid_cores = Number(reply);
-
-            rclient.smembers('sites', async function (err, sites) {
-                if (err) {
-                    console.log('err. sites', err);
-                    return;
-                }
-
-                grid.cores = {};
-                console.log('sites:', sites);
-                for (site in sites) {
-                    site_cores = Number(await rclient.get(site));
-                    [cloud, site_name] = site.split(':');
-                    if (!grid.cores.includes(cloud)) {
-                        grid.cores[cloud] = [];
-                    }
-                    grid.cores[cloud].append([site_name, site_cores]);
-                }
-
-                console.log(grid);
-
-                if (grid.grid_cores == 0) {
-                    return;
-                }
-
-                other = grid.grid_cores;
-                for (cloud in grid.cores) {
-                    sites = grid.cores[cloud]
-                    console.log(cloud, sites)
-                    cloud_cores = 0
-                    for (sitei in sites) {
-                        site = sites[sitei][0]
-                        scores = sites[sitei][1]
-                        console.log(sitei, site, scores)
-                        cloud_cores += scores
-                        other -= scores
-                    }
-                    grid.cloud_cores.push([cloud, cloud_cores])
-                    console.log('--------------------')
-                }
-                grid.cloud_cores.push(['other', other])
-
-                grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
-                for (cloud in grid.cores) {
-                    sites = grid.cores[cloud]
-                    console.log(cloud, sites)
-                    grid.site_weights[cloud] = (new c.WeightedList(sites))
-                }
-
-                ready = true;
-
-            });
-
-        });
-
-
+        load_grid();
+        setTimeout(recalculate_weigths, 3000);
 
     });
-
-
-
-
 }
+
 
 function generate() {
     sel_cloud = grid.cloud_weights.peek()[0];
