@@ -58,6 +58,7 @@ function load_grid() {
                     grid.cores[cloud] = [];
                 }
                 grid.cores[cloud].push([site_name, Number(site_cores)]);
+                next(index + 1);
             });
         })(0);
 
