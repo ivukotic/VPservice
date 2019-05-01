@@ -45,7 +45,8 @@ function load_grid() {
 
         grid.cores = {};
         console.log('sites:', sites);
-        for (site in sites) {
+        for (si in sites) {
+            site = sites[si]
             rclient.get(site, function (err, site_cores) {
                 [cloud, site_name] = site.split(':');
                 if (!(cloud in grid.cores)) {
