@@ -5,7 +5,6 @@ var ready = false;
 
 var grid = {
     grid_cores: 0,
-    cores: {},
     cloud_cores: [],
     cloud_weights: [],
     site_weights: {}
@@ -52,7 +51,7 @@ function load_grid() {
                 if (!(cloud in grid.cores)) {
                     grid.cores[cloud] = [];
                 }
-                grid.cores[cloud].append([site_name, site_cores]);
+                grid.cores[cloud].push([site_name, site_cores]);
             });
         }
     });
