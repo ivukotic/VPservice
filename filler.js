@@ -1,6 +1,7 @@
 // This code makes sure there is always more then 100 unassigned VPs in Radis. 
 
 testing = false;
+var ready = false;
 
 var grid = {
     grid_cores: 0,
@@ -28,7 +29,6 @@ var c = require('./choice.js');
 
 
 function recalculate_grid() {
-
     rclient.get('grid_description_version', function (err, reply) {
 
         console.log("GD version:", reply);
@@ -37,6 +37,8 @@ function recalculate_grid() {
             console.log('update not needed.');
             return;
         }
+
+        ready=false;
 
         grid_description_version = Number(reply);
         console.log("Updating GD version to:", grid_description_version);
@@ -89,6 +91,7 @@ function recalculate_grid() {
                     grid.site_weights[cloud] = (new c.WeightedList(sites))
                 }
 
+                ready = true;
 
             };
 
@@ -126,6 +129,7 @@ function fill() {
         });
         return;
     }
+    if (!ready) return;
     rclient.llen('unas', function (err, count) {
         console.log('count:', count)
         if (count < config.PRECALCULATED_LWM) {
