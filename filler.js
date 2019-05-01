@@ -47,6 +47,7 @@ function load_grid() {
         console.log('sites:', sites);
         for (si in sites) {
             site = sites[si]
+            console.log('outside:',si, site)
             rclient.get(site, function (err, site_cores) {
                 [cloud, site_name] = site.split(':');
                 console.log('inside:', site, cloud, site_name);
