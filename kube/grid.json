@@ -1,32 +1,29 @@
 {
-    "grid_cores": 340000,
+    "grid_cores": 250000,
     "cores": {
         "US": [
             [
                 "MWT2",
-                10000
+                1000
             ],
             [
                 "AGLT2",
-                8000
+                1000
             ]
         ],
         "DE": [
             [
                 "LRZ-LMU",
-                15000
+                1000
             ],
             [
                 "DESY-Zeuthen",
-                5000
+                1000
             ],
             [
                 "DESY-HH",
-                10000
+                1000
             ]
         ]
-    },
-    "cloud_cores": [],
-    "cloud_weights": [],
-    "site_weights": {}
+    }
 }
