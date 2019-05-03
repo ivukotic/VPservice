@@ -40,11 +40,9 @@ function backup() {
     rclient.lastsave(function (err, reply) {
         if (new Date() < (reply + 3600000)) {
             console.log("last backup at less then one hour. Skipping.");
-            res.status(200).send('backup: skipped.');
         } else {
             rclient.bgsave(function (err, reply) {
                 console.log(reply);
-                res.status(200).send('backup: ' + reply);
             });
         };
     });
