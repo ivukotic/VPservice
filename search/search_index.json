@@ -2,18 +2,33 @@
     "docs": [
         {
             "location": "/",
-            "text": "Virtual Placement service\n\n\n\n\nSource \nGitHub\n\n\nDocker image \nDockerHub\n\n\nDocumentation\n\n\nPresentation\n\n\n\n\nREST API\n\n\n\n\n/test - should always return \"TEST_OK\"\n\n\n/grid - returns current core counts for all grid, clouds, and sites.\n\n\n/site/\ncloud\n/\nsite\n/\ncores\n - sets or updates number of CPUs cores available for Virtual Placement. \n\n\n/grid/\ncores\n - sets or updates total number of cores available on the grid.\n\n\n/ds/\nn\n/\nds_name\n - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to \nn\n sites. Dataset that should not be in the system returns: \nother\n.\n\n\n/ds/reassign/\nds_name\n - to be used only for datasets that need new Virtual Placement (eg. it was assigned to \nother\n).",
+            "text": "Virtual Placement service\n\n\n\n\nSource \nGitHub\n\n\nDocker image \nDockerHub\n\n\nDocumentation\n\n\nPresentation\n\n\n\n\nBy default service is accessible only from inside CERN at: http://vpservice.cern.ch\n\n\nREST API\n\n\nservice utils\n\n\n\n\nGET /healthz - k8s liveness probe. It should always return \"OK\".\n\n\n\n\nGET /test - tests redis backend. Should always return \"TEST_OK\". \n\n\n\n\n\n\nDELETE /grid - cleans up all of the grid information from the db.\n\n\n\n\nDELETE /all_data - deletes all of the db.\n\n\n\n\ngrid settings\n\n\n\n\nPUT /grid/\ncores\n - sets or updates total number of cores in the grid (really ALL).\n\n\n\n\nPUT /site/\ncloud\n/\nsite\n/\ncores\n - sets or updates number of CPUs cores available for Virtual Placement. \n\n\n\n\n\n\nGET /grid - returns current core counts for all grid, clouds, and sites.\n\n\n\n\nGET /site/\ncloud\n/\nsite\n/ - returns number of cores at site\n\n\n\n\nDataset operations\n\n\n\n\n\n\nGET /ds/\nn\n/\nds_name\n - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to \nn\n sites. Dataset that should not be in the system returns: \nother\n.\n\n\n\n\n\n\n/ds/reassign/\nds_name\n - to be used only for datasets that need new Virtual Placement (eg. it was assigned to \nother\n).",
             "title": "Home"
         },
         {
             "location": "/#virtual-placement-service",
-            "text": "Source  GitHub  Docker image  DockerHub  Documentation  Presentation",
+            "text": "Source  GitHub  Docker image  DockerHub  Documentation  Presentation   By default service is accessible only from inside CERN at: http://vpservice.cern.ch",
             "title": "Virtual Placement service"
         },
         {
             "location": "/#rest-api",
-            "text": "/test - should always return \"TEST_OK\"  /grid - returns current core counts for all grid, clouds, and sites.  /site/ cloud / site / cores  - sets or updates number of CPUs cores available for Virtual Placement.   /grid/ cores  - sets or updates total number of cores available on the grid.  /ds/ n / ds_name  - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to  n  sites. Dataset that should not be in the system returns:  other .  /ds/reassign/ ds_name  - to be used only for datasets that need new Virtual Placement (eg. it was assigned to  other ).",
+            "text": "",
             "title": "REST API"
+        },
+        {
+            "location": "/#service-utils",
+            "text": "GET /healthz - k8s liveness probe. It should always return \"OK\".   GET /test - tests redis backend. Should always return \"TEST_OK\".     DELETE /grid - cleans up all of the grid information from the db.   DELETE /all_data - deletes all of the db.",
+            "title": "service utils"
+        },
+        {
+            "location": "/#grid-settings",
+            "text": "PUT /grid/ cores  - sets or updates total number of cores in the grid (really ALL).   PUT /site/ cloud / site / cores  - sets or updates number of CPUs cores available for Virtual Placement.     GET /grid - returns current core counts for all grid, clouds, and sites.   GET /site/ cloud / site / - returns number of cores at site",
+            "title": "grid settings"
+        },
+        {
+            "location": "/#dataset-operations",
+            "text": "GET /ds/ n / ds_name  - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to  n  sites. Dataset that should not be in the system returns:  other .    /ds/reassign/ ds_name  - to be used only for datasets that need new Virtual Placement (eg. it was assigned to  other ).",
+            "title": "Dataset operations"
         }
     ]
 }

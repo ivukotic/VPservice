@@ -106,14 +106,38 @@
 <li><a href="https://ivukotic.github.io/VPservice/">Documentation</a></li>
 <li><a href="https://docs.google.com/presentation/d/145aZDrp_rG5lZxyju1Diqidde4XGYNCUIU8VpKdo0OQ/edit?usp=sharing">Presentation</a></li>
 </ul>
+<p>By default service is accessible only from inside CERN at: http://vpservice.cern.ch</p>
 <h2 id="rest-api">REST API</h2>
+<h3 id="service-utils">service utils</h3>
 <ul>
-<li>/test - should always return "TEST_OK"</li>
-<li>/grid - returns current core counts for all grid, clouds, and sites.</li>
-<li>/site/<code>cloud</code>/<code>site</code>/<code>cores</code> - sets or updates number of CPUs cores available for Virtual Placement. </li>
-<li>/grid/<code>cores</code> - sets or updates total number of cores available on the grid.</li>
-<li>/ds/<code>n</code>/<code>ds_name</code> - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to <code>n</code> sites. Dataset that should not be in the system returns: <em>other</em>.</li>
-<li>/ds/reassign/<code>ds_name</code> - to be used only for datasets that need new Virtual Placement (eg. it was assigned to <em>other</em>).</li>
+<li>GET /healthz - k8s liveness probe. It should always return "OK".</li>
+<li>
+<p>GET /test - tests redis backend. Should always return "TEST_OK". </p>
+</li>
+<li>
+<p>DELETE /grid - cleans up all of the grid information from the db.</p>
+</li>
+<li>DELETE /all_data - deletes all of the db.</li>
+</ul>
+<h3 id="grid-settings">grid settings</h3>
+<ul>
+<li>PUT /grid/<code>cores</code> - sets or updates total number of cores in the grid (really ALL).</li>
+<li>
+<p>PUT /site/<code>cloud</code>/<code>site</code>/<code>cores</code> - sets or updates number of CPUs cores available for Virtual Placement. </p>
+</li>
+<li>
+<p>GET /grid - returns current core counts for all grid, clouds, and sites.</p>
+</li>
+<li>GET /site/<code>cloud</code>/<code>site</code>/ - returns number of cores at site</li>
+</ul>
+<h3 id="dataset-operations">Dataset operations</h3>
+<ul>
+<li>
+<p>GET /ds/<code>n</code>/<code>ds_name</code> - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to <code>n</code> sites. Dataset that should not be in the system returns: <em>other</em>.</p>
+</li>
+<li>
+<p>/ds/reassign/<code>ds_name</code> - to be used only for datasets that need new Virtual Placement (eg. it was assigned to <em>other</em>).</p>
+</li>
 </ul>
               
             </div>
@@ -157,5 +181,5 @@
 
 <!--
 MkDocs version : 0.17.2
-Build Date UTC : 2019-03-15 17:27:56
+Build Date UTC : 2019-05-06 15:38:51
 -->
