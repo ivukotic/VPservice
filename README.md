@@ -11,5 +11,5 @@ Filler makes sure there are more than LWM and less than HWM unassigned VPs in Re
 * calculate server a file will be on
 * getter for path to a file
 * test latency, capacity
-* does it need reconnection after scaleing?
+* does it need reconnection after scaling?
 * where is backup stored?
