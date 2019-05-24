@@ -106,7 +106,7 @@ function recalculate_weigths() {
 }
 
 async function recalculate_grid() {
-    rclient.get('grid_description_version', function (err, reply) {
+    rclient.get('grid_description_version', async function (err, reply) {
         console.log("GD version:", reply);
         if (!reply || reply === '0') {
             console.log('grid description not there. will retry in 60 seconds.');
