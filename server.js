@@ -126,7 +126,9 @@ app.get('/grid/', async function (req, res) {
                 return;
             }
             var site = sites[index];
+            console.log('site:', site);
             rclient.get(site, function (err, site_cores) {
+                console.log('site_cores', site_cores);
                 [cloud, site_name] = site.split(':');
                 if (!(cloud in cores)) {
                     cores[cloud] = [];
@@ -256,7 +258,7 @@ async function main() {
             console.log('connected');
         });
 
-        await rclient.setnx('grid_description_version', '1');
+        await rclient.setnx('grid_description_version', '0');
 
         setInterval(backup, 3600000);
         // setInterval(backup, 86400000);

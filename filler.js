@@ -9,7 +9,7 @@ var grid = {
     site_weights: {}
 };
 
-var grid_description_version = 1;
+var grid_description_version = 0;
 
 if (testing) {
     config = require('./kube/test_config.json');
@@ -24,6 +24,12 @@ const redis = require('redis');
 const rclient = redis.createClient(config.PORT, config.HOST); //creates a new client
 
 var c = require('./choice.js');
+
+function sleep(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms)
+    })
+}
 
 function load_grid() {
 
@@ -99,9 +105,14 @@ function recalculate_weigths() {
     ready = true;
 }
 
-function recalculate_grid() {
+async function recalculate_grid() {
     rclient.get('grid_description_version', function (err, reply) {
         console.log("GD version:", reply);
+        if (!reply || reply === '0') {
+            console.log('grid description not there. will retry in 60 seconds.');
+            await sleep(60000);
+            await recalculate_grid();
+        }
         if (Number(reply) <= grid_description_version) {
             console.log('update not needed.');
             return;
@@ -162,7 +173,7 @@ async function main() {
         // console.log(grid);
         // setInterval(recalculate_grid, 3600010);
 
-        setInterval(fill, 2000);
+        setInterval(fill, 2000); //fills every 2 seconds 
 
     } catch (err) {
         console.error('Error: ', err);

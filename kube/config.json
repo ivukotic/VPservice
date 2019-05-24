@@ -1,7 +1,7 @@
 {
-    "SITENAME": "vps.mwt2.org",
+    "SITENAME": "vpservice.cern.ch",
     "PORT": 6379,
-    "HOST": "10.0.0.4",
+    "HOST": "redis-master.default.svc.cluster.local",
     "PRECALCULATED_LWM": 100,
     "PRECALCULATED_HWM": 300,
     "N": 5
