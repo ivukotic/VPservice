@@ -112,6 +112,7 @@ async function recalculate_grid() {
             console.log('grid description not there. will retry in 60 seconds.');
             await sleep(60000);
             await recalculate_grid();
+            return;
         }
         if (Number(reply) <= grid_description_version) {
             console.log('update not needed.');

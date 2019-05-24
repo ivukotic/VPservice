@@ -121,22 +121,26 @@ app.get('/grid/', async function (req, res) {
         cores = {};
         console.log('sites:', sites);
 
-        (function next(index) {
-            if (index === sites.length) { // No items left
-                return;
-            }
-            var site = sites[index];
-            console.log('site:', site);
-            rclient.get(site, function (err, site_cores) {
-                console.log('site_cores', site_cores);
-                [cloud, site_name] = site.split(':');
-                if (!(cloud in cores)) {
-                    cores[cloud] = [];
-                }
-                cores[cloud].push([site_name, Number(site_cores)]);
-                next(index + 1);
-            });
-        })(0);
+        rclient.mget(sites, function (err, site_cores) {
+            console.log('site_cores', site_cores);
+        });
+
+        // (function next(index) {
+        //     if (index === sites.length) { // No items left
+        //         return;
+        //     }
+        //     var site = sites[index];
+        //     console.log('site:', site);
+        //     rclient.get(site, function (err, site_cores) {
+        //         console.log('site_cores', site_cores);
+        //         [cloud, site_name] = site.split(':');
+        //         if (!(cloud in cores)) {
+        //             cores[cloud] = [];
+        //         }
+        //         cores[cloud].push([site_name, Number(site_cores)]);
+        //         next(index + 1);
+        //     });
+        // })(0);
 
         res.status(200).send(cores);
     });
