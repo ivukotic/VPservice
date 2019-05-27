@@ -7,7 +7,6 @@ Filler makes sure there are more than LWM and less than HWM unassigned VPs in Re
 
 ## TO DO
 
-* fix GET grid
 * calculate server a file will be on
 * getter for path to a file
 * test latency, capacity
