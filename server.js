@@ -1,240 +1,259 @@
-var express = require('express');
-// var https = require('https');
-var http = require('http');
+const express = require('express');
+const redis = require('redis');
 
-// var request = require('request');
-// const JSONStream = require('json-stream'); need for events only
-
-testing = false;
+const testing = false;
 
 console.log('VPs server starting ... ');
 
 console.log('config load ... ');
-var config;
-var privateKey;
-var certificate;
+
+let configPath;
+
+// var privateKey;
+// var certificate;
+let disabled = new Set();
 
 if (testing) {
-    config = require('./kube/test_config.json');
-    // privateKey = fs.readFileSync('./kube/secrets/certificates/vps.key.pem');//, 'utf8'
-    // certificate = fs.readFileSync('./kube/secrets/certificates/vps.cert.cer');
-    // config.SITENAME = 'localhost'
-}
-else {
-    config = require('/etc/vps/config.json');
-    // privateKey = fs.readFileSync('/etc/https-certs/key.pem');//, 'utf8'
-    // certificate = fs.readFileSync('/etc/https-certs/cert.pem');
+  configPath = './kube/test_config.json';
+  // privateKey = fs.readFileSync('./kube/secrets/certificates/vps.key.pem');//, 'utf8'
+  // certificate = fs.readFileSync('./kube/secrets/certificates/vps.cert.cer');
+  // config.SITENAME = 'localhost'
+} else {
+  configPath = '/etc/vps/config.json';
+  // privateKey = fs.readFileSync('/etc/https-certs/key.pem');//, 'utf8'
+  // certificate = fs.readFileSync('/etc/https-certs/cert.pem');
 }
 
+const config = require(configPath);
 console.log(config);
 
-var redis = require('redis');
-var rclient = redis.createClient(config.PORT, config.HOST); //creates a new client
+const rclient = redis.createClient(config.PORT, config.HOST);
 
-var credentials = { key: privateKey, cert: certificate };
+// const credentials = { key: privateKey, cert: certificate };
 
 const app = express();
 
 function backup() {
-    console.log('Starting hourly backup...');
-    rclient.lastsave(function (err, reply) {
-        if (new Date() < (reply + 3600000)) {
-            console.log("last backup at less then one hour. Skipping.");
-        } else {
-            rclient.bgsave(function (err, reply) {
-                console.log(reply);
-            });
-        };
-    });
+  console.log('Starting hourly backup...');
+  rclient.lastsave((_err, reply) => {
+    if (new Date() < (reply + 3600000)) {
+      console.log('last backup at less then one hour. Skipping.');
+    } else {
+      rclient.bgsave((_ierr, reply) => {
+        console.log(reply);
+      });
+    }
+  });
 }
 
-app.delete('/grid/', async function (req, res) {
-    console.log('deleting all of the grid info ');
+app.delete('/grid/', async (_req, res) => {
+  console.log('deleting all of the grid info ');
 
-    rclient.del(await rclient.smembers('sites'), function (err, reply) {
-        console.log('sites removed:', reply);
-    });
+  rclient.del(await rclient.smembers('sites'), (_err, reply) => {
+    console.log('sites removed:', reply);
+  });
 
-    rclient.del('sites');
-    rclient.del('grid_cores');
+  rclient.del('sites');
+  rclient.del('grid_cores');
 
-    console.log('resetting grid description version ...');
-    rclient.set('grid_description_version', '0');
+  console.log('resetting grid description version ...');
+  rclient.set('grid_description_version', '0');
 
-    res.status(200).send('OK');
+  res.status(200).send('OK');
 });
 
-app.delete('/all_data', async function (req, res) {
-    console.log('deleting all of the database.');
-    await rclient.flushdb(function (err, reply) {
-        console.log('reply:', reply);
-        res.status(200).send(reply);
-    });
+app.delete('/all_data', async (_req, res) => {
+  console.log('deleting all of the database.');
+  await rclient.flushdb((_err, reply) => {
+    console.log('reply:', reply);
+    res.status(200).send(reply);
+  });
 });
 
-app.put('/grid/:cores', async function (req, res) {
-    const cores = req.params.cores;
-    console.log('setting all of the grid: ', cores, 'cores');
+app.put('/grid/:cores', async (req, res) => {
+  const { cores } = req.params;
+  console.log('setting all of the grid: ', cores, 'cores');
 
-    rclient.set('grid_cores', cores, function (err, reply) {
-        console.log(reply);
-    });
+  rclient.set('grid_cores', cores, (_err, reply) => {
+    console.log(reply);
+  });
 
-    console.log('updating grid description version ...');
-    rclient.incr('grid_description_version');
+  console.log('updating grid description version ...');
+  rclient.incr('grid_description_version');
 
-    res.status(200).send('OK');
+  res.status(200).send('OK');
 });
 
-app.put('/site/:cloud/:sitename/:cores', async function (req, res) {
-    const cloud = req.params.cloud;
-    const site = req.params.sitename;
-    const cores = req.params.cores;
+app.put('/site/:cloud/:sitename/:cores', async (req, res) => {
+  const { cloud } = req.params;
+  const site = req.params.sitename;
+  const { cores } = req.params;
 
-    console.log('adding a site', site, 'to', cloud, 'cloud with', cores, 'cores');
+  console.log('adding a site', site, 'to', cloud, 'cloud with', cores, 'cores');
 
-    rclient.sadd('sites', cloud + ':' + site, function (err, reply) {
-        console.log(reply);
-    });
+  rclient.sadd('sites', `${cloud}:${site}`, (_err, reply) => {
+    console.log(reply);
+  });
 
-    rclient.set(cloud + ':' + site, cores, function (err, reply) {
-        console.log(reply);
-    });
+  rclient.set(`${cloud}:${site}`, cores, (_err, reply) => {
+    console.log(reply);
+  });
 
-    console.log('updating grid description version ...');
-    rclient.incr('grid_description_version');
+  console.log('updating grid description version ...');
+  rclient.incr('grid_description_version');
 
-    res.status(200).send('OK');
-
+  res.status(200).send('OK');
 });
 
-app.get('/grid/', async function (req, res) {
+app.put('/site/disable/:sitename', async (req, res) => {
+  const site = req.params.sitename;
+  console.log('disabling site', site);
 
-    console.log('returning all grid info');
+  disabled.add(site);
 
-    rclient.smembers('sites', function (err, sites) {
-        if (err) {
-            console.log('err. sites', err);
-            res.status(500).send('could not find sites list.');
+  rclient.sadd('disabled_sites', site, (_err, reply) => {
+    console.log(`disabled ${reply} site.`);
+  });
+
+  res.status(200).send('OK');
+});
+
+app.put('/site/enable/:sitename', async (req, res) => {
+  const site = req.params.sitename;
+  console.log('enabling site', site);
+
+  disabled.delete(site);
+
+  rclient.srem('disabled_sites', site, (_err, reply) => {
+    console.log(`removed ${reply} site from disabled sites.`);
+  });
+
+  res.status(200).send('OK');
+});
+
+app.get('/grid/', async (_req, res) => {
+  console.log('returning all grid info');
+
+  rclient.smembers('sites', (err, sites) => {
+    if (err) {
+      console.log('err. sites', err);
+      res.status(500).send('could not find sites list.');
+    }
+
+    console.log('sites:', sites);
+
+    rclient.mget(sites, (_err, site_cores) => {
+      const cores = {};
+      for (i in sites) {
+        console.log(sites[i], site_cores[i]);
+        [cloud, site_name] = sites[i].split(':');
+        if (!(cloud in cores)) {
+          cores[cloud] = [];
         }
+        cores[cloud].push([site_name, Number(site_cores[i])]);
+      }
 
-        console.log('sites:', sites);
-
-        rclient.mget(sites, function (err, site_cores) {
-            cores = {};
-            for (i in sites) {
-                console.log(sites[i], site_cores[i]);
-                [cloud, site_name] = sites[i].split(':');
-                if (!(cloud in cores)) {
-                    cores[cloud] = [];
-                }
-                cores[cloud].push([site_name, Number(site_cores[i])]);
-            }
-
-            res.status(200).send(cores);
-        });
-
+      res.status(200).send(cores);
     });
-
+  });
 });
 
-app.get('/site/:cloud/:sitename', async function (req, res) {
-    var site = req.params.cloud + ':' + req.params.sitename;
+app.get('/site/:cloud/:sitename', async (req, res) => {
+  const site = `${req.params.cloud}:${req.params.sitename}`;
 
-    console.log('looking up site:', site);
+  console.log('looking up site:', site);
 
-    rclient.exists(site, function (err, reply) {
-        if (reply == 0) {
-            console.log('not found');
-            res.status(400).send('not found.');
-        } else {
-            rclient.get(site, function (err, reply) {
-                console.log("found: ", reply);
-                res.status(200).send('found: ' + reply);
-            });
-        }
-    });
+  rclient.exists(site, (_err, reply) => {
+    if (reply === 0) {
+      console.log('not found');
+      res.status(400).send('not found.');
+    } else {
+      rclient.get(site, (_ierr, ireply) => {
+        console.log('found: ', ireply);
+        res.status(200).send(`found: ${ireply}`);
+      });
+    }
+  });
 });
 
-// no idea what was this for...
-app.get('/ds/:sites/:dataset', async function (req, res) {
-    var ds = req.params.dataset
-    // console.log('ds to vp:', ds);
+// the main function !
+app.get('/ds/:sites/:dataset', async (req, res) => {
+  const ds = req.params.dataset;
+  // console.log('ds to vp:', ds);
 
-    rclient.exists(ds, function (err, reply) {
-        if (reply == 0) {
-            // console.log('not found');
-            rclient.blpop('unas', 1000, function (err, reply) {
-                if (!reply) {
-                    res.status(400).send('Timeout');
-                    return;
-                }
-                sites = reply[1].split(',')
-                if (req.params.sites > 0) {
-                    sites = sites.slice(0, req.params.sites)
-                }
-                rclient.rpush(ds, sites);
-                res.status(200).send(sites);
-            });
-        } else {
-            rclient.lrange(ds, 0, -1, function (err, reply) {
-                // console.log("found", reply);
-                res.status(200).send(reply);
-            });
-        }
-    });
-});
-
-app.get('/ds/reassign/:dataset', async function (req, res) {
-    var ds = req.params.dataset
-    // console.log('reassigning ds:', ds);
-
-    rclient.blpop('unas', 1000, function (err, reply) {
+  rclient.exists(ds, (_err, reply) => {
+    if (reply === 0) {
+      // console.log('not found');
+      rclient.blpop('unas', 1000, (_err, reply) => {
         if (!reply) {
-            res.status(400).send('Timeout');
-            return;
+          res.status(400).send('Timeout');
+          return;
         }
-        sites = reply[1].split(',')
-        rclient.del(ds);
+        let sites = reply[1].split(',')
+        if (req.params.sites > 0) {
+          sites = sites.filter(site => !disabled.has(site));
+          sites = sites.slice(0, req.params.sites);
+        }
         rclient.rpush(ds, sites);
         res.status(200).send(sites);
-    });
-
-});
-
-
-app.get('/test', async function (req, res) {
-    console.log('TEST starting...');
-
-    rclient.set('ds', 'TEST_OK', function (err, reply) {
-        console.log(reply);
-    });
-
-    rclient.get('ds', function (err, reply) {
-        console.log(reply);
-        res.send(reply);
-    });
-
-});
-
-app.get('/healthz', function (request, response) {
-    console.log('health call');
-    try {
-        response.status(200).send('OK');
-    } catch (err) {
-        console.log("something wrong", err);
+      });
+    } else {
+      rclient.lrange(ds, 0, -1, (err, reply) => {
+        // console.log("found", reply);
+        res.status(200).send(reply);
+      });
     }
+  });
 });
 
-app.get('/', (req, res) => res.send('Hello from the Virtual Placement Service.'))
+app.get('/ds/reassign/:dataset', async (req, res) => {
+  const ds = req.params.dataset;
+  // console.log('reassigning ds:', ds);
+
+  rclient.blpop('unas', 1000, (_err, reply) => {
+    if (!reply) {
+      res.status(400).send('Timeout');
+      return;
+    }
+    const sites = reply[1].split(',');
+    rclient.del(ds);
+    rclient.rpush(ds, sites);
+    res.status(200).send(sites);
+  });
+});
+
+
+app.get('/test', async (_req, res) => {
+  console.log('TEST starting...');
+
+  rclient.set('ds', 'TEST_OK', (_err, reply) => {
+    console.log(reply);
+  });
+
+  rclient.get('ds', (_err, reply) => {
+    console.log(reply);
+    res.send(reply);
+  });
+});
+
+app.get('/healthz', (_request, response) => {
+  console.log('health call');
+  try {
+    response.status(200).send('OK');
+  } catch (err) {
+    console.log('something wrong', err);
+  }
+});
+
+app.get('/', (req, res) => res.send('Hello from the Virtual Placement Service.'));
 
 app.use((err, req, res, next) => {
-    console.error('Error in error handler: ', err.message);
-    res.status(err.status).send(err.message);
+  console.error('Error in error handler: ', err.message);
+  res.status(err.status).send(err.message);
 });
 
 
-app.listen(80, () => console.log(`Listening on port 80!`))
+app.listen(80, () => console.log('Listening on port 80!'));
 
 // var httpsServer = https.createServer(credentials, app).listen(443);
 
@@ -248,19 +267,22 @@ app.listen(80, () => console.log(`Listening on port 80!`))
 
 
 async function main() {
-    try {
-        await rclient.on('connect', function () {
-            console.log('connected');
-        });
+  try {
+    await rclient.on('connect', () => {
+      console.log('connected');
+    });
 
-        await rclient.setnx('grid_description_version', '0');
+    await rclient.setnx('grid_description_version', '0');
 
-        setInterval(backup, 3600000);
-        // setInterval(backup, 86400000);
-
-    } catch (err) {
-        console.error('Error: ', err);
-    }
+    await rclient.smembers('disabled_sites', (_err, reply) => {
+      console.log('Disabled sites:', reply);
+      disabled = new Set(reply);
+    });
+    setInterval(backup, 3600000);
+    // setInterval(backup, 86400000);
+  } catch (err) {
+    console.error('Error: ', err);
+  }
 }
 
 main();
