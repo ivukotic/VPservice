@@ -7,6 +7,10 @@ Filler makes sure there are more than LWM and less than HWM unassigned VPs in Re
 
 ## TO DO
 
+* when a new site comes online, it can take a long time to get a sufficient number of datasets assigned to it. Proper fix is to have reassignement of unassigned DSs.
+* reassignement 
+  * freeing a DS once a cache dissapears
+  * assignement of unassigned - should happen only when grid changes. 
 * calculate server a file will be on
 * getter for path to a file
 * test latency, capacity

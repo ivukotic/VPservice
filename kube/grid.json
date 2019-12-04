@@ -4,17 +4,21 @@
         "US": [
             [
                 "MWT2_DATADISK",
-                1000
+                2000
             ],
             [
                 "AGLT2_DATADISK",
-                1000
+                2000
+            ],
+            [
+                "BNL-OSG2_DATADISK",
+                4000
             ]
         ],
-        "DE": [
+        "EU": [
             [
-                "LRZ-LMU_DATADISK",
-                1000
+                "PRAGUELCG2_DATADISK",
+                2000
             ]
         ]
     }
