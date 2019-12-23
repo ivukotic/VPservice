@@ -37,7 +37,16 @@ async function storeInES() {
         // console.log(ds);
         rclient.lrange(ds, 0, -1, async (err, reply) => {
           // console.log(ds, reply);
-          data.push({ index: {} }, { ds: ds, placement: reply });
+          if (err) {
+            console.log('err. ', err);
+            return;
+          }
+          plac = [];
+          for (index = 0; index < reply.length; index++) {
+            var si = reply[index].slice(0, -9);
+            plac.push(si);
+          }
+          data.push({ index: {} }, { ds: ds, placement: plac, combination: plac.join('_') });
         });
       }
 
