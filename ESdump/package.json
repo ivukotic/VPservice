@@ -1,0 +1,16 @@
+{
+  "name": "esdump",
+  "version": "1.0.0",
+  "description": "creates Elasticsearch index from Redis dump.",
+  "main": "dump.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ilija Vukotic",
+  "license": "ISC",
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.5.0",
+    "elasticsearch": "^16.5.0",
+    "redis": "^2.8.0"
+  }
+}
