@@ -100,7 +100,10 @@ async function fix() {
       });
 
       count += 1;
-
+      if (count % 1000 == 0) {
+        console.log('done:', count);
+        await sleep(60);
+      }
     }
 
   });
