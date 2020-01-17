@@ -68,8 +68,8 @@ async function fakefix() {
         return;
       }
 
-      // rename_site(ds, reply);
-      replace_combination(ds, reply);
+      rename_site(ds, reply);
+      // replace_combination(ds, reply);
     });
 
     count += 1;
