@@ -30,6 +30,18 @@ console.log(config);
 
 const rclient = redis.createClient(config.PORT, config.HOST);
 
+
+const es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
+
+async function insert(data) {
+  const result = await es.bulk({ index: 'virtual_placement', body: data });
+  console.log(result.statusCode);
+}
+
+
+
+
+
 // const credentials = { key: privateKey, cert: certificate };
 
 const app = express();
