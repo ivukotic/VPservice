@@ -1,7 +1,7 @@
 const express = require('express');
 const redis = require('redis');
 
-const testing = false;
+const testing = true;
 
 console.log('VPs server starting ... ');
 
@@ -54,7 +54,6 @@ app.delete('/grid/', async (_req, res) => {
   });
 
   rclient.del('sites');
-  rclient.del('grid_cores');
 
   console.log('resetting grid description version ...');
   rclient.set('grid_description_version', '0');
@@ -70,18 +69,13 @@ app.delete('/all_data', async (_req, res) => {
   });
 });
 
-app.put('/grid/:cores', async (req, res) => {
-  const { cores } = req.params;
-  console.log('setting all of the grid: ', cores, 'cores');
-
-  rclient.set('grid_cores', cores, (_err, reply) => {
-    console.log(reply);
+app.delete('/ds/:dataset', async (req, res) => {
+  const ds = req.params.dataset;
+  console.log('deleting dataset placement.');
+  await rclient.del(ds, (_err, reply) => {
+    const rep = `datasets deleted: ${reply}`;
+    res.status(200).send(rep);
   });
-
-  console.log('updating grid description version ...');
-  rclient.incr('grid_description_version');
-
-  res.status(200).send('OK');
 });
 
 app.put('/site/:cloud/:sitename/:cores', async (req, res) => {
@@ -131,6 +125,33 @@ app.put('/site/enable/:sitename', async (req, res) => {
   res.status(200).send('OK');
 });
 
+app.put('/rebalance', async (req, res) => {
+  console.log('Doing full rebalance!');
+
+  const counter={}
+  // get all the keys that represent datasets
+  // no 'sites', individual sites names, disabled_sites, unas, grid_description_version
+
+  // calculate what are current shares and check which ones need updates.
+
+  // do the updates.
+
+  res.status(200).send('OK');
+});
+
+app.get('/site/disabled', async (_req, res) => {
+  console.log('returning disabled sites');
+
+  rclient.smembers('disabled_sites', (err, disabled) => {
+    if (err) {
+      console.log('err. sites', err);
+      res.status(500).send('could not find disabled sites list.');
+    }
+    res.status(200).send(disabled);
+  });
+
+});
+
 app.get('/grid/', async (_req, res) => {
   console.log('returning all grid info');
 
@@ -177,7 +198,7 @@ app.get('/site/:cloud/:sitename', async (req, res) => {
 });
 
 // the main function !
-app.get('/ds/:sites/:dataset', async (req, res) => {
+app.get('/ds/:nsites/:dataset', async (req, res) => {
   const ds = req.params.dataset;
   // console.log('ds to vp:', ds);
 
@@ -192,7 +213,7 @@ app.get('/ds/:sites/:dataset', async (req, res) => {
         let sites = reply[1].split(',')
         if (req.params.sites > 0) {
           sites = sites.filter(site => !disabled.has(site));
-          sites = sites.slice(0, req.params.sites);
+          sites = sites.slice(0, req.params.nsites);
         }
         rclient.rpush(ds, sites);
         res.status(200).send(sites);
@@ -254,17 +275,6 @@ app.use((err, req, res, next) => {
 
 
 app.listen(80, () => console.log('Listening on port 80!'));
-
-// var httpsServer = https.createServer(credentials, app).listen(443);
-
-// // redirects if someone comes on http.
-// http.createServer(
-//     //     function (req, res) {
-//     //     res.writeHead(302, { 'Location': 'https://' + config.SITENAME });
-//     //     res.end();
-//     // }
-// ).listen(80);
-
 
 async function main() {
   try {

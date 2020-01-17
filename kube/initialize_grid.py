@@ -1,7 +1,13 @@
 import requests
 import json
 
-sitename = 'http://vpservice.cern.ch'
+testing = True
+
+if testing:
+    sitename = 'http://localhost:80'
+else:
+    sitename = 'http://vpservice.cern.ch'
+    
 with open('grid.json') as json_file:
     grid = json.load(json_file)
     print(grid)
@@ -13,9 +19,9 @@ with open('grid.json') as json_file:
     print(r.text)
 
     print(' --- setting sites --- ')
-    for cloud in grid['cores']:
+    for cloud in grid:
         print(cloud)
-        for site in grid['cores'][cloud]:
+        for site in grid[cloud]:
             site_name, site_cores = site
             print(cloud, site_name, site_cores)
             uri = sitename + '/site/' + cloud + '/' + site_name + '/' + str(site_cores)
@@ -24,9 +30,4 @@ with open('grid.json') as json_file:
                 print(r.status_code)
             print(r.text)
 
-    print(' --- setting grid cores --- ')
-    uri = sitename + '/grid/' + str(grid['grid_cores'])
-    r = requests.put(uri)
-    if r.status_code != 200:
-        print(r.status_code)
     print(r.text)

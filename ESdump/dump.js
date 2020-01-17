@@ -35,6 +35,9 @@ async function storeInES() {
       for (var i = st; i < et; i++) {
         const ds = keys[i];
         // console.log(ds);
+        if (ds.length < 10) {
+          console.log('skipping key', ds)
+        }
         rclient.lrange(ds, 0, -1, async (err, reply) => {
           // console.log(ds, reply);
           if (err) {
@@ -43,10 +46,11 @@ async function storeInES() {
           }
           plac = [];
           for (index = 0; index < reply.length; index++) {
-            var si = reply[index].slice(0, -9);
+            var si = reply[index].replace('_DATADISK', '');
             plac.push(si);
           }
-          data.push({ index: {} }, { ds: ds, placement: plac, combination: plac.join('_') });
+          const comb = plac.join('_');
+          data.push({ index: {} }, { ds: ds, placement: plac, combination: comb });
         });
       }
 

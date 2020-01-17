@@ -15,13 +15,16 @@ By default service is accessible only from inside CERN at: http://vpservice.cern
 
 * DELETE /grid - cleans up all of the grid information from the db.
 * DELETE /all_data - deletes all of the db.
+* DELETE /site/`site` - deletes a site from configuration and removes 
+* DELETE /ds/`ds_name` - deletes vp given to a dataset from the database.
 
-### grid settings
-* PUT /grid/`cores` - sets or updates total number of cores in the grid (really ALL).
 * PUT /site/`cloud`/`site`/`cores` - sets or updates number of CPUs cores available for Virtual Placement. 
+* PUT /site/disable/`site` - disables site
+* PUT /site/enable/`site` - enables site
 
 * GET /grid - returns current core counts for all grid, clouds, and sites.
-* GET /site/`cloud`/`site`/ - returns number of cores at site
+* GET /site/`cloud`/`site` - returns number of cores at site
+* GET /site/disabled - returns a list of disabled sites
 
 ### Dataset operations
 * GET /ds/`n`/`ds_name` - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to `n` sites. Dataset that should not be in the system returns: _other_.

@@ -2,9 +2,16 @@ import requests
 import time
 import random
 
+testing = True
+
 N = 1000
 print('starting test...')
-host = 'http://vpservice.cern.ch/'
+
+if testing:
+    host = 'http://localhost/'
+else:
+    host = 'http://vpservice.cern.ch/'
+
 st = time.time()
 for i in range(N):
     rn = random.randint(0, 10000)

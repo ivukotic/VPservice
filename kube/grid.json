@@ -1,25 +1,28 @@
 {
-    "grid_cores": 250000,
-    "cores": {
-        "US": [
-            [
-                "MWT2_DATADISK",
-                2000
-            ],
-            [
-                "AGLT2_DATADISK",
-                2000
-            ],
-            [
-                "BNL-OSG2_DATADISK",
-                4000
-            ]
-        ],
-        "EU": [
-            [
-                "PRAGUELCG2_DATADISK",
-                2000
-            ]
+    "other": [
+        [
+            "other",
+            240000
         ]
-    }
+    ],
+    "US": [
+        [
+            "MWT2_DATADISK",
+            2000
+        ],
+        [
+            "AGLT2_DATADISK",
+            2000
+        ],
+        [
+            "BNL-OSG2_DATADISK",
+            4000
+        ]
+    ],
+    "EU": [
+        [
+            "PRAGUELCG2_DATADISK",
+            2000
+        ]
+    ]
 }

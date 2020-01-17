@@ -1,10 +1,9 @@
 // This code makes sure there is always more then 100 unassigned VPs in Radis. 
 
-testing = false;
+testing = true;
 var ready = false;
 
 var grid = {
-    grid_cores: 0,
     cloud_weights: [],
     site_weights: {}
 };
@@ -32,15 +31,6 @@ function sleep(ms) {
 }
 
 function load_grid() {
-
-    rclient.get('grid_cores', function (err, reply) {
-        if (err) {
-            console.log('err. grid_cores', err);
-            return;
-        }
-        console.log('grid_cores:', reply);
-        grid.grid_cores = Number(reply);
-    });
 
     rclient.smembers('sites', function (err, sites) {
         if (err) {
@@ -78,7 +68,6 @@ function recalculate_weigths() {
     grid.site_weights = [];
 
     ready = false;
-    other = grid.grid_cores;
     for (cloud in grid.cores) {
         sites = grid.cores[cloud]
         console.log(cloud, sites)
@@ -88,12 +77,10 @@ function recalculate_weigths() {
             scores = sites[sitei][1]
             console.log(sitei, site, scores)
             cloud_cores += scores
-            other -= scores
         }
         grid.cloud_cores.push([cloud, cloud_cores])
         console.log('--------------------')
     }
-    grid.cloud_cores.push(['other', other])
 
     grid.cloud_weights = new c.WeightedList(grid.cloud_cores);
     for (cloud in grid.cores) {

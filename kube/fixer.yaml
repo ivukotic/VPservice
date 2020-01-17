@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fixer  
+  labels:
+    k8s-app: fixer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fixer
+  template:
+    metadata:
+      labels:
+        k8s-app: fixer
+    spec:
+      containers:
+      - name: fixer
+        image: ivukotic/vpservice:latest
+        # command: ["node"]
+        # args: ["fix.js"]
+        command: ["sleep"]
+        args: ["9999999"]
+        volumeMounts:
+        - name: conf-volume
+          mountPath: "/etc/vps/"
+      volumes:
+      - name: conf-volume
+        secret:
+          secretName: config
+          items:
+          - key: conf
+            path: config.json      
