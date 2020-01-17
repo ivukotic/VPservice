@@ -22,7 +22,7 @@ function rename_site(placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2_VP_
   }
 }
 
-function replace_combination(ds, placements, origCombo = ['other', 'other'], newCombo = ['other']) {
+function replace_combination(ds, placements, origCombo = ['other', 'other', 'other'], newCombo = ['other']) {
   if (origCombo.length != placements.length) return;
   for (ind = 0; ind < placements.length; ind++) {
     if (placements[ind] != origCombo[ind]) {
@@ -31,6 +31,7 @@ function replace_combination(ds, placements, origCombo = ['other', 'other'], new
   }
   console.log('replaced with', newCombo);
   rclient.rpush(ds, newCombo);
+  rclient.rtrim(ds, 0, newCombo.length);
 }
 
 async function fakefix() {
