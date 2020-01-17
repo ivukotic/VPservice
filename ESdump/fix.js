@@ -11,6 +11,28 @@ config = {
 
 const rclient = redis.createClient(config.PORT, config.HOST);
 
+function rename_site(placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2_VP_DISK') {
+  for (ind = 0; ind < placements.length; ind++) {
+    if (placements[ind] === origSite) {
+      placements[ind] === newSite;
+      console.log('new placement', placements);
+      rclient.rpush(ds, placements);
+      break;
+    }
+  }
+}
+
+function replace_combination(ds, placements, origCombo = ['other', 'other'], newCombo = ['other']) {
+  if (origCombo.length != placements.length) return;
+  for (ind = 0; ind < placements.length; ind++) {
+    if (placements[ind] != origCombo[ind]) {
+      return;
+    }
+  }
+  console.log('replaced with', newCombo);
+  rclient.rpush(ds, newCombo);
+}
+
 async function fakefix() {
 
   keys = [
@@ -33,7 +55,7 @@ async function fakefix() {
   while (count < keys.length) {
 
     const ds = keys[count];
-    console.log(ds);
+    // console.log(ds);
     if (ds.length < 10) {
       console.log('skipping key', ds)
     }
@@ -43,12 +65,9 @@ async function fakefix() {
         console.log('err. ', err);
         return;
       }
-      placement = [];
-      for (index = 0; index < reply.length; index++) {
-        var si = reply[index];//.replace('_DATADISK', '');
-        placement.push(si);
-      }
-      // rclient.rpush(ds, placement);
+
+      // rename_site(ds, reply);
+      replace_combination(ds, reply);
     });
 
     count += 1;
