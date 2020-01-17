@@ -56,6 +56,9 @@ spec:
       containers:
       - name: vps
         image: ivukotic/vpservice:latest
+        env:
+          - name: MODE
+            value: "testing"
         ports:
           - containerPort: 80
         livenessProbe:

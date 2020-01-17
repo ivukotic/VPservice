@@ -1,10 +1,11 @@
+var mode = process.env.MODE;
+
 const express = require('express');
 const app = express();
 
 const redis = require('redis');
 const elasticsearch = require('@elastic/elasticsearch');
 
-const testing = false;
 
 console.log('VPs server starting ... ');
 
@@ -16,7 +17,7 @@ let esPath;
 let disabled = new Set();
 let es_data = [];
 
-if (testing) {
+if (mode == 'testing') {
   configPath = './kube/test_config.json';
   esPath = './kube/secrets/es_conn.json';
 } else {

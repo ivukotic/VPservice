@@ -1,6 +1,7 @@
 // This code makes sure there is always more then 100 unassigned VPs in Radis. 
 
-testing = true;
+var mode = process.env.MODE;
+
 var ready = false;
 
 var grid = {
@@ -10,7 +11,7 @@ var grid = {
 
 var grid_description_version = 0;
 
-if (testing) {
+if (mode == 'testing') {
     config = require('./kube/test_config.json');
 }
 else {
