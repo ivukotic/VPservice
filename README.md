@@ -9,6 +9,8 @@ A site can be deleted in which case all it's assignements get reasigned to "othe
 Filler makes sure there are more than LWM and less than HWM unassigned VPs in Redis. Unassigned VPs are there just to make it faster to deliver VPs. 
 
 
+Fixer tool can go through all the keys and change them. Some coding needed.
+
 ## TO DO
 
 * when there is a change in a site config (increase or decrease of share) one must rebalance part of datasets.
@@ -29,4 +31,5 @@ Filler makes sure there are more than LWM and less than HWM unassigned VPs in Re
 * where is backup stored?
 * add persistent storage
 * storing timestamped geo version history
-* send all VP placements to ElasticSearch
+* report all requests and responses to ElasticSearch
+* report all the other rest requests to ES.
