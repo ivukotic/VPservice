@@ -11,7 +11,7 @@ config = {
 
 const rclient = redis.createClient(config.PORT, config.HOST);
 
-function rename_site(placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2_VP_DISK') {
+function rename_site(ds, placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2_VP_DISK') {
   var pos = placements.indexOf(origSite);
   console.log(placements, pos);
   if (pos != -1) {
