@@ -14,16 +14,17 @@ const rclient = redis.createClient(config.PORT, config.HOST);
 async function fakefix() {
 
   keys = [
-    'user.hteagle:user.hteagle.MC15.311161.MGPy8EG_A14N23LO_2HDMtW_a350_DM10_H500_tb1_1L0L_V1UP_DAOD_TRUTH_v1_EXT0.281047465',
-    'panda:panda.um.group.perf-muons.data18_13TeV.periodO.physics_Main.PhysCont.DAOD_MUON1.grp18_v01_p3583_v062_EXT0.287732526',
+    'panda:panda.um.user.dario.data17_13TeV.AllYear.physics_Main.v191206_00_xAODOutput.root.285610510',
+    'panda:panda.um.user.amoohamm.METPerformance.data.DAOD_JETM3.Nominal.20191210_ZeeEventsLoose.data2018.Zee.v0.41_EMT.log.287688364',
     'mc16_13TeV:mc16_13TeV.312020.Pythia8EvtGen_A14NNPDF23LO_EJ_ModelB_1400_150_4jetFilter.simul.HITS.e7941_e5984_s3126_tid20090961_00',
-    'panda:panda.um.user.sakatsuk.Wjets.364184.e5340_s3126_r10201_p3652_v2.8d2_noSys_t2_tree.root.285292696',
+    'panda:panda.um.user.abiondin.3Dec2019.00349637.f937_m1979_p3930_LJDisplacedPackageRun2.root.284724233',
     'panda:panda.um.user.alory.data16_13TeV.AllYear.r9264_p3083_p4030.xAH.1_AnalysisVariables.root.287721197',
     'panda:panda.um.user.kkrizka.mc16a.Sherpa_Wtaunu.fatjet.20191204-01_hist.285122179',
     'panda:panda.um.user.mpettee.1.mc16_13TeV.364160.Sh221_PDF30_Wmunu_MV70_140_CFBV.D1.e5340_s3126_r9364_p3749.c.log.287634402',
     'mc16_13TeV:mc16_13TeV.410644.PowhegPythia8EvtGen_A14_singletop_schan_lept_top.deriv.DAOD_SUSY7.e6527_e5984_s3126_r10724_r10726_p3703_tid16141402_00',
     'panda:panda.um.user.ychiu.20191215_ce7bd8f4_p94_U.ZdZd13TeV.data2017_NTUP4L.287637795',
-    'panda:panda.um.group.phys-higgs.Htt_hh_MMC1.mc16_13TeV.344782.Sh221_PDF30_Ztt_MV140_280_h30h20.D3.e5585_s3126_r9364_p3978.smPre_w_0_HS.286607928'
+    'panda:panda.um.group.phys-higgs.Htt_hh_MMC1.mc16_13TeV.344782.Sh221_PDF30_Ztt_MV140_280_h30h20.D3.e5585_s3126_r9364_p3978.smPre_w_0_HS.286607928',
+    'mc16_13TeV:mc16_13TeV.397570.MGPy8EG_A14N23LO_GG_2500_2490_LLE12k.deriv.DAOD_SUSY2.e7304_e5984_a875_r10201_r10210_p3992_tid19531222_00'
   ]
 
   console.log('total keys', keys.length)
@@ -32,7 +33,7 @@ async function fakefix() {
   while (count < keys.length) {
 
     const ds = keys[count];
-    // console.log(ds);
+    console.log(ds);
     if (ds.length < 10) {
       console.log('skipping key', ds)
     }
@@ -162,23 +163,13 @@ async function main() {
 
   await sleep(300);
 
-  try {
-    await es.ping(function (err, resp, status) {
-      console.log('ES ping:', resp.statusCode);
-    });
-  } catch (err) {
-    console.error('Error: ', err);
-  }
+  // const grid = await getGrid();
 
-  await sleep(300);
+  // await sleep(300);
 
-  const grid = await getGrid()
+  // const disabled = await getDisabled();
 
-  await sleep(300);
-
-  const disabled = await getDisabled();
-
-  await sleep(300);
+  // await sleep(300);
 
   console.log('fixing...');
   fakefix();
