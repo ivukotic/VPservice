@@ -1,50 +1,49 @@
 const express = require('express');
+const app = express();
+
 const redis = require('redis');
 const elasticsearch = require('@elastic/elasticsearch');
 
-const testing = true;
+const testing = false;
 
 console.log('VPs server starting ... ');
 
 console.log('config load ... ');
 
 let configPath;
+let esPath;
 
-// var privateKey;
-// var certificate;
 let disabled = new Set();
+let es_data = [];
 
 if (testing) {
   configPath = './kube/test_config.json';
-  // privateKey = fs.readFileSync('./kube/secrets/certificates/vps.key.pem');//, 'utf8'
-  // certificate = fs.readFileSync('./kube/secrets/certificates/vps.cert.cer');
-  // config.SITENAME = 'localhost'
+  esPath = './kube/secrets/es_conn.json';
 } else {
   configPath = '/etc/vps/config.json';
-  // privateKey = fs.readFileSync('/etc/https-certs/key.pem');//, 'utf8'
-  // certificate = fs.readFileSync('/etc/https-certs/cert.pem');
+  esPath = '/etc/es/es_conn.json';
 }
 
 const config = require(configPath);
 console.log(config);
-
 const rclient = redis.createClient(config.PORT, config.HOST);
 
 
-const es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
+const esPath = require(esPath);
+const es = new elasticsearch.Client({ node: es_path.ES_HOST, log: 'error' });
 
-async function insert(data) {
-  const result = await es.bulk({ index: 'virtual_placement', body: data });
-  console.log(result.statusCode);
+function es_add_request(doc){
+  es_data.push(doc);
+  if (es_data.length>10){
+    store();
+  }
 }
 
-
-
-
-
-// const credentials = { key: privateKey, cert: certificate };
-
-const app = express();
+async function store() {
+  const result = await es.bulk({ index: 'virtual_placement', body: es_data });
+  es_data=[];
+  console.log('reported:', result.statusCode);
+}
 
 function backup() {
   console.log('Starting hourly backup...');
@@ -141,7 +140,7 @@ app.put('/site/enable/:sitename', async (req, res) => {
 app.put('/rebalance', async (req, res) => {
   console.log('Doing full rebalance!');
 
-  const counter={}
+  const counter = {}
   // get all the keys that represent datasets
   // no 'sites', individual sites names, disabled_sites, unas, grid_description_version
 
@@ -214,7 +213,10 @@ app.get('/site/:cloud/:sitename', async (req, res) => {
 app.get('/ds/:nsites/:dataset', async (req, res) => {
   const ds = req.params.dataset;
   // console.log('ds to vp:', ds);
-
+  var doc = {
+    timestamp: Date.now(),
+    ds: ds
+  }
   rclient.exists(ds, (_err, reply) => {
     if (reply === 0) {
       // console.log('not found');
@@ -229,11 +231,17 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
           sites = sites.slice(0, req.params.nsites);
         }
         rclient.rpush(ds, sites);
+        doc.sites=sites;
+        doc.initial=true;
+        es_add_request(doc);
         res.status(200).send(sites);
       });
     } else {
       rclient.lrange(ds, 0, -1, (err, reply) => {
         // console.log("found", reply);
+        doc.sites=reply;
+        doc.initial=false;
+        es_add_request(doc);
         res.status(200).send(reply);
       });
     }

@@ -23,10 +23,10 @@ const rclient = redis.createClient(config.PORT, config.HOST);
 
 function rename_site(ds, placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2_VP_DISK') {
   var pos = placements.indexOf(origSite);
-  console.log(placements, pos);
+  // console.log(placements, pos);
   if (pos != -1) {
     placements[pos] = newSite;
-    // console.log('new placement', placements);
+    console.log('new placement', placements);
     rclient.ltrim(ds, 1, 0); // removes all
     rclient.rpush(ds, placements);
   }
@@ -81,7 +81,6 @@ async function fix() {
 
     let count = 0;
     while (count < keys.length) {
-      // while (count < 100) {
 
       const ds = keys[count];
       // console.log(ds);

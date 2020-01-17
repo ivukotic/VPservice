@@ -67,12 +67,20 @@ spec:
           initialDelaySeconds: 60
           timeoutSeconds: 10
         volumeMounts:
-        - name: frontend-conf-volume
-          mountPath: "/etc/vps/"
+          - name: frontend-conf-volume
+            mountPath: "/etc/vps/"
+          - name: es-conn-volume
+            mountPath: "/etc/es/"
       volumes:
-      - name: frontend-conf-volume
-        secret:
-          secretName: config
-          items:
-          - key: conf
-            path: config.json      
+        - name: frontend-conf-volume
+          secret:
+            secretName: config
+            items:
+            - key: conf
+              path: config.json     
+        - name: es-conn-volume
+          secret:
+            secretName: es-conn
+            items:
+            - key: es-conf
+              path: es_conn.json      

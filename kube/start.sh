@@ -10,8 +10,8 @@ kubectl delete -f redis.yaml
 kubectl delete -f redis-slave.yaml
 
 echo "Adding site certs"
-#  kubectl create secret generic cert-secret --from-file=key=secrets/certificates/vps.key.pem --from-file=cert=secrets/certificates/vps.cert.cer
 kubectl create secret generic config --from-file=conf=config.json
+kubectl create secret generic es-conn --from-file=es-conf=secrets/es_conn.json
 
 echo "Start redis"
 kubectl create -f redis.yaml 
