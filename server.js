@@ -29,19 +29,19 @@ console.log(config);
 const rclient = redis.createClient(config.PORT, config.HOST);
 
 
-const esPath = require(esPath);
+const es_path = require(esPath);
 const es = new elasticsearch.Client({ node: es_path.ES_HOST, log: 'error' });
 
-function es_add_request(doc){
+function es_add_request(doc) {
   es_data.push(doc);
-  if (es_data.length>10){
+  if (es_data.length > 10) {
     store();
   }
 }
 
 async function store() {
   const result = await es.bulk({ index: 'virtual_placement', body: es_data });
-  es_data=[];
+  es_data = [];
   console.log('reported:', result.statusCode);
 }
 
@@ -231,16 +231,16 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
           sites = sites.slice(0, req.params.nsites);
         }
         rclient.rpush(ds, sites);
-        doc.sites=sites;
-        doc.initial=true;
+        doc.sites = sites;
+        doc.initial = true;
         es_add_request(doc);
         res.status(200).send(sites);
       });
     } else {
       rclient.lrange(ds, 0, -1, (err, reply) => {
         // console.log("found", reply);
-        doc.sites=reply;
-        doc.initial=false;
+        doc.sites = reply;
+        doc.initial = false;
         es_add_request(doc);
         res.status(200).send(reply);
       });
