@@ -16,7 +16,7 @@ function rename_site(placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2_VP_
     if (placements[ind] === origSite) {
       placements[ind] === newSite;
       console.log('new placement', placements);
-      rclient.rtrim(ds, 1, 0); // removes all
+      rclient.ltrim(ds, 1, 0); // removes all
       rclient.rpush(ds, placements);
       break;
     }
@@ -31,7 +31,7 @@ function replace_combination(ds, placements, origCombo = ['other', 'other', 'oth
     }
   }
   console.log('replaced with', newCombo);
-  rclient.rtrim(ds, 1, 0); // removes all
+  rclient.ltrim(ds, 1, 0); // removes all
   rclient.rpush(ds, newCombo);
 }
 
