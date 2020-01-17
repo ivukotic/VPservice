@@ -1,5 +1,6 @@
 const express = require('express');
 const redis = require('redis');
+const elasticsearch = require('@elastic/elasticsearch');
 
 const testing = true;
 

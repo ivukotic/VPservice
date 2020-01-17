@@ -26,7 +26,7 @@ function rename_site(ds, placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2
   // console.log(placements, pos);
   if (pos != -1) {
     placements[pos] = newSite;
-    console.log('new placement', placements);
+    // console.log('new placement', placements);
     rclient.ltrim(ds, 1, 0); // removes all
     rclient.rpush(ds, placements);
   }
@@ -89,7 +89,7 @@ async function fix() {
         console.log('skipping key', ds)
       }
       rclient.lrange(ds, 0, -1, async (err, reply) => {
-        console.log(ds, reply);
+        // console.log(ds, reply);
         if (err) {
           console.log('err. ', err);
           return;
