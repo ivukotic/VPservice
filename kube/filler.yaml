@@ -17,6 +17,9 @@ spec:
       containers:
       - name: filler
         image: ivukotic/vpservice:latest
+        env:
+        - name: MODE
+          value: "NOT testing"
         command: ["node"]
         args: ["filler.js"]
         volumeMounts:

@@ -1,3 +1,5 @@
+XXX not to be used XXX
+
 kind: Service
 apiVersion: v1
 metadata:
@@ -58,7 +60,7 @@ spec:
         image: ivukotic/vpservice:latest
         env:
           - name: MODE
-            value: "testing"
+            value: "Ntesting"
         ports:
           - containerPort: 80
         livenessProbe:

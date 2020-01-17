@@ -31,3 +31,7 @@ openstack server set --property landb-alias=vpservice--load-1- vpservice-svulyho
 windows:
 setx MODE "testing"
 echo %MODE%
+
+linux:
+export MODE "testing"
+echo $MODE

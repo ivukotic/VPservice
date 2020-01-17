@@ -52,7 +52,7 @@ spec:
         image: ivukotic/vpservice:latest
         env:
           - name: MODE
-            value: "testing"
+            value: "Ntesting"
         ports:
           - containerPort: 80
         volumeMounts:

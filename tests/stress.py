@@ -4,7 +4,7 @@ import random
 
 testing = True
 
-N = 1000
+N = 12
 print('starting test...')
 
 if testing:
