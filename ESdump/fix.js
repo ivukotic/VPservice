@@ -12,14 +12,12 @@ config = {
 const rclient = redis.createClient(config.PORT, config.HOST);
 
 function rename_site(placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2_VP_DISK') {
-  for (ind = 0; ind < placements.length; ind++) {
-    if (placements[ind] === origSite) {
-      placements[ind] === newSite;
-      console.log('new placement', placements);
-      rclient.ltrim(ds, 1, 0); // removes all
-      rclient.rpush(ds, placements);
-      break;
-    }
+  var pos = placements.indexOf(origSite);
+  if (pos != -1) {
+    placements[pos] == newSite;
+    console.log('new placement', placements);
+    rclient.ltrim(ds, 1, 0); // removes all
+    rclient.rpush(ds, placements);
   }
 }
 
