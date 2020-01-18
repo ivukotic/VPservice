@@ -32,6 +32,12 @@ windows:
 setx MODE "testing"
 echo %MODE%
 
+sudo service redis-server start
+node filler.js
+node server.js
+
+
+
 linux:
 export MODE "testing"
 echo $MODE

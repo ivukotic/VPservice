@@ -1,23 +1,21 @@
-var mode = process.env.MODE;
+const mode = process.env.MODE;
 
 const express = require('express');
-const app = express();
-
 const redis = require('redis');
 const elasticsearch = require('@elastic/elasticsearch');
 
+const app = express();
 
 console.log('VPs server starting ... ');
-
 console.log('config load ... ');
 
 let configPath;
 let esPath;
 
 let disabled = new Set();
-let es_data = [];
+let esData = [];
 
-if (mode == 'testing') {
+if (mode === 'testing') {
   configPath = './kube/test_config.json';
   esPath = './kube/secrets/es_conn.json';
 } else {
@@ -33,17 +31,23 @@ const rclient = redis.createClient(config.PORT, config.HOST);
 const es_path = require(esPath);
 const es = new elasticsearch.Client({ node: es_path.ES_HOST, log: 'error' });
 
-function es_add_request(doc) {
-  es_data.push(doc);
-  if (es_data.length > 10) {
-    store();
+async function es_add_request(doc, last = false) {
+  esData.push(doc);
+  if (esData.length > 10) {
+    es.bulk(
+      { index: 'virtual_placement', body: esData },
+      (err, reply) => {
+        if (err) {
+          console.error('ES indexing failed:', err);
+          console.log('dropping data.');
+          esData = [];
+        }
+        else {
+          console.log('es indexing:', reply);
+          esData = [];
+        }
+      });
   }
-}
-
-async function store() {
-  const result = await es.bulk({ index: 'virtual_placement', body: es_data });
-  es_data = [];
-  console.log('reported:', result.statusCode);
 }
 
 function backup() {
@@ -141,7 +145,7 @@ app.put('/site/enable/:sitename', async (req, res) => {
 app.put('/rebalance', async (req, res) => {
   console.log('Doing full rebalance!');
 
-  const counter = {}
+  const counter = {};
   // get all the keys that represent datasets
   // no 'sites', individual sites names, disabled_sites, unas, grid_description_version
 
@@ -214,10 +218,10 @@ app.get('/site/:cloud/:sitename', async (req, res) => {
 app.get('/ds/:nsites/:dataset', async (req, res) => {
   const ds = req.params.dataset;
   // console.log('ds to vp:', ds);
-  var doc = {
+  const doc = {
     timestamp: Date.now(),
-    ds: ds
-  }
+    ds,
+  };
   rclient.exists(ds, (_err, reply) => {
     if (reply === 0) {
       // console.log('not found');
@@ -226,7 +230,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
           res.status(400).send('Timeout');
           return;
         }
-        let sites = reply[1].split(',')
+        let sites = reply[1].split(',');
         if (req.params.sites > 0) {
           sites = sites.filter(site => !disabled.has(site));
           sites = sites.slice(0, req.params.nsites);
