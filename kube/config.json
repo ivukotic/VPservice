@@ -2,7 +2,7 @@
     "SITENAME": "vpservice.cern.ch",
     "PORT": 6379,
     "HOST": "redis-master.default.svc.cluster.local",
-    "PRECALCULATED_LWM": 100,
-    "PRECALCULATED_HWM": 300,
+    "PRECALCULATED_LWM": 1000,
+    "PRECALCULATED_HWM": 3000,
     "N": 5
 }

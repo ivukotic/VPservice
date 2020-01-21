@@ -36,9 +36,10 @@ spec:
       containers:
       - name: master
         image: k8s.gcr.io/redis
+        # image: redis/redis:latest
         resources:
           requests:
             cpu: 100m
-            memory: 100Mi
+            memory: 200Mi
         ports:
         - containerPort: 6379
