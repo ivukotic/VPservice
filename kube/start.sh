@@ -23,6 +23,8 @@ kubectl create -f frontend.cern.yaml
 
 !!! For the ingress to work k8s nodes need to be labeled eg.
 kubectl label node vpservice-svulyholph5g-minion-1 role=ingress 
+!!! To remove label
+kubectl label node vpservice-svulyholph5g-minion-1 role-
 
 and this has to be done for cluster nodes that will be exposed:
 openstack server set --property landb-alias=vpservice--load-1- vpservice-svulyholph5g-master-0

@@ -236,12 +236,14 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     res.status(200).send(['other']);
     return;
   }
+
   const ds = req.params.dataset;
   // console.log('ds to vp:', ds);
   const doc = {
     timestamp: Date.now(),
     ds,
   };
+
   rclient.exists(ds, async (_err, reply) => {
     if (reply === 0) {
       // console.log('not found');
@@ -251,7 +253,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
           return;
         }
         let sites = reply[1].split(',');
-        if (req.params.sites > 0) {
+        if (req.params.nsites > 0) {
           sites = sites.filter(site => !disabled.has(site));
           sites = sites.slice(0, req.params.nsites);
         }
