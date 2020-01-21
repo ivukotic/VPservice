@@ -236,7 +236,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     res.status(200).send(['other']);
     return;
   }
-
+  const nsites = parseInt(req.params.nsites);
   const ds = req.params.dataset;
   // console.log('ds to vp:', ds);
   const doc = {
@@ -253,9 +253,9 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
           return;
         }
         let sites = reply[1].split(',');
-        if (req.params.nsites > 0) {
+        if (nsites > 0) {
           sites = sites.filter(site => !disabled.has(site));
-          sites = sites.slice(0, req.params.nsites);
+          sites = sites.slice(0, nsites);
         }
         rclient.rpush(ds, sites);
         doc.sites = sites;
