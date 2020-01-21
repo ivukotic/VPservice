@@ -4,7 +4,7 @@ import random
 
 testing = True
 
-N = 12
+N = 50000
 print('starting test...')
 
 if testing:
@@ -15,9 +15,12 @@ else:
 st = time.time()
 for i in range(N):
     rn = random.randint(0, 10000)
-    r = requests.get(host + 'ds/5/test_' + str(rn))
+    r = requests.get(host + 'ds/6/test_' + str(rn))
     if r.status_code != 200:
         print(r.status_code)
+    if r.text == '["other"]':
+        # if len(r.text) == 1 and r.text[0] == 'other':
+        continue
     print(r.text)
     # time.sleep(.01)
 print('it took:', time.time() - st)

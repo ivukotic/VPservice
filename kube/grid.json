@@ -7,21 +7,21 @@
     ],
     "US": [
         [
-            "MWT2_DATADISK",
+            "MWT2_VP_DISK",
             2000
         ],
         [
-            "AGLT2_DATADISK",
+            "AGLT2_VP_DISK",
             2000
         ],
         [
-            "BNL-OSG2_DATADISK",
+            "BNL-OSG2_VP_DISK",
             4000
         ]
     ],
     "EU": [
         [
-            "PRAGUELCG2_DATADISK",
+            "PRAGUELCG2_VP_DISK",
             2000
         ]
     ]

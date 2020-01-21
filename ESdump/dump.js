@@ -144,7 +144,7 @@ async function main() {
 
   await sleep(300);
 
-  const grid = await getGrid()
+  const grid = await getGrid();
 
   await sleep(300);
   const disabled = await getDisabled();

@@ -27,26 +27,32 @@ const config = require(configPath);
 console.log(config);
 const rclient = redis.createClient(config.PORT, config.HOST);
 
-
 const es_path = require(esPath);
 const es = new elasticsearch.Client({ node: es_path.ES_HOST, log: 'error' });
 
-async function es_add_request(doc, last = false) {
-  esData.push(doc);
-  if (esData.length > 10) {
+let paused = false;
+let inProgress = false;
+
+function esAddRequest(doc) {
+  const docsToStore = 100;
+  const chunk = docsToStore * 2;
+  esData.push({ index: {} }, doc);
+  if (esData.length > chunk && inProgress === false) {
+    inProgress = true;
     es.bulk(
-      { index: 'virtual_placement', body: esData },
+      { index: 'virtual_placement', body: esData.slice(0, chunk) },
       (err, reply) => {
         if (err) {
           console.error('ES indexing failed:', err);
           console.log('dropping data.');
           esData = [];
+        } else {
+          console.log('es indexing done');
+          esData = esData.slice(chunk);
         }
-        else {
-          console.log('es indexing:', reply);
-          esData = [];
-        }
-      });
+        inProgress = false;
+      },
+    );
   }
 }
 
@@ -156,6 +162,17 @@ app.put('/rebalance', async (req, res) => {
   res.status(200).send('OK');
 });
 
+app.put('/flip_pause', async (req, res) => {
+  paused = !(paused);
+  console.log('FLIPPED PAUSE', paused);
+  res.status(200).send('OK');
+});
+
+app.get('/pause', async (req, res) => {
+  console.log('returning pause state.');
+  res.status(200).send(paused);
+});
+
 app.get('/site/disabled', async (_req, res) => {
   console.log('returning disabled sites');
 
@@ -166,7 +183,6 @@ app.get('/site/disabled', async (_req, res) => {
     }
     res.status(200).send(disabled);
   });
-
 });
 
 app.get('/grid/', async (_req, res) => {
@@ -216,16 +232,20 @@ app.get('/site/:cloud/:sitename', async (req, res) => {
 
 // the main function !
 app.get('/ds/:nsites/:dataset', async (req, res) => {
+  if (paused) {
+    res.status(200).send(['other']);
+    return;
+  }
   const ds = req.params.dataset;
   // console.log('ds to vp:', ds);
   const doc = {
     timestamp: Date.now(),
     ds,
   };
-  rclient.exists(ds, (_err, reply) => {
+  rclient.exists(ds, async (_err, reply) => {
     if (reply === 0) {
       // console.log('not found');
-      rclient.blpop('unas', 1000, (_err, reply) => {
+      rclient.blpop('unas', 1000, async (_err, reply) => {
         if (!reply) {
           res.status(400).send('Timeout');
           return;
@@ -238,15 +258,15 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
         rclient.rpush(ds, sites);
         doc.sites = sites;
         doc.initial = true;
-        es_add_request(doc);
+        esAddRequest(doc);
         res.status(200).send(sites);
       });
     } else {
-      rclient.lrange(ds, 0, -1, (err, reply) => {
+      rclient.lrange(ds, 0, -1, async (err, reply) => {
         // console.log("found", reply);
         doc.sites = reply;
         doc.initial = false;
-        es_add_request(doc);
+        esAddRequest(doc);
         res.status(200).send(reply);
       });
     }
@@ -305,8 +325,17 @@ app.listen(80, () => console.log('Listening on port 80!'));
 async function main() {
   try {
     await rclient.on('connect', () => {
-      console.log('connected');
+      console.log('redis connected');
     });
+
+    try {
+      await es.ping((err, resp, status) => {
+        console.log('ES ping:', resp.statusCode);
+      });
+    } catch (err) {
+      console.error('Error: ', err);
+    }
+
 
     await rclient.setnx('grid_description_version', '0');
 
