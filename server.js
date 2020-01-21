@@ -151,7 +151,7 @@ app.put('/site/enable/:sitename', async (req, res) => {
 app.put('/rebalance', async (req, res) => {
   console.log('Doing full rebalance!');
 
-  const counter = {};
+  // const counter = {};
   // get all the keys that represent datasets
   // no 'sites', individual sites names, disabled_sites, unas, grid_description_version
 
@@ -176,12 +176,12 @@ app.get('/pause', async (req, res) => {
 app.get('/site/disabled', async (_req, res) => {
   console.log('returning disabled sites');
 
-  rclient.smembers('disabled_sites', (err, disabled) => {
+  rclient.smembers('disabled_sites', (err, replyDisabled) => {
     if (err) {
       console.log('err. sites', err);
       res.status(500).send('could not find disabled sites list.');
     }
-    res.status(200).send(disabled);
+    res.status(200).send(replyDisabled);
   });
 });
 
@@ -247,12 +247,12 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
   rclient.exists(ds, async (_err, reply) => {
     if (reply === 0) {
       // console.log('not found');
-      rclient.blpop('unas', 1000, async (_err, reply) => {
-        if (!reply) {
-          res.status(400).send('Timeout');
+      rclient.blpop('unas', 1, async (errUnas, replyUnas) => {
+        if (!replyUnas) {
+          res.status(400).send(['other']);
           return;
         }
-        let sites = reply[1].split(',');
+        let sites = replyUnas[1].split(',');
         if (nsites > 0) {
           sites = sites.filter(site => !disabled.has(site));
           sites = sites.slice(0, nsites);
@@ -264,12 +264,12 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
         res.status(200).send(sites);
       });
     } else {
-      rclient.lrange(ds, 0, -1, async (err, reply) => {
+      rclient.lrange(ds, 0, -1, async (err, replyFound) => {
         // console.log("found", reply);
-        doc.sites = reply;
+        doc.sites = replyFound;
         doc.initial = false;
         esAddRequest(doc);
-        res.status(200).send(reply);
+        res.status(200).send(replyFound);
       });
     }
   });
