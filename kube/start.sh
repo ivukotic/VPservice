@@ -7,7 +7,7 @@ kubectl delete -f frontend.cern.yaml
 # kubectl delete secret cert-secret
 kubectl delete secret config
 kubectl delete -f redis.yaml 
-kubectl delete -f redis-slave.yaml
+# kubectl delete -f redis-slave.yaml
 
 echo "Adding site certs"
 kubectl create secret generic config --from-file=conf=config.json

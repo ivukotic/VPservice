@@ -58,6 +58,8 @@ spec:
         volumeMounts:
         - name: frontend-conf-volume
           mountPath: "/etc/vps/"
+        - name: es-conn-volume
+          mountPath: "/etc/es/"
         livenessProbe:
           httpGet:
             scheme: HTTP
@@ -72,4 +74,10 @@ spec:
           secretName: config
           items:
           - key: conf
-            path: config.json      
+            path: config.json   
+      - name: es-conn-volume
+        secret:
+          secretName: es-conn
+          items:
+          - key: es-conf
+            path: es_conn.json        
