@@ -6,7 +6,7 @@ config = {
 }
 
 test_keys = [
-  'panda:panda.um.user.dario.data17_13TeV.AllYear.physics_Main.v191206_00_xAODOutput.root.285610510',
+  'mc16_13TeV:mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.simul.HITS.e4981_s3087_s3111_tid10701335_00',
   'panda:panda.um.user.amoohamm.METPerformance.data.DAOD_JETM3.Nominal.20191210_ZeeEventsLoose.data2018.Zee.v0.41_EMT.log.287688364',
   'mc16_13TeV:mc16_13TeV.312020.Pythia8EvtGen_A14NNPDF23LO_EJ_ModelB_1400_150_4jetFilter.simul.HITS.e7941_e5984_s3126_tid20090961_00',
   'panda:panda.um.user.abiondin.3Dec2019.00349637.f937_m1979_p3930_LJDisplacedPackageRun2.root.284724233',
