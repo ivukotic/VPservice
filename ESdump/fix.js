@@ -82,7 +82,7 @@ async function test_fix() {
 
 async function fix() {
 
-  rclient.keys('*', function (err, keys) {
+  rclient.keys('*', async (err, keys) => {
     if (err) return console.log(err);
 
     console.log('total keys', keys.length)
@@ -108,7 +108,7 @@ async function fix() {
       });
 
       count += 1;
-      if (count % 1000 == 0) {
+      if (count % 1000 === 0) {
         console.log('done:', count);
         await sleep(60);
       }
