@@ -244,25 +244,41 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     ds,
   };
 
-  rclient.exists(ds, async (_err, reply) => {
-    if (reply === 0) {
-      // console.log('not found');
-      rclient.blpop('unas', 1, async (errUnas, replyUnas) => {
-        if (!replyUnas) {
+  rclient.exists(ds, (_err, reply) => {
+    if (reply === 0) { // console.log('not found');
+      rclient.rpoplpush('unas', ds, (errPLP, replyMove) => {
+        if (!replyMove) {
           res.status(400).send(['other']);
           return;
         }
-        let sites = replyUnas[1].split(',');
+        let sites = replyMove.split(',');
         if (nsites > 0) {
           sites = sites.filter(site => !disabled.has(site));
           sites = sites.slice(0, nsites);
         }
-        rclient.rpush(ds, sites);
         doc.sites = sites;
         doc.initial = true;
         esAddRequest(doc);
         res.status(200).send(sites);
       });
+
+      // rclient.blpop('unas', 1, (errUnas, replyUnas) => {
+      //   if (!replyUnas) {
+      //     res.status(400).send(['other']);
+      //     return;
+      //   }
+      //   let sites = replyUnas[1].split(',');
+      //   if (nsites > 0) {
+      //     sites = sites.filter(site => !disabled.has(site));
+      //     sites = sites.slice(0, nsites);
+      //   }
+      //   rclient.rpush(ds, sites);
+      //   doc.sites = sites;
+      //   doc.initial = true;
+      //   esAddRequest(doc);
+      //   res.status(200).send(sites);
+      // });
+
     } else {
       rclient.lrange(ds, 0, -1, async (err, replyFound) => {
         // console.log("found", reply);

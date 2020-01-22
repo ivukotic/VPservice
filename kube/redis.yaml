@@ -35,8 +35,8 @@ spec:
     spec:
       containers:
       - name: master
-        image: k8s.gcr.io/redis
-        # image: redis/redis:latest
+        # image: k8s.gcr.io/redis
+        image: redis:latest
         resources:
           requests:
             cpu: 100m
