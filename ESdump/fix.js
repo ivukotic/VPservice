@@ -112,7 +112,7 @@ async function fix() {
       });
 
       count += 1;
-      if (count % 1000 === 0) {
+      if (count % 100 === 0) {
         console.log('done:', count);
         await sleep(60);
       }
@@ -187,8 +187,8 @@ async function main() {
   // await sleep(300);
 
   console.log('fixing...');
-  // fix();
-  test_fix();
+  fix();
+  // test_fix();
 }
 
 main();
