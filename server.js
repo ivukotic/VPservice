@@ -263,12 +263,11 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
       });
     } else {
       rclient.lrange(ds, 0, -1, async (err, replyFound) => {
-        // console.log("found", reply);
-        const sites = replyFound.split(',');
-        doc.sites = sites;
+        // console.log("found", reply);;
+        doc.sites = replyFound;
         doc.initial = false;
         esAddRequest(doc);
-        res.status(200).send(sites);
+        res.status(200).send(replyFound);
       });
     }
   });
