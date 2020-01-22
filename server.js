@@ -264,10 +264,11 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     } else {
       rclient.lrange(ds, 0, -1, async (err, replyFound) => {
         // console.log("found", reply);
-        doc.sites = replyFound;
+        const sites = replyFound.split(',');
+        doc.sites = sites;
         doc.initial = false;
         esAddRequest(doc);
-        res.status(200).send(replyFound);
+        res.status(200).send(sites);
       });
     }
   });
