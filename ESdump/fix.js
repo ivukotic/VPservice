@@ -44,6 +44,13 @@ function replace_combination(ds, placements, origCombo = ['other', 'other', 'oth
   rclient.rpush(ds, newCombo);
 }
 
+function remove_large(ds, placements) {
+  console.log(placements, len(placements));
+  if (len(placements) > 10) {
+    rclient.del(ds);
+  }
+}
+
 async function test_fix() {
 
   console.log('total keys', test_keys.length)
@@ -63,8 +70,9 @@ async function test_fix() {
         return;
       }
 
-      rename_site(ds, reply);
+      // rename_site(ds, reply);
       // replace_combination(ds, reply);
+      remove_large(ds, reply);
     });
 
     count += 1;
@@ -74,7 +82,7 @@ async function test_fix() {
 
 async function fix() {
 
-  rclient.keys('*', async function (err, keys) {
+  rclient.keys('*', function (err, keys) {
     if (err) return console.log(err);
 
     console.log('total keys', keys.length)
@@ -94,8 +102,9 @@ async function fix() {
           return;
         }
 
-        rename_site(ds, reply);
-
+        remove_large(ds, reply);
+        // rename_site(ds, reply);
+        // replace_combination(ds,reply);
       });
 
       count += 1;
@@ -187,8 +196,8 @@ async function main() {
   // await sleep(300);
 
   console.log('fixing...');
-  fix();
-  // test_fix();
+  // fix();
+  test_fix();
 
 }
 
