@@ -1,8 +1,8 @@
 {
-  "name": "esdump",
+  "name": "tools",
   "version": "1.0.0",
-  "description": "creates Elasticsearch index from Redis dump.",
-  "main": "dump.js",
+  "description": "VP helper tools.",
+  "main": "dumpToFile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

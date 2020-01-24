@@ -14,21 +14,21 @@ const rclient = redis.createClient(config.PORT, config.HOST);
 const es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
 
 async function insert(data) {
-  const result = await es.bulk({ index: 'virtual_placement', body: data });
+  const result = await es.bulk({ index: 'vp_dump', body: data });
   console.log(result.statusCode);
 }
 
 async function storeInES() {
 
-  rclient.keys('*', async function (err, keys) {
+  rclient.keys('*', async (err, keys) => {
     if (err) return console.log(err);
 
-    console.log('total keys', keys.length)
+    console.log('total keys', keys.length);
 
     const step = 1000;
     let count = 0;
     while (count < Math.floor(keys.length / step)) {
-      data = []
+      data = [];
       st = count * step;
       et = (count + 1) * step;
       console.log(st, et);
@@ -36,7 +36,7 @@ async function storeInES() {
         const ds = keys[i];
         // console.log(ds);
         if (ds.length < 10) {
-          console.log('skipping key', ds)
+          console.log('skipping key', ds);
         }
         rclient.lrange(ds, 0, -1, async (err, reply) => {
           // console.log(ds, reply);
@@ -46,7 +46,7 @@ async function storeInES() {
           }
           plac = [];
           for (index = 0; index < reply.length; index++) {
-            var si = reply[index].replace('_DATADISK', '');
+            var si = reply[index].replace('_VP_DISK', '');
             plac.push(si);
           }
           const comb = plac.join('_');
@@ -86,7 +86,7 @@ async function getGrid() {
   rclient.smembers('sites', (err, sites) => {
     if (err) {
       console.log('err. sites', err);
-      return
+      return;
     }
 
     rclient.mget(sites, (_err, site_cores) => {
@@ -121,8 +121,8 @@ async function getPlacement(dataset) {
 
 function sleep(ms) {
   return new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
+    setTimeout(resolve, ms);
+  });
 }
 
 async function main() {
@@ -135,7 +135,7 @@ async function main() {
   }
   await sleep(300);
   try {
-    await es.ping(function (err, resp, status) {
+    await es.ping((err, resp, status) => {
       console.log('ES ping:', resp.statusCode);
     });
   } catch (err) {
