@@ -1,3 +1,3 @@
 setupATLAS
 lsetup "rucio testing"
-python rucio.py
+python rucio_vp_lookups.py
