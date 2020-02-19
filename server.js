@@ -290,6 +290,24 @@ app.get('/ds/reassign/:dataset', async (req, res) => {
   });
 });
 
+// sites is given like AGLT2_VP_DISK,MWT2_VP_DISK,BNL_VP_DISK
+app.put('/ds/reassign/:dataset/:sites', async (req, res) => {
+  const { dataset } = req.params;
+  let { sites } = req.params;
+  console.log('reassigning ds:', dataset, 'to:', sites);
+  sites = sites.split(',');
+  rclient.del(dataset, (_err1, reply1) => {
+    if (!reply1) {
+      console.log('that DS was not assigned before');
+    }
+    rclient.rpush(dataset, sites, (_err2, reply2) => {
+      if (!reply2) {
+        res.status(400).send('Timeout');
+      }
+      res.status(200).send('Done.');
+    });
+  });
+});
 
 app.get('/test', async (_req, res) => {
   console.log('TEST starting...');
