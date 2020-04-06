@@ -23,6 +23,10 @@
         [
             "PRAGUELCG2_VP_DISK",
             2000
+        ],
+        [
+            "LRZ-LMU_VP_DISK",
+            2000
         ]
     ]
 }
