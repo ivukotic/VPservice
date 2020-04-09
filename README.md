@@ -1,5 +1,5 @@
 # VPservice
-Virtual Placement Service
+## Virtual Placement Service
 
 Grid is described in file ```grid.json```. 
 This is uploaded to the server using ```initialize_grid.py```. 
@@ -8,9 +8,26 @@ A site can be disabled and enabled. This does not change VPs but only removes di
 A site can be deleted in which case all it's assignements get reasigned to "other".
 Filler makes sure there are more than LWM and less than HWM unassigned VPs in Redis. Unassigned VPs are there just to make it faster to deliver VPs. 
 
+![VPservice schema](VP_service_schema.png)
 
-Fixer tool can go through all the keys and change them. Some coding needed.
+## Tools
 
+### CleanUp
+    With time a lot of datasets that don't exist anymore get accumulated in REDIS. This procedure removes them. These are steps:
+    * create a fixer deployment. 
+    * get a shell in it's pod
+    * execute shell script
+    * copy produced txt files back to lxplus
+    * on lxplus setup rucio, get grid proxy
+    * place the downloaded files into CleanUp directory
+    * execute: python3 fix_unaccessible_vps.py
+
+
+# Fixer 
+    This tool can go through all the keys and change them. 
+    Some coding needed.
+
+# dup
 ## TO DO
 
 * when there is a change in a site config (increase or decrease of share) one must rebalance part of datasets.
