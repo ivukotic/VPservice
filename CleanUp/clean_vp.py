@@ -24,19 +24,19 @@ done = 0
 for i in range(len(keys)):
     ds = keys[i].strip()
     if len(ds) < 30:
-        print "skipping key:", ds
+        print("skipping key:", ds)
         continue
 
     scope, filen = ds.split(':')
-    print '----------------------------------------'
-    print scope, filen
+    # print '----------------------------------------'
+    # print scope, filen
     try:
         rr = c.list_dataset_replicas(scope, filen)
         accessible = False
         for i2 in rr:
             # print i2
             rse = i2['rse']
-            print 'replica:', rse
+            # print 'replica:', rse
             rse_info = rsemgr.get_rse_info(i2['rse'])
             if rse_info['rse_type'] == 'TAPE':
                 print 'TAPE Skip.'

@@ -27,8 +27,8 @@ const config = require(configPath);
 console.log(config);
 const rclient = redis.createClient(config.PORT, config.HOST);
 
-const es_path = require(esPath);
-const es = new elasticsearch.Client({ node: es_path.ES_HOST, log: 'error' });
+const espath = require(esPath);
+const es = new elasticsearch.Client({ node: espath.ES_HOST, log: 'error' });
 
 let paused = false;
 let inProgress = false;
@@ -41,7 +41,7 @@ function esAddRequest(doc) {
     inProgress = true;
     es.bulk(
       { index: 'virtual_placement', body: esData.slice(0, chunk) },
-      (err, reply) => {
+      (err) => {
         if (err) {
           console.error('ES indexing failed:', err);
           console.log('dropping data.');
@@ -62,8 +62,8 @@ function backup() {
     if (new Date() < (reply + 3600000)) {
       console.log('last backup at less then one hour. Skipping.');
     } else {
-      rclient.bgsave((_ierr, reply) => {
-        console.log(reply);
+      rclient.bgsave((_ierr, reply1) => {
+        console.log(reply1);
       });
     }
   });
@@ -95,7 +95,11 @@ app.delete('/all_data', async (_req, res) => {
 app.delete('/ds/:dataset', async (req, res) => {
   const ds = req.params.dataset;
   console.log('deleting dataset placement.');
-  await rclient.del(ds, (_err, reply) => {
+  await rclient.del(ds, (err, reply) => {
+    if (err) {
+      console.log('error deleting dataset placement ', err);
+      res.status(500).send('error deleting dataset placement', err);
+    }
     const rep = `datasets deleted: ${reply}`;
     res.status(200).send(rep);
   });
@@ -108,11 +112,19 @@ app.put('/site/:cloud/:sitename/:cores', async (req, res) => {
 
   console.log('adding a site', site, 'to', cloud, 'cloud with', cores, 'cores');
 
-  rclient.sadd('sites', `${cloud}:${site}`, (_err, reply) => {
+  rclient.sadd('sites', `${cloud}:${site}`, (err, reply) => {
+    if (err) {
+      console.log('could not add site', err);
+      res.status(500).send('could not add site', err);
+    }
     console.log(reply);
   });
 
-  rclient.set(`${cloud}:${site}`, cores, (_err, reply) => {
+  rclient.set(`${cloud}:${site}`, cores, (err, reply) => {
+    if (err) {
+      console.log('could not add site to the cloud', err);
+      res.status(500).send('could not add site to the cloud', err);
+    }
     console.log(reply);
   });
 
@@ -128,11 +140,14 @@ app.put('/site/disable/:sitename', async (req, res) => {
 
   disabled.add(site);
 
-  rclient.sadd('disabled_sites', site, (_err, reply) => {
+  rclient.sadd('disabled_sites', site, (err, reply) => {
+    if (err) {
+      console.log('could not add site to disabled sites', err);
+      res.status(500).send('could not add site to disabled sites', err);
+    }
     console.log(`disabled ${reply} site.`);
+    res.status(200).send(`disabled ${reply} site.`);
   });
-
-  res.status(200).send('OK');
 });
 
 app.put('/site/enable/:sitename', async (req, res) => {
@@ -196,16 +211,16 @@ app.get('/grid/', async (_req, res) => {
 
     console.log('sites:', sites);
 
-    rclient.mget(sites, (_err, site_cores) => {
+    rclient.mget(sites, (_err, siteCores) => {
       const cores = {};
-      for (i in sites) {
-        console.log(sites[i], site_cores[i]);
-        [cloud, site_name] = sites[i].split(':');
+      sites.forEach((site, i) => {
+        console.log(site, siteCores[i]);
+        const [cloud, siteName] = site.split(':');
         if (!(cloud in cores)) {
           cores[cloud] = [];
         }
-        cores[cloud].push([site_name, Number(site_cores[i])]);
-      }
+        cores[cloud].push([siteName, Number(siteCores[i])]);
+      });
 
       res.status(200).send(cores);
     });
@@ -253,7 +268,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
         }
         let sites = replyMove.split(',');
         if (nsites > 0) {
-          sites = sites.filter(site => !disabled.has(site));
+          sites = sites.filter((site) => !disabled.has(site));
           sites = sites.slice(0, nsites);
         }
         doc.sites = sites;
@@ -333,7 +348,7 @@ app.get('/healthz', (_request, response) => {
 
 app.get('/', (req, res) => res.send('Hello from the Virtual Placement Service.'));
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error('Error in error handler: ', err.message);
   res.status(err.status).send(err.message);
 });
@@ -348,7 +363,7 @@ async function main() {
     });
 
     try {
-      await es.ping((err, resp, status) => {
+      await es.ping((err, resp) => {
         console.log('ES ping:', resp.statusCode);
       });
     } catch (err) {

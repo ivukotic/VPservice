@@ -10,24 +10,21 @@ Filler makes sure there are more than LWM and less than HWM unassigned VPs in Re
 
 ![VPservice schema](VP_service_schema.png)
 
-## Tools
-
 ### CleanUp
-    With time a lot of datasets that don't exist anymore get accumulated in REDIS. This procedure removes them. These are steps:
-    * create a fixer deployment. 
-    * get a shell in it's pod
-    * execute shell script
-    * copy produced txt files back to lxplus
+    With time a lot of datasets that don't exist anymore get accumulated in REDIS. This procedure removes them. These are steps: 
+    * get a shell in redis-master pod
+    * copy paste commands from shell script *CleanUp/dumpKeys.sh*
+    * scp produced keys.txt and values.txt files back to lxplus
     * on lxplus setup rucio, get grid proxy
     * place the downloaded files into CleanUp directory
-    * execute: python3 fix_unaccessible_vps.py
+    * execute: python clean_vp.py
 
 
-# Fixer 
-    This tool can go through all the keys and change them. 
-    Some coding needed.
+### Tools 
+    This directory contains several node.js scripts tools. *Some coding needed.*
+    * fix.js - can go through all the keys and change them. 
+    * dumpToES.js - dumps all of the current virtual placements to an index in ES.
 
-# dup
 ## TO DO
 
 * when there is a change in a site config (increase or decrease of share) one must rebalance part of datasets.
