@@ -50,10 +50,10 @@ for i in range(len(keys)):
                 break
 
         if not accessible:
-            print 'removing this one.\n'
+            print 'removing this one.', ds
             r = requests.delete(vp_address + 'ds/' + ds)
             if r.status_code != 200:
-                print(r.status_code)
+                print(r.text)
             removed += 1
 
     except Exception as identifier:

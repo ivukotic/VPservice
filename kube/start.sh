@@ -1,3 +1,5 @@
+# FULL restart!
+
 echo "try deleting all the data if service is running"
 curl -X DELETE vpservice.cern.ch/all_data
 
@@ -15,7 +17,7 @@ kubectl create secret generic es-conn --from-file=es-conf=secrets/es_conn.json
 
 echo "Start redis"
 kubectl create -f redis.yaml 
-kubectl create -f redis-slave.yaml
+# kubectl create -f redis-slave.yaml
 
 echo "Deploying filler and server"
 kubectl create -f filler.yaml
