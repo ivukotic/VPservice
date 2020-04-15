@@ -14,7 +14,6 @@ vp_address = 'http://vpservice.cern.ch/'
 
 # loading keys and values
 keys = open("keys.txt", "r").readlines()
-values = open("values.txt", "r").readlines()
 
 print('total keys:', len(keys))
 

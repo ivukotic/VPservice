@@ -1,5 +1,7 @@
 * Add Postman docs for all the REST endpoints.
-* Redis has no persistan volume attached and backups configured.
+* move confing keys or prefix them
+* Redis has no persistent volume attached and backups configured.
+* make cleanup run against rdb file  
 
 * when there is a change in a site config (increase or decrease of share) one must rebalance part of datasets.
     Will be done on demand (so one can change multiple sites and then call rebalancing).
