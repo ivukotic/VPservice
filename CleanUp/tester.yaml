@@ -17,7 +17,7 @@ spec:
       containers:
       - name: cleaner
         image: ivukotic/vpservice:cleanup
-        command: ["start.sh"]
+        command: ["./start.sh"]
         env:
         - name: RUCIO_ACCOUNT
           value: "ivukotic"
@@ -29,11 +29,11 @@ spec:
           readOnly: true
       volumes:
       - name: certs-volume
-          secret:
+        secret:
           secretName: cert-secret
           items:
           - key: userkey
-              path: userkey.pem
-              mode: 256 
+            path: userkey.pem
+            mode: 256 
           - key: usercert
-              path: usercert.pem
+            path: usercert.pem
