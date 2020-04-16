@@ -1,0 +1,25 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cleaner
+spec:
+  schedule: "0 0 * * *"
+  suspend: false
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: aaas-container
+            image: ivukotic/vpservice:cleanup
+            # command: ["/es-cluster-state.sh"]
+            volumeMounts:
+            - name: config-volume
+              mountPath: "/config"
+              readOnly: true
+          volumes:   
+          - name: config-volume
+            secret:
+              secretName: config
+          restartPolicy: Never
