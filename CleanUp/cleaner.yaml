@@ -13,13 +13,24 @@ spec:
           containers:
           - name: aaas-container
             image: ivukotic/vpservice:cleanup
-            # command: ["/es-cluster-state.sh"]
+            command: ["start.sh"]
+            env:
+            - name: RUCIO_ACCOUNT
+              value: "ivukotic"
+            - name: RUCIO_AUTH_TYPE
+              value: "x509_proxy"
             volumeMounts:
-            - name: config-volume
-              mountPath: "/config"
+            - name: certs-volume
+              mountPath: "/etc/grid-certs/"
               readOnly: true
           volumes:   
-          - name: config-volume
-            secret:
-              secretName: config
+          - name: certs-volume
+              secret:
+              secretName: cert-secret
+              items:
+              - key: userkey
+                  path: userkey.pem
+                  mode: 256 
+              - key: usercert
+                  path: usercert.pem
           restartPolicy: Never

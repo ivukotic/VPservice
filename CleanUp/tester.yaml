@@ -5,7 +5,7 @@ metadata:
   labels:
     k8s-app: cleaner
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       k8s-app: cleaner
@@ -17,15 +17,23 @@ spec:
       containers:
       - name: cleaner
         image: ivukotic/vpservice:cleanup
-        # command: ["node"]
-        # args: ["filler.js"]
+        command: ["start.sh"]
+        env:
+        - name: RUCIO_ACCOUNT
+          value: "ivukotic"
+        - name: RUCIO_AUTH_TYPE
+          value: "x509_proxy"
         volumeMounts:
-        - name: conf-volume
-          mountPath: "/etc/vps/"
+        - name: certs-volume
+          mountPath: "/etc/grid-certs/"
+          readOnly: true
       volumes:
-      - name: conf-volume
-        secret:
-          secretName: config
+      - name: certs-volume
+          secret:
+          secretName: cert-secret
           items:
-          - key: conf
-            path: config.json      
+          - key: userkey
+              path: userkey.pem
+              mode: 256 
+          - key: usercert
+              path: usercert.pem
