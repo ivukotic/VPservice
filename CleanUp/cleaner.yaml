@@ -11,8 +11,9 @@ spec:
       template:
         spec:
           containers:
-          - name: aaas-container
+          - name: cleaner
             image: ivukotic/vpservice:cleanup
+            imagePullPolicy: Always
             command: ["start.sh"]
             env:
             - name: RUCIO_ACCOUNT
