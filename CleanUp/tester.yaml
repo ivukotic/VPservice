@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cleaner  
+  name: cleaner
   labels:
     k8s-app: cleaner
 spec:
@@ -15,26 +15,33 @@ spec:
         k8s-app: cleaner
     spec:
       containers:
-      - name: cleaner
-        image: ivukotic/vpservice:cleanup
-        command: ["./start.sh"]
-        imagePullPolicy: Always
-        env:
-        - name: RUCIO_ACCOUNT
-          value: "ivukotic"
-        - name: RUCIO_AUTH_TYPE
-          value: "x509_proxy"
-        volumeMounts:
-        - name: certs-volume
-          mountPath: "/etc/grid-certs/"
-          readOnly: true
+        - name: cleaner
+          image: ivukotic/vpservice:cleanup
+          command: ["./start.sh"]
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 1000m
+              memory: 500Mi
+          env:
+            - name: RUCIO_ACCOUNT
+              value: "ivukotic"
+            - name: RUCIO_AUTH_TYPE
+              value: "x509_proxy"
+          volumeMounts:
+            - name: certs-volume
+              mountPath: "/etc/grid-certs/"
+              readOnly: true
       volumes:
-      - name: certs-volume
-        secret:
-          secretName: cert-secret
-          items:
-          - key: userkey
-            path: userkey.pem
-            mode: 256 
-          - key: usercert
-            path: usercert.pem
+        - name: certs-volume
+          secret:
+            secretName: cert-secret
+            items:
+              - key: userkey
+                path: userkey.pem
+                mode: 256
+              - key: usercert
+                path: usercert.pem

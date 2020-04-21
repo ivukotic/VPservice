@@ -15,6 +15,12 @@ spec:
             image: ivukotic/vpservice:cleanup
             imagePullPolicy: Always
             command: ["start.sh"]
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 1000m
+              memory: 500Mi
             env:
             - name: RUCIO_ACCOUNT
               value: "ivukotic"
