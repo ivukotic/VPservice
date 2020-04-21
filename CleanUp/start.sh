@@ -2,8 +2,8 @@
 
 shopt -s checkwinsize
 
+# export X509_USER_PROXY=/tmp/x509up_u0
 export CERTPATH=/etc/grid-certs
-export X509_USER_PROXY=/etc/proxy/x509up
 
 voms-proxy-init -valid 96:0 -key $CERTPATH/userkey.pem -cert $CERTPATH/usercert.pem --voms=atlas
 
