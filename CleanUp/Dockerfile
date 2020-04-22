@@ -17,8 +17,8 @@ WORKDIR /usr/src/app
 RUN mkdir -p /opt/rucio/etc/
 
 COPY *.py /usr/src/app/
-COPY start.sh /usr/src/app/
-COPY rucio.cfg requirements.txt /opt/rucio/etc/
+COPY start.sh requirements.txt /usr/src/app/
+COPY rucio.cfg  /opt/rucio/etc/
 
 RUN python -m pip install -r requirements.txt
 
