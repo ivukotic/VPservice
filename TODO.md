@@ -2,9 +2,6 @@
 * move confing keys or prefix them
 * Redis has no persistent volume attached and backups configured.
 * make cleanup container running directly against redis
-    * proxy not there.
-    * set RUCIO_ACCOUNT, cert in /etc/grid-certs/
-    * /etc/grid-security/ has some things, nothing in certificates.
 
 * when there is a change in a site config (increase or decrease of share) one must rebalance part of datasets.
     Will be done on demand (so one can change multiple sites and then call rebalancing).

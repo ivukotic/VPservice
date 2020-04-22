@@ -14,7 +14,7 @@ RUN yum install -y  wlcg-voms-atlas osg-ca-certs
 
 # Create app directory
 WORKDIR /usr/src/app
-RUN mkdir /opt/rucio/etc/
+RUN mkdir -p /opt/rucio/etc/
 
 COPY *.py .
 COPY start.sh .
