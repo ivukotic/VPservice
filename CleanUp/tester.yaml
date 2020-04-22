@@ -29,8 +29,10 @@ spec:
           env:
             - name: RUCIO_ACCOUNT
               value: "ivukotic"
-            - name: RUCIO_AUTH_TYPE
-              value: "x509_proxy"
+            # - name: RUCIO_AUTH_TYPE
+            #   value: "x509_proxy"
+            - name: X509_USER_PROXY
+              value: "/tmp/x509up_u0"
           volumeMounts:
             - name: certs-volume
               mountPath: "/etc/grid-certs/"
