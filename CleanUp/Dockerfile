@@ -16,8 +16,8 @@ RUN yum install -y  wlcg-voms-atlas osg-ca-certs
 WORKDIR /usr/src/app
 RUN mkdir -p /opt/rucio/etc/
 
-COPY *.py .
-COPY start.sh .
+COPY *.py /usr/src/app/
+COPY start.sh /usr/src/app/
 COPY rucio.cfg requirements.txt /opt/rucio/etc/
 
 RUN python -m pip install -r requirements.txt
