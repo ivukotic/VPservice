@@ -23,10 +23,11 @@ for k in r.scan_iter(match='*'):
         print("skipping key:", ds)
         continue
 
-    scope, filen = ds.split(':')
-    # print '----------------------------------------'
-    # print scope, filen
     try:
+        scope, filen = ds.split(':')
+        # print '----------------------------------------'
+        # print scope, filen
+
         rr = c.list_dataset_replicas(scope, filen)
         accessible = False
         for i2 in rr:
@@ -35,7 +36,7 @@ for k in r.scan_iter(match='*'):
             # print 'replica:', rse
             rse_info = rsemgr.get_rse_info(i2['rse'])
             if rse_info['rse_type'] == 'TAPE':
-                print 'TAPE Skip.'
+                # print 'TAPE Skip.'
                 continue
             # print rse_info['protocols']
             for prot in rse_info['protocols']:
@@ -52,10 +53,10 @@ for k in r.scan_iter(match='*'):
 
     except Exception as identifier:
         print identifier
-        pass
+
     done += 1
-    if not done % 1000:
-        print "done:", done
+    if not done % 10000:
+        print "done:", done, "removed:", removed
 
 print "done:", done
 print "removed:", removed
