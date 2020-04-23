@@ -17,7 +17,7 @@ done = 0
 
 #  scan over all keys
 for k in r.scan_iter(match='*'):
-    print(k)
+    # print(k)
     ds = k.strip()
     if len(ds) < 30:
         print("skipping key:", ds)
@@ -52,6 +52,7 @@ for k in r.scan_iter(match='*'):
             removed += 1
 
     except Exception as identifier:
+        print ds
         print identifier
 
     done += 1
