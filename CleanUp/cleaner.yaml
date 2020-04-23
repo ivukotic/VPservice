@@ -11,33 +11,33 @@ spec:
       template:
         spec:
           containers:
-          - name: cleaner
-            image: ivukotic/vpservice:cleanup
-            imagePullPolicy: Always
-            command: ["start.sh"]
-            requests:
-              cpu: 100m
-              memory: 100Mi
-            limits:
-              cpu: 1000m
-              memory: 500Mi
-            env:
-            - name: RUCIO_ACCOUNT
-              value: "ivukotic"
-            - name: RUCIO_AUTH_TYPE
-              value: "x509_proxy"
-            volumeMounts:
+            - name: cleaner
+              image: ivukotic/vpservice:cleanup
+              imagePullPolicy: Always
+              command: ["start.sh"]
+              requests:
+                cpu: 100m
+                memory: 100Mi
+              limits:
+                cpu: 1000m
+                memory: 500Mi
+              env:
+                - name: RUCIO_ACCOUNT
+                  value: "ivukotic"
+                - name: RUCIO_AUTH_TYPE
+                  value: "x509_proxy"
+              volumeMounts:
+                - name: certs-volume
+                  mountPath: "/etc/grid-certs/"
+                  readOnly: true
+          volumes:
             - name: certs-volume
-              mountPath: "/etc/grid-certs/"
-              readOnly: true
-          volumes:   
-          - name: certs-volume
-            secret:
-            secretName: cert-secret
-            items:
-            - key: userkey
-              path: userkey.pem
-              mode: 256 
-            - key: usercert
-              path: usercert.pem
+              secret:
+                secretName: cert-secret
+                items:
+                  - key: userkey
+                    path: userkey.pem
+                    mode: 256
+                  - key: usercert
+                    path: usercert.pem
           restartPolicy: Never
