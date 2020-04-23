@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: cleaner
-          image: ivukotic/vpservice:cleanup
+          image: ivukotic/vpservice:expunge
           command: ["./start.sh"]
           imagePullPolicy: Always
           resources:
