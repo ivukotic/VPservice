@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: cleaner
 spec:
-  schedule: "0 0 * * *"
+  schedule: "0 0 * * 6"
   suspend: false
   concurrencyPolicy: Forbid
   jobTemplate:
