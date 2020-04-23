@@ -17,7 +17,9 @@ spec:
       containers:
         - name: cleaner
           image: ivukotic/vpservice:expunge
-          command: ["./start.sh"]
+          # command: ["./start.sh"]
+          command: ["sleep"]
+          args: ["99999999"]
           imagePullPolicy: Always
           resources:
             requests:
@@ -29,8 +31,6 @@ spec:
           env:
             - name: RUCIO_ACCOUNT
               value: "ivukotic"
-            # - name: RUCIO_AUTH_TYPE
-            #   value: "x509_proxy"
             - name: X509_USER_PROXY
               value: "/tmp/x509up_u0"
           volumeMounts:
