@@ -22,4 +22,4 @@ COPY rucio.cfg  /opt/rucio/etc/
 
 RUN python -m pip install -r requirements.txt
 
-CMD [ "sleep","1000000" ]
+CMD [ "/usr/src/app/start.sh" ]

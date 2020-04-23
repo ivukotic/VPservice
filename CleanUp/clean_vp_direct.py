@@ -48,7 +48,7 @@ for k in r.scan_iter(match='*'):
 
         if not accessible:
             # print 'removing this one.', ds
-            print r.delete(ds)
+            r.delete(ds)
             removed += 1
 
     except Exception as identifier:

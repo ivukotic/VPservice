@@ -1,25 +1,16 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: cleaner
-  labels:
-    k8s-app: cleaner
+  name: expunge
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      k8s-app: cleaner
   template:
-    metadata:
-      labels:
-        k8s-app: cleaner
     spec:
       containers:
         - name: cleaner
           image: ivukotic/vpservice:expunge
-          # command: ["./start.sh"]
-          command: ["sleep"]
-          args: ["99999999"]
+          command: ["./start.sh"]
+          # command: ["sleep"]
+          # args: ["99999999"]
           imagePullPolicy: Always
           resources:
             requests:
@@ -37,6 +28,7 @@ spec:
             - name: certs-volume
               mountPath: "/etc/grid-certs/"
               readOnly: true
+      restartPolicy: Never
       volumes:
         - name: certs-volume
           secret:
