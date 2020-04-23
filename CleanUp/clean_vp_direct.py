@@ -23,7 +23,6 @@ for k in r.scan_iter(match='*'):
         print("skipping key:", ds)
         continue
 
-    break
     scope, filen = ds.split(':')
     # print '----------------------------------------'
     # print scope, filen
