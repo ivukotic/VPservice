@@ -3,7 +3,8 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
 c = Client(rucio_host="https://rucio-lb-int.cern.ch")
-es = Elasticsearch(["atlas-kibana.mwt2.org:9200"], http_auth=("traces_reader", "gyhujiko"), timeout=60)
+es = Elasticsearch([{'host': "atlas-kibana.mwt2.org:9200", 'scheme': 'https'}],
+                   http_auth=("traces_reader", "gyhujiko"), timeout=60)
 
 start = 1556668800
 print("start:", start)
