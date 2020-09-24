@@ -13,16 +13,28 @@
         [
             "AGLT2_VP_DISK",
             2000
+        ],
+        [
+            "BNL-ATLAS_VP_DISK",
+            1000
+        ],
+        [
+            "SWT2_CPB_VP_DISK",
+            1000
+        ],
+        [
+            "NET2_VP_DISK",
+            1000
         ]
     ],
     "EU": [
         [
             "PRAGUELCG2_VP_DISK",
-            2000
+            100
         ],
         [
             "LRZ-LMU_VP_DISK",
-            2000
+            100
         ]
     ]
 }
