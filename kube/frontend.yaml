@@ -47,6 +47,8 @@ spec:
       labels:
         k8s-app: vps
     spec:
+      nodeSelector:
+        vps: "true"
       containers:
         - name: vps
           image: ivukotic/vpservice:latest
