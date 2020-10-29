@@ -1,30 +1,27 @@
 // This code makes sure there is always more then 100 unassigned VPs in Radis.
 
-const mode = process.env.MODE;
+/*
+each 2 seconds checks if there is less than LWM in unas.
+if yes, generates more.
+after each fill up checks if it needs to reload Grid description.
+if grid reload needed, it will clean up all unas.
+every restart dropps all unassigned.
+if grid is reset the new setting will reload it.
+Weights - there are cloud weights and site weights.
+
+*/
+
 const redis = require('redis');
 const c = require('./choice.js');
+const config = require('/etc/vps/config.json');
 
-let ready = false;
-
-const grid = {
-  cores: {},
-  cloud_weights: [],
-  site_weights: {},
-};
-
-let gridDescriptionVersion = 0;
-let config;
-
-if (mode === 'testing') {
-  config = require('./kube/test_config.json');
-} else {
-  config = require('/etc/vps/config.json');
-}
-
-console.log(config);
+console.log('config:', config);
 
 const rclient = redis.createClient(config.PORT, config.HOST);
 
+let ready = false;
+let gridDescriptionVersion = 0;
+const grid = {};
 
 function sleep(ms) {
   return new Promise((resolve) => {
@@ -32,14 +29,16 @@ function sleep(ms) {
   });
 }
 
-function recalculateWeigths() {
-  console.log(grid);
-
+function resetGrid() {
+  grid.cores = {};
   grid.cloud_cores = [];
   grid.cloud_weights = [];
   grid.site_weights = [];
+}
 
-  ready = false;
+function recalculateWeigths() {
+  console.log('new grid:', grid);
+
   Object.keys(grid.cores).forEach((cloud) => {
     const sites = grid.cores[cloud];
     console.log(cloud, sites);
@@ -59,31 +58,33 @@ function recalculateWeigths() {
     console.log(cloud, sites);
     grid.site_weights[cloud] = (new c.WeightedList(sites));
   });
-
   ready = true;
 }
 
 // called at the startup
 // if grid description not in redis, will retry every 60 seconds
-async function recalculateGrid() {
+async function reloadGrid() {
   rclient.get('grid_description_version', async (err, reply) => {
-    console.log('GD version:', reply);
+    // console.log('GD version:', reply);
     if (!reply || reply === '0') {
       console.log('grid description not there. will retry in 60 seconds.');
       await sleep(60000);
-      await recalculateGrid();
-      return;
-    }
-    if (Number(reply) <= gridDescriptionVersion) {
-      console.log('update not needed.');
+      await reloadGrid();
       return;
     }
 
+    if (Number(reply) === gridDescriptionVersion) {
+      // console.log('update not needed.');
+      return;
+    }
+
+    console.log(`Current grid version: ${gridDescriptionVersion} needs an update.`);
     gridDescriptionVersion = Number(reply);
     console.log('Updating GD version to:', gridDescriptionVersion);
 
-
-    rclient.smembers('sites', (err1, sites) => {
+    ready = false;
+    resetGrid();
+    await rclient.smembers('sites', async (err1, sites) => {
       if (err1) {
         console.log('err. sites', err1);
         return;
@@ -91,27 +92,42 @@ async function recalculateGrid() {
 
       console.log('sites:', sites);
 
-      (function next(index) {
-        if (index === sites.length) { // No items left
-          return;
-        }
-        var site = sites[index];
-        rclient.get(site, (_err, site_cores) => {
-          const [cloud, site_name] = site.split(':');
+      const sdone = [];
+      for (let i = 0; i < sites.length; i++) {
+        const site = sites[i];
+        console.log('looking up site:', site);
+        await rclient.get(site, (err2, siteCores) => {
+          if (err2) {
+            console.error('error in getting site:', site, err2);
+          }
+          const [cloud, siteName] = site.split(':');
           if (!(cloud in grid.cores)) {
             grid.cores[cloud] = [];
           }
-          grid.cores[cloud].push([site_name, Number(site_cores)]);
-          next(index + 1);
+          grid.cores[cloud].push([siteName, Number(siteCores)]);
+          sdone.push(i);
         });
-      })(0);
+      }
+      while (sdone.length < sites.length) {
+        console.log(`not yet here. looked up ${sdone.length} from ${sites.length}.`);
+        await sleep(5000);
+      }
+      console.log('all sites looked up');
+      recalculateWeigths();
     });
 
+    // setTimeout(recalculateWeigths, 3000);
 
-    setTimeout(recalculateWeigths, 3000);
+    // dropping previous unas values
+    rclient.del('unas', (err1, removed) => {
+      if (err1) {
+        console.error('issue when deleting unas', err1);
+        return;
+      }
+      console.log(`dropped ${removed} unassigned.`);
+    });
   });
 }
-
 
 function generate() {
   const selCloud = grid.cloud_weights.peek()[0];
@@ -125,7 +141,7 @@ function generate() {
   }
 
   const res = grid.site_weights[selCloud].peek(ss);
-  console.log(selCloud, ss, res);
+  // console.log('cloud:', selCloud, 'nsites:', ss, 'throw:', res);
   return res.join(',');
 }
 
@@ -139,28 +155,29 @@ function fill() {
 
   if (!ready) return;
   rclient.llen('unas', (err, count) => {
-    console.log('count:', count);
+    console.log('unassigned :', count);
     if (count < config.PRECALCULATED_LWM) {
       for (let i = 0; i < config.PRECALCULATED_HWM - count; i++) {
-        rclient.lpush('unas', generate());
+        rclient.lpush('unas', generate(), (err1) => {
+          if (err1) {
+            console.error('error adding new unas.');
+          }
+          // console.log('after adding. unassigned:', numb);
+        });
       }
     }
-    recalculateGrid();
+    reloadGrid();
   });
 }
 
 async function main() {
   try {
-    await rclient.on('connect', () => {
+    rclient.on('connect', async () => {
       console.log('redis connected');
+      await reloadGrid();
+      // fills every 2 seconds
+      setInterval(fill, 2000);
     });
-
-    await recalculateGrid();
-    // console.log(grid);
-    // setInterval(recalculateGrid, 3600010);
-
-    // fills every 2 seconds
-    setInterval(fill, 2000);
   } catch (err) {
     console.error('Error: ', err);
   }

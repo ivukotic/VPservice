@@ -1,54 +1,46 @@
-const mode = process.env.MODE;
-
+const elasticsearch = require('@elastic/elasticsearch');
 const express = require('express');
 const redis = require('redis');
-const elasticsearch = require('@elastic/elasticsearch');
+const config = require('/etc/vps/config.json');
+const espath = require('/etc/vps/es-conn.json');
 
 const app = express();
 
 console.log('VPs server starting ... ');
-console.log('config load ... ');
+console.log('config: ', config);
 
-let configPath;
-let esPath;
-
-let disabled = new Set();
-let esData = [];
-
-if (mode === 'testing') {
-  configPath = './kube/test_config.json';
-  esPath = './kube/secrets/es_conn.json';
-} else {
-  configPath = '/etc/vps/config.json';
-  esPath = '/etc/es/es_conn.json';
-}
-
-const config = require(configPath);
-console.log(config);
 const rclient = redis.createClient(config.PORT, config.HOST);
 
-const espath = require(esPath);
 const es = new elasticsearch.Client({ node: espath.ES_HOST, log: 'error' });
 
+let disabled = new Set();
 let paused = false;
+
+// ES reporting things
+let esData = []; // buffer to hold a batch of ES reporting data.
 let inProgress = false;
+const batchSize = 100;
+let esIndex = 'virtual_placement';
+if (config.TESTING) {
+  esIndex = 'test_virtual_placement';
+}
 
 function esAddRequest(doc) {
-  const docsToStore = 100;
-  const chunk = docsToStore * 2;
   esData.push({ index: {} }, doc);
-  if (esData.length > chunk && inProgress === false) {
+  // for each doc added arrays grows by 2
+  if (esData.length > batchSize * 2 && inProgress === false) {
     inProgress = true;
+
     es.bulk(
-      { index: 'virtual_placement', body: esData.slice(0, chunk) },
-      (err) => {
+      { index: esIndex, body: esData.slice(0, batchSize * 2) },
+      (err, result) => {
         if (err) {
-          console.error('ES indexing failed:', err);
+          console.error('ES indexing failed\n', err);
           console.log('dropping data.');
           esData = [];
         } else {
-          console.log('es indexing done');
-          esData = esData.slice(chunk);
+          console.log('ES indexing done in', result.body.took, 'ms');
+          esData = esData.slice(batchSize * 2);
         }
         inProgress = false;
       },
@@ -69,14 +61,24 @@ function backup() {
   });
 }
 
-app.delete('/grid/', async (_req, res) => {
-  console.log('deleting all of the grid info ');
+app.delete('/grid/', (_req, res) => {
+  console.log('deleting all of the grid info.... VERIFIED');
 
-  rclient.del(await rclient.smembers('sites'), (_err, reply) => {
-    console.log('sites removed:', reply);
+  rclient.smembers('sites', (err1, result1) => {
+    if (!err1) {
+      console.log('deleting sites', result1);
+      rclient.del(result1, (err2, result2) => {
+        if (!err2) {
+          console.log('sites deleted:', result2);
+          rclient.del('sites');
+        } else {
+          console.error('could not delete sites');
+        }
+      });
+    } else {
+      console.error('could not get sites to delete');
+    }
   });
-
-  rclient.del('sites');
 
   console.log('resetting grid description version ...');
   rclient.set('grid_description_version', '0');
@@ -84,10 +86,12 @@ app.delete('/grid/', async (_req, res) => {
   res.status(200).send('OK');
 });
 
-app.delete('/all_data', async (_req, res) => {
-  console.log('deleting all of the database.');
-  await rclient.flushdb((_err, reply) => {
+app.delete('/all_data', (_req, res) => {
+  console.log('deleting all of the database. VERIFIED');
+  rclient.flushdb((_err, reply) => {
     console.log('reply:', reply);
+    console.log('resetting grid description version ...');
+    rclient.set('grid_description_version', '0');
     res.status(200).send(reply);
   });
 });
@@ -105,36 +109,41 @@ app.delete('/ds/:dataset', async (req, res) => {
   });
 });
 
-app.put('/site/:cloud/:sitename/:cores', async (req, res) => {
+app.put('/site/:cloud/:sitename/:cores', async (req, res, next) => {
+  // console.log('adding a site.... NOT VERIFIED');
   const { cloud } = req.params;
   const site = req.params.sitename;
   const { cores } = req.params;
 
   console.log('adding a site', site, 'to', cloud, 'cloud with', cores, 'cores');
 
-  rclient.sadd('sites', `${cloud}:${site}`, (err, reply) => {
+  rclient.sadd('sites', `${cloud}:${site}`, (err, numb) => {
     if (err) {
-      console.log('could not add site', err);
-      res.status(500).send('could not add site', err);
+      next(new Error('Could not add site', err));
     }
-    console.log(reply);
+    console.log('sites added:', numb);
   });
 
   rclient.set(`${cloud}:${site}`, cores, (err, reply) => {
     if (err) {
-      console.log('could not add site to the cloud', err);
-      res.status(500).send('could not add site to the cloud', err);
+      next(new Error('Could not add site to the cloud', err));
     }
-    console.log(reply);
+    console.log('site added to cloud or updated: ', reply);
   });
 
   console.log('updating grid description version ...');
-  rclient.incr('grid_description_version');
+  rclient.incr('grid_description_version', (err, version) => {
+    if (err) {
+      next(new Error('Could not increment grid description version.'));
+    }
+    console.log('current grid version:', version);
+  });
 
   res.status(200).send('OK');
 });
 
 app.put('/site/disable/:sitename', async (req, res) => {
+  // TODO - check that site is there - it is in the list of "sites"
   const site = req.params.sitename;
   console.log('disabling site', site);
 
@@ -145,12 +154,13 @@ app.put('/site/disable/:sitename', async (req, res) => {
       console.log('could not add site to disabled sites', err);
       res.status(500).send('could not add site to disabled sites', err);
     }
-    console.log(`disabled ${reply} site.`);
-    res.status(200).send(`disabled ${reply} site.`);
+    console.log(`disabled site: ${reply}.`);
+    res.status(200).send(`disabled site: ${reply}.`);
   });
 });
 
 app.put('/site/enable/:sitename', async (req, res) => {
+  // TODO check that site is in the list of sites.
   const site = req.params.sitename;
   console.log('enabling site', site);
 
@@ -165,6 +175,7 @@ app.put('/site/enable/:sitename', async (req, res) => {
 
 app.put('/rebalance', async (req, res) => {
   console.log('Doing full rebalance!');
+  // TODO - this was not started.
 
   // const counter = {};
   // get all the keys that represent datasets
@@ -178,6 +189,7 @@ app.put('/rebalance', async (req, res) => {
 });
 
 app.put('/flip_pause', async (req, res) => {
+  // TODO - split to pause and unpause
   paused = !(paused);
   console.log('FLIPPED PAUSE', paused);
   res.status(200).send('OK');
@@ -228,6 +240,7 @@ app.get('/grid/', async (_req, res) => {
 });
 
 app.get('/site/:cloud/:sitename', async (req, res) => {
+  console.log('If there is such a site in such a cloud returns number of cores. VERIFIED');
   const site = `${req.params.cloud}:${req.params.sitename}`;
 
   console.log('looking up site:', site);
@@ -235,11 +248,11 @@ app.get('/site/:cloud/:sitename', async (req, res) => {
   rclient.exists(site, (_err, reply) => {
     if (reply === 0) {
       console.log('not found');
-      res.status(400).send('not found.');
+      res.status(500).send('not found.');
     } else {
       rclient.get(site, (_ierr, ireply) => {
         console.log('found: ', ireply);
-        res.status(200).send(`found: ${ireply}`);
+        res.status(200).send(`Site found. Cores: ${ireply}`);
       });
     }
   });
@@ -251,7 +264,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     res.status(200).send(['other']);
     return;
   }
-  const nsites = parseInt(req.params.nsites);
+  const nsites = parseInt(req.params.nsites, 10);
   const ds = req.params.dataset;
   // console.log('ds to vp:', ds);
   const doc = {
@@ -324,15 +337,20 @@ app.put('/ds/reassign/:dataset/:sites', async (req, res) => {
   });
 });
 
-app.get('/test', async (_req, res) => {
+app.get('/test', async (_req, res, next) => {
   console.log('TEST starting...');
 
-  rclient.set('ds', 'TEST_OK', (_err, reply) => {
-    console.log(reply);
+  rclient.set('ds', 'TEST_OK', (err, reply) => {
+    if (err) {
+      next(new Error('Could not set a key in Redis'));
+    } else {
+      console.log(reply);
+    }
   });
 
   rclient.get('ds', (_err, reply) => {
     console.log(reply);
+    rclient.del('ds');
     res.send(reply);
   });
 });
@@ -346,39 +364,45 @@ app.get('/healthz', (_request, response) => {
   }
 });
 
-app.get('/', (req, res) => res.send('Hello from the Virtual Placement Service.'));
+app.get('/', (req, res) => res.send(`Hello from the Virtual Placement Service v${process.env.npm_package_version}`));
 
-app.use((err, req, res) => {
-  console.error('Error in error handler: ', err.message);
-  res.status(err.status).send(err.message);
+// handles all not mentioned routes.
+app.all('*', (req, res) => {
+  res.status(400).send('Bad REST request.');
 });
 
+// handles all kinds of issues.
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 
 app.listen(80, () => console.log('Listening on port 80!'));
 
 async function main() {
   try {
-    await rclient.on('connect', () => {
-      console.log('redis connected');
+    rclient.on('connect', () => {
+      console.log('redis connected OK.');
     });
 
     try {
-      await es.ping((err, resp) => {
+      es.ping((err, resp) => {
         console.log('ES ping:', resp.statusCode);
       });
     } catch (err) {
-      console.error('Error: ', err);
+      console.error('server error: ', err);
     }
 
+    // initializes value if it does not exist
+    rclient.setnx('grid_description_version', '0');
 
-    await rclient.setnx('grid_description_version', '0');
-
-    await rclient.smembers('disabled_sites', (_err, reply) => {
+    // loads disabled sites
+    rclient.smembers('disabled_sites', (_err, reply) => {
       console.log('Disabled sites:', reply);
       disabled = new Set(reply);
     });
-    setInterval(backup, 3600000);
-    // setInterval(backup, 86400000);
+
+    setInterval(backup, config.BACKUP_INTERVAL * 3600000);
   } catch (err) {
     console.error('Error: ', err);
   }
