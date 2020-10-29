@@ -40,10 +40,3 @@ Forward port:
 Run postman VP tests
 Tests are reported in index: _ _
 
-TODO 
-* disabling site does not check that site is there at the first place.
-* prefix these keys:
-sites are in a redis set "sites"
-keys "${cloud}:${site}" contain site core number
-key 'grid_description_version'
-* change flip_pause with pause and unpause.

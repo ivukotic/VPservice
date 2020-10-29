@@ -1,0 +1,8 @@
+[
+{ "cloud": "US", "sitename":"MWT2", "cores":1000},
+{ "cloud": "US", "sitename":"AGLT2", "cores":1000},
+{ "cloud": "US", "sitename":"BNL", "cores":2000},
+{ "cloud": "EU", "sitename":"LRZ", "cores":100},
+{ "cloud": "EU", "sitename":"PRAGUE", "cores":200},
+{ "cloud": "other", "sitename":"other", "cores":200000}
+]

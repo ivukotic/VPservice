@@ -5,7 +5,7 @@ metadata:
   labels:
     k8s-app: filler
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       k8s-app: filler
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: filler
-          image: ivukotic/vpservice:latest
+          image: vpservice:test
           command: ["node"]
           args: ["filler.js"]
           volumeMounts:
@@ -26,6 +26,3 @@ spec:
         - name: conf-volume
           secret:
             secretName: config
-            items:
-              - key: conf
-                path: config.json
