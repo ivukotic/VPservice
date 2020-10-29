@@ -50,16 +50,12 @@ spec:
       containers:
         - name: vps
           image: ivukotic/vpservice:latest
-          env:
-            - name: MODE
-              value: "Ntesting"
           ports:
             - containerPort: 80
           volumeMounts:
-            - name: frontend-conf-volume
+            - name: settings-volume
               mountPath: "/etc/vps/"
-            - name: es-conn-volume
-              mountPath: "/etc/vps/"
+              readOnly: true
           livenessProbe:
             httpGet:
               scheme: HTTP
@@ -69,15 +65,10 @@ spec:
             initialDelaySeconds: 60
             timeoutSeconds: 10
       volumes:
-        - name: frontend-conf-volume
-          secret:
-            secretName: config
-            items:
-              - key: conf
-                path: config.json
-        - name: es-conn-volume
-          secret:
-            secretName: es-conn
-            items:
-              - key: es-conf
-                path: es-conn.json
+        - name: settings-volume
+          projected:
+            sources:
+              - secret:
+                  name: config
+              - secret:
+                  name: es-conn
