@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "Virtual Placement Service",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
@@ -27,14 +28,15 @@
   },
   "homepage": "https://github.com/ivukotic/VPservice#readme",
   "dependencies": {
-    "@elastic/elasticsearch": "^7.9.0",
+    "@elastic/elasticsearch": "^7.9.1",
     "express": "^4.17.1",
     "https": "^1.0.0",
-    "redis": "^2.8.0"
+    "log-timestamp": "^0.3.0",
+    "redis": "^3.0.2"
   },
   "devDependencies": {
-    "eslint": "^7.8.1",
+    "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.0"
+    "eslint-plugin-import": "^2.22.1"
   }
 }

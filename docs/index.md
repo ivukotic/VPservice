@@ -30,3 +30,20 @@ By default service is accessible only from inside CERN at: http://vpservice.cern
 * GET /ds/`n`/`ds_name` - if dataset was already preplaced it returns ordered list of sites. If not preplaced returns ordered list of up to `n` sites. Dataset that should not be in the system returns: _other_.
 
 * /ds/reassign/`ds_name` - to be used only for datasets that need new Virtual Placement (eg. it was assigned to _other_).
+
+
+
+### Dev testing
+Deploy in local minikube using *start_dev.bat*
+Forward port:
+*START /B kubectl port-forward service/vps 80:80*
+Run postman VP tests
+Tests are reported in index: _ _
+
+TODO 
+* disabling site does not check that site is there at the first place.
+* prefix these keys:
+sites are in a redis set "sites"
+keys "${cloud}:${site}" contain site core number
+key 'grid_description_version'
+* change flip_pause with pause and unpause.

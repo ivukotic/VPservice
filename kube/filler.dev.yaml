@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filler
+  labels:
+    k8s-app: filler
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      k8s-app: filler
+  template:
+    metadata:
+      labels:
+        k8s-app: filler
+    spec:
+      containers:
+        - name: filler
+          image: vpservice:test
+          command: ["node"]
+          args: ["filler.js"]
+          volumeMounts:
+            - name: conf-volume
+              mountPath: "/etc/vps/"
+      volumes:
+        - name: conf-volume
+          secret:
+            secretName: config
