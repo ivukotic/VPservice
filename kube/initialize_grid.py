@@ -1,7 +1,7 @@
 import requests
 import json
 
-testing = True
+testing = False
 
 if testing:
     sitename = 'http://localhost:80'
