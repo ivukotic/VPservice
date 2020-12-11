@@ -1,5 +1,9 @@
 * disabling site does not check that site is there at the first place.
 
+* move deployment to a new OpenStack project.
+
+* add persistent volume for redis
+
 * prefix these keys:
 sites are in a redis set "sites"
 keys "${cloud}:${site}" contain site core number
@@ -9,3 +13,11 @@ key 'grid_description_version'
 * pre-check parameters in /site/:cloud/:sitename/:cores
 
 * fillers doesn't really need more than one instance?
+
+* get an endpoint for xcaches to report to
+
+* get an endpoint for rucio to get xcache prefix for a given site and file
+
+* add alarm and alert on VPservice status.
+
+* add really simple web endpoint

@@ -31,12 +31,14 @@
     "@elastic/elasticsearch": "^7.9.1",
     "express": "^4.17.1",
     "https": "^1.0.0",
+    "lodash": ">=4.17.20",
     "log-timestamp": "^0.3.0",
     "redis": "^3.0.2"
   },
   "devDependencies": {
-    "eslint": "^7.10.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.1"
+    "eslint": "^7.15.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "lodash": ">=4.17.20"
   }
 }
