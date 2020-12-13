@@ -39,6 +39,7 @@ paths:
                 required: false
                 schema:
                     type: integer
+                    format: int64
 
           responses:
             '200':
