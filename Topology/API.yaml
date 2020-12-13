@@ -41,13 +41,7 @@ paths:
                     type: string
               - name: site
                 in: query
-                description: site that xcache server belongs to.
-                required: true
-                schema:
-                    type: string
-              - name: address
-                in: path
-                description: 
+                
 
           responses:
             '200':
@@ -110,6 +104,7 @@ components:
                 description: "server id"
             site:
                 type: string
+                description: site that xcache server belongs to.
             address:
                 type: string
                 description: "FQDN or IP of xcache server"
