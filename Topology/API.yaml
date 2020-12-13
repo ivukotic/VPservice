@@ -20,9 +20,17 @@ paths:
   /liveness:
       post:
           summary: 'For XCache servers to report to. Send basic info.'
+          parameters:
+              - name: id
+                in: 
+                description: ID of the server
+                required: true
+                schema:
+                    type: string
+              - address: 
           responses:
             '200':
-                description: 'Returns version of code.'
+                description: 'Returns OK.'
             default:
                 description: Unexpected error
                 content:
