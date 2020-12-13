@@ -53,7 +53,6 @@ paths:
                     type: string
               - name: size
                 in: query
-                description: Total server disk space in MB
                 required: false
                 schema:
                     type: integer
@@ -125,6 +124,7 @@ components:
             size:
                 type: integer
                 format: int64
+                description: Total server disk space in MB
     Client:
         type: string
     Error:
