@@ -27,7 +27,11 @@ paths:
                 application/json:
                     schema:
                         $ref: '#/components/schemas/XCacheServer'
-
+                    example:
+                        id: mwt2_1
+                        site: mwt2
+                        address: xcache1.mwt2.org
+                        
           parameters:
               - name: id
                 in: path
