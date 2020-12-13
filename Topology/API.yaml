@@ -31,7 +31,7 @@ paths:
                         id: mwt2_1
                         site: mwt2
                         address: xcache1.mwt2.org
-                        
+
           parameters:
               - name: id
                 in: path
@@ -62,6 +62,11 @@ paths:
           responses:
             '200':
                 description: 'Returns OK.'
+                text/plain:
+                    schema:
+                        type: string
+                    example: OK
+
             default:
                 description: Unexpected error
                 content:
