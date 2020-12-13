@@ -49,6 +49,7 @@ components:
   schemas:
     Version:
         type: integer
+        format: integer
     XCacheServer:
         type: object
         required:
