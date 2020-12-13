@@ -49,7 +49,15 @@ paths:
         get:
             summary: 'For a client to ask for a xcache to use.'
             parameters:
-                -
+                - name: 'client'
+                    in: 'query'
+                    schema:
+                        type: 'string'
+                - name: 'filename'
+                    in: 'query'
+                    schema:
+                        type: 'string'
+
             responses:
                 '200':
                     description: 'Returns address of the XCache server.'
@@ -58,7 +66,7 @@ paths:
                             type: string
                             example: root://xcache3.mwt2.org:1094
                 '500':
-                    description: 'Missing parameter or unexisting '
+                    description: 'Missing parameter'
 
 components:
   schemas:
