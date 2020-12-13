@@ -61,7 +61,7 @@ components:
                 description: "ID of the server"
             site:
                 type: string
-                description: "site that xcache server belongs to."
+                description: "site that xcache server belongs to.""
             address:
                 type: string
                 description: "FQDN or IP of xcache server"
