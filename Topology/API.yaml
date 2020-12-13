@@ -27,14 +27,12 @@ paths:
                 required: true
                 schema:
                     type: string
-              
               - name: site
                 in: query
                 description: site that xcache server belongs to.
                 required: true
                 schema:
                     type: string
-                    
               - name: address
                 in: path
                 description: FQDN or IP of xcache server
