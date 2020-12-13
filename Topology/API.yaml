@@ -38,8 +38,7 @@ paths:
                 description: Total server disk space in MB
                 required: false
                 schema:
-                    type: integer
-                    schema: int64
+                    type: int64
 
           responses:
             '200':
