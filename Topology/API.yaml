@@ -22,7 +22,7 @@ paths:
           summary: 'For XCache servers to report to. Send basic info.'
           parameters:
               - name: id
-                in: 
+                in: path
                 description: ID of the server
                 required: true
                 schema:
