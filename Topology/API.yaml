@@ -49,15 +49,16 @@ paths:
         get:
             summary: 'For a client to ask for a xcache to use.'
             parameters:
-                - name: 'client'
-                    in: 'query'
+                - name: client
+                    in: query
                     schema:
-                        type: 'string'
-                - name: 'filename'
-                    in: 'query'
+                        type: string
+                    example: MWT2_SCRATCHDISK
+                - name: filename
+                    in: query
                     schema:
-                        type: 'string'
-
+                        type: string
+                    example: scope:xAOD.123.23.root
             responses:
                 '200':
                     description: 'Returns address of the XCache server.'
