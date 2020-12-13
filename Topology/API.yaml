@@ -108,6 +108,7 @@ components:
         properties:
             id:
                 type: string
+                description: server id
             site:
                 type: string
             address:
