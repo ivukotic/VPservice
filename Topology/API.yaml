@@ -47,16 +47,7 @@ paths:
                     type: string
               - name: address
                 in: path
-                description: FQDN or IP of xcache server
-                required: true
-                schema:
-                    type: string
-              - name: size
-                in: query
-                required: false
-                schema:
-                    type: integer
-                    format: int64
+                description: 
 
           responses:
             '200':
@@ -121,6 +112,7 @@ components:
                 type: string
             address:
                 type: string
+                FQDN or IP of xcache server
             size:
                 type: integer
                 format: int64
