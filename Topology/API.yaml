@@ -62,10 +62,11 @@ paths:
           responses:
             '200':
                 description: 'Returns OK.'
-                text/plain:
-                    schema:
-                        type: string
-                        example: OK
+                content:
+                    text/plain:
+                        schema:
+                            type: string
+                            example: OK
 
             default:
                 description: Unexpected error
