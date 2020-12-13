@@ -28,7 +28,7 @@ paths:
                 schema:
                     type: string
               - name: address
-                in:
+                in: path
                 description:
                 required: true
                 schema:
@@ -56,7 +56,7 @@ paths:
           description: ID of the user
           required: true
           schema:
-            type: XCacheServer
+            type: integer
       responses:
         '200':
           description: 'Sample response: Details about a user by ID'
@@ -87,6 +87,8 @@ components:
             - size
         properties:
             id:
+                type: string
+            site:
                 type: string
             address:
                 type: string
