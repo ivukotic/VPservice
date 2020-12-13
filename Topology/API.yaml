@@ -48,8 +48,8 @@ paths:
 components:
   schemas:
     Version:
-        type: integer
-        format: integer
+        type: text
+        description: "server & api version"
     XCacheServer:
         type: object
         required:
