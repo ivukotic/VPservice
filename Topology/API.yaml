@@ -48,7 +48,7 @@ paths:
 components:
   schemas:
     Version:
-        type: text
+        type: string
         description: "server & api version"
     XCacheServer:
         type: object
