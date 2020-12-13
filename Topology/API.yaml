@@ -119,6 +119,7 @@ components:
             size:
                 type: integer
                 format: int64
+                required:false
                 description: Total server disk space in MB
     Client:
         type: string
