@@ -49,12 +49,12 @@ paths:
         get:
             summary: 'For a client to ask for a xcache to use.'
             parameters:
-                - name: client
-                    in: query
-                    required: true
-                    schema:
-                        type: string
-                    example: MWT2_SCRATCHDISK
+            - name: client
+                in: query
+                required: true
+                schema:
+                    type: string
+                example: MWT2_SCRATCHDISK
                 - name: filename
                     in: query
                     required: true
