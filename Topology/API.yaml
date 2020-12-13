@@ -107,19 +107,15 @@ components:
         properties:
             id:
                 type: string
-                description: server id
-                required: true
+                description: "server id"
             site:
                 type: string
-                required: true
             address:
                 type: string
-                required: true
-                description: FQDN or IP of xcache server
+                description: "FQDN or IP of xcache server"
             size:
                 type: integer
                 format: int64
-                required: false
                 description: Total server disk space in MB
     Client:
         type: string
