@@ -51,11 +51,13 @@ paths:
             parameters:
                 - name: client
                     in: query
+                    required: true
                     schema:
                         type: string
                     example: MWT2_SCRATCHDISK
                 - name: filename
                     in: query
+                    required: true
                     schema:
                         type: string
                     example: scope:xAOD.123.23.root
