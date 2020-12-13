@@ -27,7 +27,14 @@ paths:
                 required: true
                 schema:
                     type: string
-              - address: 
+              - name: address
+                in:
+                description:
+                required: true
+                schema:
+                    type: string
+              - name: size
+
           responses:
             '200':
                 description: 'Returns OK.'
@@ -49,8 +56,7 @@ paths:
           description: ID of the user
           required: true
           schema:
-            type: integer
-            format: int32
+            type: XCacheServer
       responses:
         '200':
           description: 'Sample response: Details about a user by ID'
