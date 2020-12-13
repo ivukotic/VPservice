@@ -29,11 +29,17 @@ paths:
                     type: string
               - name: address
                 in: path
-                description:
+                description: FQDN or IP of xcache server
                 required: true
                 schema:
                     type: string
               - name: size
+                in: query
+                description: Total server disk space in MB
+                required: false
+                schema:
+                    type: integer
+                    schema: int64
 
           responses:
             '200':
