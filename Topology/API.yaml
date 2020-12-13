@@ -72,7 +72,6 @@ paths:
                             example: root://xcache3.mwt2.org:1094
                 '500':
                     description: 'Missing parameter'
-
 components:
   schemas:
     Version:
