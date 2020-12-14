@@ -51,7 +51,7 @@ paths:
             parameters:
             - name: client
                 # description: client name. Can be ATLAS DDM endpoint, site, analysis farm
-            in: query
+                in: query
                 # required: true
                 # schema:
                 #     type: string
