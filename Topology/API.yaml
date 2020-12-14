@@ -75,7 +75,9 @@ paths:
 #     #                         example: root://xcache3.mwt2.org:1094
 #     #             '500':
 #     #                 description: 'Missing parameter'
+
 components:
+  
   schemas:
     Version:
       type: string
@@ -121,3 +123,15 @@ components:
       schema: 
         type: integer
         format: int32
+
+  responses: 
+    NotFound:
+      description: Entity not found.
+    IllegalInput: 
+      description: Illegal input for operation.
+    GeneralError: 
+      description: General Error
+      content: 
+        application/json: 
+          schema: 
+            $ref: "#/components/schemas/GeneralError"
