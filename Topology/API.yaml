@@ -144,4 +144,4 @@ components:
       content: 
         application/json: 
           schema: 
-            $ref: "#/componens/schemas/Error"
+            $ref: "#/components/schemas/Error"
