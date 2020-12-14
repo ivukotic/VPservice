@@ -11,14 +11,14 @@ servers:
 paths:
   /healthz:
     get:
-      summary: "For a liveness probe. Returns version."
+      summary: For a liveness probe. Returns version.
       responses:
           description: Returns OK.
           content:
             text/plain:
               schema:
                 type: string
-              example: OK
+            example: OK
         default:
           description: Unexpected error
           content:
