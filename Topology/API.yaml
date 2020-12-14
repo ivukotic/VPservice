@@ -9,7 +9,7 @@ info:
     email: ivukotic@uchicago.edu
 
 servers:
-  - url: {{url}}
+  - url: "{{url}}""
 
 paths:
 
