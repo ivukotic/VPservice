@@ -115,4 +115,5 @@ components:
   parameters:
     xc_site:
       type: string
+      in: query
       description: "site that xcache server belongs to."
