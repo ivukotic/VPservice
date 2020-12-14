@@ -32,6 +32,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/XCacheServer'
+            examples:  
+              user:
+                summary: User Example
+                externalValue: 'http://foo.bar/examples/user-example.json'
       responses:
         200:
           description: Returns OK.
