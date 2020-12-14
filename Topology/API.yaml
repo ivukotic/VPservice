@@ -114,6 +114,10 @@ components:
   
   parameters:
     xc_site:
-      type: string
+      name: xc_site
       in: query
       description: "site that xcache server belongs to."
+      required: true
+      schema: 
+        type: integer
+        format: int32
