@@ -100,17 +100,17 @@ components:
 #                     type: integer
 #                     format: int64
 #                     description: "Total server disk space in MB."
-#         Error:
-#         type: object
-#         required:
-#             - code
-#             - message
-#         properties:
-#             code:
-#             type: integer
-#             format: int32
-#             message:
-#             type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
 #     # parameters:
 #     #     xc_site:
 #     #         type: string
