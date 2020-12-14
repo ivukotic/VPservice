@@ -61,6 +61,8 @@ paths:
             text/plain:
               example: root://xcache3.mwt2.org:1094
         '500':
+          $ref: '#/components/responses/IllegalInput'
+        'default':
           $ref: '#/components/responses/GeneralError'
     parameters:
     - name: client
@@ -134,9 +136,7 @@ components:
         type: integer
         format: int32
 
-  responses: 
-    NotFound:
-      description: Entity not found.
+  responses:
     IllegalInput: 
       description: Illegal input for operation.
     GeneralError: 
