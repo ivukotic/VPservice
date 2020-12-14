@@ -52,7 +52,7 @@ paths:
 
   /prefix:
     get:
-     summary: For a client to ask for a xcache to use.
+      summary: For a client to ask for a xcache to use.
             # parameters:
             # - name: client
                 # description: "client name. Can be ATLAS DDM endpoint, site, analysis farm"
