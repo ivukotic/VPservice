@@ -13,8 +13,12 @@ paths:
     get:
       summary: "For a liveness probe. Returns version."
       responses:
-        "200":
-          description: "Returns version of code."
+          description: Returns OK.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: OK
         default:
           description: Unexpected error
           content:
@@ -111,7 +115,7 @@ components:
           description: Total server disk space in MB.
           minimum: 0
           example: 123123123123
-          
+
     Error:
       type: object
       required:
