@@ -81,9 +81,11 @@ paths:
 components:
   
   schemas:
+
     Version:
       type: string
       description: "server & api version"
+
     XCacheServer:
       type: object
       required:
@@ -109,6 +111,7 @@ components:
           description: Total server disk space in MB.
           minimum: 0
           example: 123123123123
+          
     Error:
       type: object
       required:
