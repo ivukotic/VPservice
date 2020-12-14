@@ -1,21 +1,21 @@
 openapi: 3.0.0
 info:
-    version: 1.0.0
-    title: Topology
-    contact:
-        name: Ilija Vukotic
-        url: https://github.com/ivukotic/VPservice
-        email: ivukotic@uchicago.edu
+  version: 1.0.0
+  title: Topology
+  contact:
+    name: Ilija Vukotic
+    url: https://github.com/ivukotic/VPservice
+    email: ivukotic@uchicago.edu
 servers:
-    - url: 'http://localhost:3000'
+  - url: "http://localhost:3000"
 paths:
-    /healthz:
-        get:
-            summary: 'For a liveness probe. Returns version.'
-            responses:
-                '200':
-                    description: 'Returns version of code.'
-                default:
+  /healthz:
+    get:
+      summary: "For a liveness probe. Returns version."
+      responses:
+        '200':
+          description: 'Returns version of code.'
+            default:
                     description: Unexpected error
                     content:
                         application/json:
