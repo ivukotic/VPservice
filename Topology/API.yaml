@@ -4,7 +4,7 @@ info:
     title: Topology
     contact:
         name: Ilija Vukotic
-        # url: 
+        url: https://github.com/ivukotic/VPservice
         email: ivukotic@uchicago.edu
 servers:
     - url: 'http://localhost:3000'
