@@ -119,14 +119,20 @@ components:
           type: string
   
   parameters:
-    xc_site:
-      name: xc_site
+    - name: client
+      description: client name. Can be ATLAS DDM endpoint, site, analysis farm
       in: query
-      description: "site that xcache server belongs to."
       required: true
-      schema: 
-        type: integer
-        format: int32
+      schema:
+        type: string
+      example: MWT2_SCRATCHDISK
+    - name: filename
+      description: filename to be looked for
+      in: query
+      required: true
+      schema:
+        type: string
+      example: scope:xAOD.123.23.root
 
   responses:
     IllegalInput: 
