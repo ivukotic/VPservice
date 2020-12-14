@@ -1,4 +1,5 @@
 openapi: 3.0.0
+
 info:
   version: 1.0.0
   title: Topology
@@ -6,9 +7,12 @@ info:
     name: Ilija Vukotic
     url: https://github.com/ivukotic/VPservice
     email: ivukotic@uchicago.edu
+
 servers:
   - url: "http://localhost:3000"
+
 paths:
+
   /healthz:
     get:
       summary: For a liveness probe. Returns version.
@@ -22,9 +26,10 @@ paths:
               example: OK
         default:
           $ref: '#/components/responses/GeneralError'
+
   /liveness:
     post:
-      summary: 'For XCache servers to report to. Send basic info.'
+      summary: For XCache servers to report to. Send basic info.
       requestBody:
         description: XCache object in JSON format
         required: true
