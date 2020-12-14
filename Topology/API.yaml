@@ -21,11 +21,7 @@ paths:
                 type: string
               example: OK
         default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/GeneralError'
   /liveness:
     post:
       summary: 'For XCache servers to report to. Send basic info.'
@@ -45,11 +41,7 @@ paths:
                 type: string
               example: OK
         default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/GeneralError'
 
   /prefix:
     get:
