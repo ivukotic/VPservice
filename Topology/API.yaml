@@ -111,7 +111,7 @@ components:
           format: int32
         message:
           type: string
-    parameters:
-        xc_site:
-            type: string
-            description: "site that xcache server belongs to."
+  parameters:
+    xc_site:
+      type: string
+      description: "site that xcache server belongs to."
