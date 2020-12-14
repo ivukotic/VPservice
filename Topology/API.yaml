@@ -1,74 +1,118 @@
 openapi: 3.0.0
+
 info:
   version: 1.0.0
   title: Topology
+  contact:
+    name: Ilija Vukotic
+    url: https://github.com/ivukotic/VPservice
+    email: ivukotic@uchicago.edu
+
 servers:
-  - url: 'http://localhost:3000'
+  - url: "http://localhost:3000"
+
 paths:
+
   /healthz:
     get:
-        summary: 'For a liveness probe. Returns version.'
-        responses:
-            '200':
-                description: 'Returns version of code.'
-            default:
-                description: Unexpected error
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Error'
-  /user:
-    get:
-      summary: 'Sample endpoint: Returns details about a particular user'
-      operationId: listUser
-      tags:
-        - user
-      parameters:
-        - name: id
-          in: query
-          description: ID of the user
-          required: true
-          schema:
-            type: integer
-            format: int32
+      summary: For a liveness probe. Returns version.
       responses:
-        '200':
-          description: 'Sample response: Details about a user by ID'
-          headers:
-            x-next:
-              description: A link to the next page of responses
+        200:
+          description: Returns OK.
+          content:
+            text/plain:
               schema:
                 type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
+              example: OK
         default:
-          description: Unexpected error
+          $ref: '#/components/responses/GeneralError'
+
+  /liveness:
+    post:
+      summary: For XCache servers to report to. Send basic info.
+      requestBody:
+        description: XCache object in JSON format
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/XCacheServer'
+            examples:  
+              grid_site:
+                summary: grid site deployed cache example
+                value: 
+                  id: xc1
+                  site: MWT2
+                  address: xc1.mwt2.org
+                  size: 123123123
+              in_network_cache:
+                summary: in network cache
+                value: 
+                  id: xc_esnet
+                  site: Sunnyvale
+                  address: xc_esnet.asd.org
+      responses:
+        200:
+          description: Returns OK.
           content:
-            application/json:
+            text/plain:
               schema:
-                $ref: '#/components/schemas/Error'
+                type: string
+              example: OK
+        default:
+          $ref: '#/components/responses/GeneralError'
+
+  /prefix:
+    get:
+      summary: For a client to ask for a xcache to use.
+      responses:
+        200:
+          description: Returns address of the XCache server.
+          content:
+            text/plain:
+              example: root://xcache3.mwt2.org:1094
+        500:
+          $ref: '#/components/responses/IllegalInput'
+        default:
+          $ref: '#/components/responses/GeneralError'
+    parameters:
+    - $ref: '#/components/parameters/client'
+    - $ref: '#/components/parameters/filename'
+
 components:
+  
   schemas:
+
     Version:
-        type: integer
+      type: string
+      description: "server & api version"
+
     XCacheServer:
-        type: object
-        required:
-            - id
-            - address
-            - size
-        properties:
-            id:
-                type: string
-            address:
-                type: string
-            size:
-                type: integer
-                format: int64
-    Client:
-        type: string
+      type: object
+      required:
+        - id
+        - site
+        - address
+      properties:
+        id:
+          type: string
+          description: ID of the server.
+          example: xcache_dfnu4dfv4_2ed8f
+        site:
+          type: string
+          description: site that xcache server belongs to.
+          example: MWT2_Caches
+        address:
+          type: string
+          description: FQDN or IP of xcache server.
+          example: xcache1.mwt2.org
+        size:
+          type: integer
+          format: int64
+          description: Total server disk space in MB.
+          minimum: 0
+          example: 123123123123
+
     Error:
       type: object
       required:
@@ -80,3 +124,31 @@ components:
           format: int32
         message:
           type: string
+  
+  parameters:
+    client:
+      name: client
+      description: client name. Can be ATLAS DDM endpoint, site, analysis farm
+      in: query
+      required: true
+      schema:
+        type: string
+      example: MWT2_SCRATCHDISK
+    filename:
+      name: filename
+      description: filename to be looked for
+      in: query
+      required: true
+      schema:
+        type: string
+      example: scope:xAOD.123.23.root
+
+  responses:
+    IllegalInput: 
+      description: Illegal input for operation.
+    GeneralError: 
+      description: General Error
+      content: 
+        application/json: 
+          schema: 
+            $ref: "#/components/schemas/Error"
