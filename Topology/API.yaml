@@ -13,7 +13,7 @@ paths:
     get:
       summary: For a liveness probe. Returns version.
       responses:
-        "200":
+        200:
           description: Returns OK.
           content:
             text/plain:
