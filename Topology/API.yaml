@@ -55,14 +55,14 @@ paths:
     get:
       summary: For a client to ask for a xcache to use.
       responses:
-        '200':
+        200:
           description: Returns address of the XCache server.
           content:
             text/plain:
               example: root://xcache3.mwt2.org:1094
-        '500':
+        500':
           $ref: '#/components/responses/IllegalInput'
-        'default':
+        default:
           $ref: '#/components/responses/GeneralError'
     parameters:
     - name: client
