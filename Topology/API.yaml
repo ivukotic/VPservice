@@ -21,16 +21,16 @@ paths:
         post:
             summary: 'For XCache servers to report to. Send basic info.'
             requestBody:
-            description: XCache object in JSON format
-            required: true
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/XCacheServer'
-                    example:
-                        id: mwt2_1
-                        site: mwt2
-                        address: xcache1.mwt2.org
+                description: XCache object in JSON format
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/XCacheServer'
+                        example:
+                            id: mwt2_1
+                            site: mwt2
+                            address: xcache1.mwt2.org
             responses:
                 '200':
                     description: 'Returns OK.'
@@ -49,20 +49,20 @@ paths:
         get:
             summary: For a client to ask for a xcache to use.
             parameters:
-            - client:
-                description: client name. Can be ATLAS DDM endpoint, site, analysis farm
-                in: query
-                required: true
-                schema:
-                    type: string
-                example: MWT2_SCRATCHDISK
-            - filename:
-                description: filename to be looked for
-                in: query
-                required: true
-                schema:
-                    type: string
-                example: scope:xAOD.123.23.root
+                client:
+                    description: client name. Can be ATLAS DDM endpoint, site, analysis farm
+                    in: query
+                    required: true
+                    schema:
+                        type: string
+                    example: MWT2_SCRATCHDISK
+                filename:
+                    description: filename to be looked for
+                    in: query
+                    required: true
+                    schema:
+                        type: string
+                    example: scope:xAOD.123.23.root
             responses:
                 '200':
                     description: 'Returns address of the XCache server.'
