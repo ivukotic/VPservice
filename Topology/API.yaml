@@ -18,7 +18,7 @@ paths:
             text/plain:
               schema:
                 type: string
-            example: OK
+              example: OK
         default:
           description: Unexpected error
           content:
