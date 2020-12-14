@@ -21,34 +21,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    /liveness:
-        post:
-            summary: 'For XCache servers to report to. Send basic info.'
-            requestBody:
-                description: XCache object in JSON format
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/XCacheServer'
-                        example:
-                            id: mwt2_1
-                            site: mwt2
-                            address: xcache1.mwt2.org
-            responses:
-                '200':
-                    description: 'Returns OK.'
-                    content:
-                        text/plain:
-                            schema:
-                                type: string
-                                example: OK
-                default:
-                    description: Unexpected error
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Error'
+  /liveness:
+    post:
+      summary: 'For XCache servers to report to. Send basic info.'
+      requestBody:
+        description: XCache object in JSON format
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/XCacheServer'
+              example:
+                id: mwt2_1
+                site: mwt2
+                address: xcache1.mwt2.org
+      responses:
+        "200":
+          description: 'Returns OK.'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: OK
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     # /prefix:
     #     get:
     #         summary: For a client to ask for a xcache to use.
