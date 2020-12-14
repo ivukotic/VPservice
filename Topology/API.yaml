@@ -75,11 +75,11 @@ paths:
 #     #                         example: root://xcache3.mwt2.org:1094
 #     #             '500':
 #     #                 description: 'Missing parameter'
-# components:
-#     schemas:
-#         Version:
-#             type: string
-#             description: "server & api version"
+components:
+  schemas:
+    Version:
+      type: string
+      description: "server & api version"
 #         XCacheServer:
 #             type: object
 #             required:
