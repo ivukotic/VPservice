@@ -69,7 +69,7 @@ paths:
       schema:
         type: string
       example: MWT2_SCRATCHDISK
-    - name:filename
+    - name: filename
         description: filename to be looked for
         in: query
         required: true
