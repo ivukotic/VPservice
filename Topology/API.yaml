@@ -53,7 +53,7 @@ paths:
                 description: client name. Can be ATLAS DDM endpoint, site, analysis farm
                 in: query
                 required: true
-                schema:
+                # schema:
                 #     type: string
                 # example: MWT2_SCRATCHDISK
                 # filename:
