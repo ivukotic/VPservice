@@ -93,11 +93,11 @@ components:
       properties:
         id:
           type: string
-          description: "ID of the server."
+          description: ID of the server.
           example: xcache_dfnu4dfv4_2ed8f
         site:
           type: string
-          description: "site that xcache server belongs to."
+          description: site that xcache server belongs to.
           example: MWT2_Caches
         address:
           type: string
@@ -106,7 +106,7 @@ components:
         size:
           type: integer
           format: int64
-          description: "Total server disk space in MB."
+          description: Total server disk space in MB.
           minimum: 0
           example: 123123123123
     Error:
