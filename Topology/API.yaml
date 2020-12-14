@@ -33,8 +33,8 @@ paths:
             schema:
               $ref: '#/components/schemas/XCacheServer'
             examples:  
-              user:
-                summary: User Example
+              grid_site:
+                id: xcache1
                 externalValue: 'http://foo.bar/examples/user-example.json'
       responses:
         200:
