@@ -60,7 +60,7 @@ paths:
           content:
             text/plain:
               example: root://xcache3.mwt2.org:1094
-        500':
+        500:
           $ref: '#/components/responses/IllegalInput'
         default:
           $ref: '#/components/responses/GeneralError'
