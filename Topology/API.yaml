@@ -35,6 +35,7 @@ paths:
                 id: mwt2_1
                 site: mwt2
                 address: xcache1.mwt2.org
+                size: 12345678
       responses:
         "200":
           description: Returns OK.
