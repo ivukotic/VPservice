@@ -35,10 +35,17 @@ paths:
             examples:  
               grid_site:
                 summary: grid site deployed cache example
-                value: {"id":"xc1", "site":"MWT2", "address": 'xc1.mwt2.org', "size":123123123}
+                value: 
+                  id: xc1
+                  site: MWT2
+                  address: xc1.mwt2.org
+                  size: 123123123
               in_network_cache:
                 summary: in network cache
-                value: {"id":"xc_esnet", "site":"Sunnyvale", "address": 'xc_esnet.asd.org'}
+                value: 
+                  id: xc_esnet
+                  site: Sunnyvale
+                  address: xc_esnet.asd.org
       responses:
         200:
           description: Returns OK.
