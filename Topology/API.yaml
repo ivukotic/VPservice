@@ -37,7 +37,7 @@ paths:
                 address: xcache1.mwt2.org
       responses:
         "200":
-          description: 'Returns OK.'
+          description: Returns OK.
           content:
             text/plain:
               schema:
