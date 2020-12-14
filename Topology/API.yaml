@@ -103,6 +103,7 @@ components:
           type: integer
           format: int64
           description: "Total server disk space in MB."
+          minimum: 0
     Error:
       type: object
       required:
