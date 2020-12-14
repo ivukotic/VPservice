@@ -8,19 +8,19 @@ info:
     email: ivukotic@uchicago.edu
 servers:
   - url: "http://localhost:3000"
-# paths:
-#   /healthz:
-#     get:
-#       summary: "For a liveness probe. Returns version."
-#       responses:
-#         "200":
-#           description: "Returns version of code."
-#         default:
-#           description: Unexpected error
-#           content:
-#             application/json:
-#               schema:
-#                 $ref: '#/components/schemas/Error'
+paths:
+  /healthz:
+    get:
+      summary: "For a liveness probe. Returns version."
+      responses:
+        "200":
+          description: "Returns version of code."
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 #   /liveness:
 #     post:
 #       summary: 'For XCache servers to report to. Send basic info.'
