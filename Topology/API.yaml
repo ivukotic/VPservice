@@ -61,7 +61,6 @@ paths:
               example: root://xcache3.mwt2.org:1094
         '500':
           $ref: '#/components/responses/GeneralError'
-          description: Missing parameter
     parameters:
     - name: client
       description: client name. Can be ATLAS DDM endpoint, site, analysis farm
