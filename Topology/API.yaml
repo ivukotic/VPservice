@@ -34,8 +34,11 @@ paths:
               $ref: '#/components/schemas/XCacheServer'
             examples:  
               grid_site:
-                id: xcache1
-                externalValue: 'http://foo.bar/examples/user-example.json'
+                summary: grid site deployed cache example
+                value: {"id":"xc1", "site":"MWT2", "address": 'xc1.mwt2.org', "size":123123123}
+              in_network_cache:
+                summary: in network cache
+                value: {"id":"xc_esnet", "site":"Sunnyvale", "address": 'xc_esnet.asd.org'}
       responses:
         200:
           description: Returns OK.
