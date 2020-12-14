@@ -60,21 +60,6 @@ paths:
     - $ref: '#/components/parameters/client'
     - $ref: '#/components/parameters/filename'
 
-    # - name: client
-    #   description: client name. Can be ATLAS DDM endpoint, site, analysis farm
-    #   in: query
-    #   required: true
-    #   schema:
-    #     type: string
-    #   example: MWT2_SCRATCHDISK
-    # - name: filename
-    #   description: filename to be looked for
-    #   in: query
-    #   required: true
-    #   schema:
-    #     type: string
-    #   example: scope:xAOD.123.23.root
-
 components:
   
   schemas:
