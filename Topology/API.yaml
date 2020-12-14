@@ -80,26 +80,26 @@ components:
     Version:
       type: string
       description: "server & api version"
-#         XCacheServer:
-#             type: object
-#             required:
-#                 - id
-#                 - address
-#                 - size
-#             properties:
-#                 id:
-#                     type: string
-#                     description: "ID of the server."
-#                 site:
-#                     type: string
-#                     description: "site that xcache server belongs to."
-#                 address:
-#                     type: string
-#                     description: "FQDN or IP of xcache server."
-#                 size:
-#                     type: integer
-#                     format: int64
-#                     description: "Total server disk space in MB."
+    XCacheServer:
+      type: object
+      required:
+        - id
+        - address
+        - size
+      properties:
+        id:
+          type: string
+          description: "ID of the server."
+        site:
+          type: string
+          description: "site that xcache server belongs to."
+        address:
+          type: string
+          description: "FQDN or IP of xcache server."
+        size:
+          type: integer
+          format: int64
+          description: "Total server disk space in MB."
     Error:
       type: object
       required:
