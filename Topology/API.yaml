@@ -52,7 +52,7 @@ paths:
     /prefix:
         get:
             summary: For a client to ask for a xcache to use.
-            parameters:
+            # parameters:
             # - name: client
                 # description: "client name. Can be ATLAS DDM endpoint, site, analysis farm"
             #   in: "query"
@@ -76,30 +76,30 @@ paths:
                 '500':
                     description: 'Missing parameter'
 components:
-  schemas:
-    Version:
-        type: string
-        description: "server & api version"
-    XCacheServer:
-        type: object
-        required:
-            - id
-            - address
-            - size
-        properties:
-            id:
-                type: string
-                description: "ID of the server."
-            site:
-                type: string
-                description: "site that xcache server belongs to."
-            address:
-                type: string
-                description: "FQDN or IP of xcache server."
-            size:
-                type: integer
-                format: int64
-                description: "Total server disk space in MB."
+    schemas:
+        Version:
+            type: string
+            description: "server & api version"
+        XCacheServer:
+            type: object
+            required:
+                - id
+                - address
+                - size
+            properties:
+                id:
+                    type: string
+                    description: "ID of the server."
+                site:
+                    type: string
+                    description: "site that xcache server belongs to."
+                address:
+                    type: string
+                    description: "FQDN or IP of xcache server."
+                size:
+                    type: integer
+                    format: int64
+                    description: "Total server disk space in MB."
     Error:
       type: object
       required:
@@ -111,3 +111,4 @@ components:
           format: int32
         message:
           type: string
+parameters:
