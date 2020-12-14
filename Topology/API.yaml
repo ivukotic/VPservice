@@ -32,19 +32,19 @@ paths:
                         site: mwt2
                         address: xcache1.mwt2.org
             responses:
-            '200':
-                description: 'Returns OK.'
-                content:
-                    text/plain:
-                        schema:
-                            type: string
-                            example: OK
-            default:
-                description: Unexpected error
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Error'
+                '200':
+                    description: 'Returns OK.'
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+                                example: OK
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
     /prefix:
         get:
             summary: For a client to ask for a xcache to use.
