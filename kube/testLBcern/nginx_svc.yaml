@@ -4,7 +4,7 @@ metadata:
   name: nginxservice
   annotations:
     # These annotations are only required for cluster templates <=1.18
-    loadbalancer.openstack.org/network-id: "a17e0944-5131-4efc-afb1-40a4563cd7b9"
+    loadbalancer.openstack.org/network-id: "798d00f3-2af9-48a0-a7c3-a26d909a2d64"
     service.beta.kubernetes.io/openstack-internal-load-balancer: "true"
     loadbalancer.openstack.org/cascade-delete: "false"
   labels:
