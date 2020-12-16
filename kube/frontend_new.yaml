@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vps
+  labels:
+    k8s-app: vps
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    k8s-app: vps
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vps
+  labels:
+    k8s-app: vps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: vps
+  template:
+    metadata:
+      labels:
+        k8s-app: vps
+    spec:
+      containers:
+        - name: vps
+          image: ivukotic/vpservice:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: settings-volume
+              mountPath: "/etc/vps/"
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /healthz
+              port: 80
+            periodSeconds: 60
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+      volumes:
+        - name: settings-volume
+          projected:
+            sources:
+              - secret:
+                  name: config
+              - secret:
+                  name: es-conn
