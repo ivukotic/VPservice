@@ -6,8 +6,8 @@ metadata:
     k8s-app: topology
 spec:
   ports:
-    - port: 80
-      targetPort: 80
+    - port: 443
+      targetPort: 443
       protocol: TCP
   selector:
     k8s-app: topology
@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - name: topology
-          image: ivukotic/vpservice:latest
+          image: ivukotic/vpservice:test
           command: ["node"]
           args: ["Topology/topology.js"]
           resources:
@@ -45,7 +45,7 @@ spec:
             - name: conf-volume
               mountPath: "/etc/vps/"
           ports:
-            - containerPort: 80
+            - containerPort: 443
       volumes:
         - name: conf-volume
           secret:
