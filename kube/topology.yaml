@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vp-topology
+  labels:
+    k8s-app: topology
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    k8s-app: topology
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: topology
+  labels:
+    k8s-app: topology
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: topology
+  template:
+    metadata:
+      labels:
+        k8s-app: topology
+    spec:
+      containers:
+        - name: topology
+          image: ivukotic/vpservice:latest
+          command: ["node"]
+          args: ["Topology/topology.js"]
+          volumeMounts:
+            - name: conf-volume
+              mountPath: "/etc/vps/"
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: conf-volume
+          secret:
+            secretName: config
