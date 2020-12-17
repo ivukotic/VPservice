@@ -180,7 +180,7 @@ components:
       name: client
       description: client name. Can be ATLAS DDM endpoint, site, analysis farm
       in: query
-    #   required: true
+      required: true
       schema:
         type: string
       example: MWT2_SCRATCHDISK
@@ -196,7 +196,7 @@ components:
       name: site
       description: xcache site
       in: query
-    #   required: true
+      required: true
       schema:
         type: string
       example: MWT2_xcache
