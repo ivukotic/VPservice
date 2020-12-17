@@ -23,12 +23,8 @@ echo "Deploying filler and server"
 kubectl create -f filler.yaml
 kubectl create -f frontend.yaml
 
-!!! For the ingress to work k8s nodes need to be labeled eg.
-kubectl label node vpservice-svulyholph5g-minion-1 role=ingress 
-!!! To remove label
-kubectl label node vpservice-svulyholph5g-minion-1 role-
-
-kubectl label node vpservice-svulyholph5g-minion-0 vps=true
-
-and this has to be done for cluster nodes that will be exposed:
-openstack server set --property landb-alias=vpservice--load-1- vpservice-svulyholph5g-master-0
+echo "to give a dns"
+export OS_REGION_NAME=sdn1
+openstack loadbalancer list
+echo "Set dns name"
+openstack loadbalancer set --description vps kube_service_xxxxxxxx

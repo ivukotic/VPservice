@@ -1,4 +1,5 @@
-* get ingress from outside
-* make postman REST API
-* create a new Docker image
-* add a deployment
+* move to server.js
+* clean up.
+* check what's needed for https
+* run 2 pods per frontend
+* ask for firewall opening 
