@@ -42,11 +42,16 @@ spec:
               cpu: 900m
               memory: 1500Mi
           volumeMounts:
-            - name: conf-volume
+            - name: settings-volume
               mountPath: "/etc/vps/"
+              readOnly: true
           ports:
             - containerPort: 443
       volumes:
-        - name: conf-volume
-          secret:
-            secretName: config
+        - name: settings-volume
+          projected:
+            sources:
+              - secret:
+                  name: config
+              - secret:
+                  name: es-conn
