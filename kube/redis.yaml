@@ -50,7 +50,6 @@ spec:
           persistentVolumeClaim:
             claimName: vps-redis
       tolerations:
-        - key: node-role.kubernetes.io/master
-          operator: "Equal"
-          value: "true"
-          effect: NoSchedule
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
