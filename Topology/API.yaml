@@ -102,8 +102,8 @@ paths:
                 schema:
                     type: string
                 example: OK
-        default:
-          $ref: '#/components/responses/GeneralError'
+            default:
+            $ref: '#/components/responses/GeneralError'
     parameters:
     - $ref: '#/components/parameters/client'
     - $ref: '#/components/parameters/site'
