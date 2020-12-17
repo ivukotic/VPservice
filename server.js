@@ -3,8 +3,10 @@ const express = require('express');
 const redis = require('redis');
 const config = require('/etc/vps/config.json');
 const espath = require('/etc/vps/es-conn.json');
+const bodyParser = require('body-parser');
 
 const app = express();
+const jsonParser = bodyParser.json();
 
 console.log('VPs server starting ... ');
 console.log('config: ', config);
@@ -336,6 +338,53 @@ app.put('/ds/reassign/:dataset/:sites', async (req, res) => {
     });
   });
 });
+
+//
+//             TOPOLOGY
+//
+
+app.get('/prefix/:client/:filename', async (req, res) => {
+  const { client } = req.params;
+  const { filename } = req.params;
+  console.log(`request for prefix client: ${client} filename:${filename}`);
+
+//   rclient.blpop('unas', 1000, (_err, reply) => {
+//     if (!reply) {
+//       res.status(400).send('Timeout');
+//       return;
+//     }
+//     const sites = reply[1].split(',');
+//     rclient.rpush(ds, sites);
+//     res.status(200).send(sites);
+//   });
+});
+
+// XCache endpoints will send heartbeats here
+app.post('/liveness', jsonParser, async (req, res) => {
+  const b = req.body;
+  if (b === undefined || b === null || Object.keys(b).length < 3) {
+    res.status(400).send('nothing POSTed or data incomplete.\n');
+    return;
+  }
+  if (b.id === undefined || b.id === null) {
+    res.status(400).send('ID is required.\n');
+    return;
+  }
+  if (b.site === undefined || b.site === null) {
+    res.status(400).send('site is required.\n');
+    return;
+  }
+  if (b.address === undefined || b.address === null) {
+    res.status(400).send('address is required.\n');
+    return;
+  }
+  // size
+  res.status(200).send('OK');
+});
+
+//
+//                TEST, HEALTH, ERRORS and DEFAULTS
+//
 
 app.get('/test', async (_req, res, next) => {
   console.log('TEST starting...');
