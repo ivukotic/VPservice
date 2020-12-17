@@ -49,3 +49,8 @@ spec:
         - name: redis-cinder-pvc
           persistentVolumeClaim:
             claimName: vps-redis
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          operator: "Equal"
+          value: "true"
+          effect: NoSchedule
