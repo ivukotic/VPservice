@@ -1,3 +1,8 @@
+echo "create volume for redis if not already there"
+openstack volume create --size 100 vps
+
+echo "volume id should be given to redis.yaml deployment"
+
 echo "try deleting all of the components."
 
 kubectl delete -f filler.yaml
