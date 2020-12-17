@@ -108,9 +108,9 @@ paths:
                   $ref: '#/components/schemas/ServingPairs'
         default:
           $ref: '#/components/responses/GeneralError' 
-      parameters:
-      - $ref: '#/components/parameters/client'
-      - $ref: '#/components/parameters/site'
+    #   parameters:
+    #   - $ref: '#/components/parameters/client'
+    #   - $ref: '#/components/parameters/site'
     delete:
       summary: Dissalows the xcache site to serve the client.
       responses:            
