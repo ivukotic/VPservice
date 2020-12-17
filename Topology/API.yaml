@@ -94,7 +94,7 @@ paths:
           $ref: '#/components/responses/GeneralError'
     parameters:
     - $ref: '#/components/parameters/client'
-    - $ref: '#/components/parameters/filename'
+    - $ref: '#/components/parameters/site'
 
 components:
   
@@ -159,6 +159,14 @@ components:
       schema:
         type: string
       example: scope:xAOD.123.23.root
+    site:
+      name: site
+      description: xcache site
+      in: query
+      required: true
+      schema:
+        type: string
+      example: MWT2_xcache
 
   responses:
     IllegalInput: 
