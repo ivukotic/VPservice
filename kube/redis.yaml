@@ -47,9 +47,13 @@ spec:
               name: redis-cinder-pvc
       volumes:
         - name: redis-cinder-pvc
-          persistentVolumeClaim:
-            claimName: vps-redis
-      tolerations:
-        - key: "node-role.kubernetes.io/master"
-          operator: "Exists"
-          effect: "NoSchedule"
+          cinder:
+            volumeID: 028c046b-d61d-47fd-b3d5-e4c999cf6fe1
+            fsType: ext4
+          # persistentVolumeClaim:
+          #   claimName: vps-redis
+
+      # tolerations:
+      #   - key: "node-role.kubernetes.io/master"
+      #     operator: "Exists"
+      #     effect: "NoSchedule"
