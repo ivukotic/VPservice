@@ -110,9 +110,7 @@ paths:
           $ref: '#/components/responses/GeneralError' 
       parameters:
       - $ref: '#/components/parameters/client'
-        required: false
       - $ref: '#/components/parameters/site'
-        required: false
     delete:
       summary: Dissalows the xcache site to serve the client.
       responses:            
@@ -135,6 +133,9 @@ components:
     Version:
       type: string
       description: "server & api version"
+    
+    ServingPairs:
+        type: array
 
     XCacheServer:
       type: object
