@@ -22,19 +22,23 @@ let paused = false;
 let esData = []; // buffer to hold a batch of ES reporting data.
 let inProgress = false;
 const batchSize = 100;
-let esIndex = 'virtual_placement';
+let esIndexRequests = 'virtual_placement';
+let esIndexLiveness = 'vp_liveness';
+let esIndexLookups = 'vp_lookups';
 if (config.TESTING) {
-  esIndex = 'test_virtual_placement';
+  esIndexRequests = 'test_virtual_placement';
+  esIndexLiveness = 'test_vp_liveness';
+  esIndexLookups = 'test_vp_lookups';
 }
 
-function esAddRequest(doc) {
+function esAddRequest(index, doc) {
   esData.push({ index: {} }, doc);
   // for each doc added arrays grows by 2
   if (esData.length > batchSize * 2 && inProgress === false) {
     inProgress = true;
 
     es.bulk(
-      { index: esIndex, body: esData.slice(0, batchSize * 2) },
+      { index, body: esData.slice(0, batchSize * 2) },
       (err, result) => {
         if (err) {
           console.error('ES indexing failed\n', err);
@@ -288,7 +292,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
         }
         doc.sites = sites;
         doc.initial = true;
-        esAddRequest(doc);
+        esAddRequest(esIndexRequests, doc);
         res.status(200).send(sites);
       });
     } else {
@@ -297,7 +301,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
         // console.log('found', sites);
         doc.sites = sites;
         doc.initial = false;
-        esAddRequest(doc);
+        esAddRequest(esIndexRequests, doc);
         res.status(200).send(sites);
       });
     }
@@ -348,6 +352,15 @@ app.get('/prefix/:client/:filename', async (req, res) => {
   const { filename } = req.params;
   console.log(`request for prefix client: ${client} filename:${filename}`);
 
+  // here calculation
+  let prefix = '';
+  const doc = {
+    timestamp: Date.now(),
+    client,
+    filename,
+    prefix,
+  };
+
 //   rclient.blpop('unas', 1000, (_err, reply) => {
 //     if (!reply) {
 //       res.status(400).send('Timeout');
@@ -357,6 +370,10 @@ app.get('/prefix/:client/:filename', async (req, res) => {
 //     rclient.rpush(ds, sites);
 //     res.status(200).send(sites);
 //   });
+  
+  esAddRequest(esIndexLookups, doc);
+  
+  res.status(200).send(prefix);
 });
 
 // XCache endpoints will send heartbeats here
@@ -379,6 +396,9 @@ app.post('/liveness', jsonParser, async (req, res) => {
     return;
   }
   // size
+  b.timestamp = Date.now();
+  esAddRequest(esIndexLiveness, b);
+
   res.status(200).send('OK');
 });
 
