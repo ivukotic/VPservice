@@ -77,7 +77,6 @@ paths:
           $ref: '#/components/responses/GeneralError'
     parameters:
     - $ref: '#/components/parameters/client'
-      required: true
     - $ref: '#/components/parameters/filename'
 
   /serve:
