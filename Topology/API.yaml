@@ -93,7 +93,17 @@ paths:
         default:
           $ref: '#/components/responses/GeneralError'
     delete:
-        summary: Dissalows the xcache site to serve the client. 
+        summary: Dissalows the xcache site to serve the client.
+        responses:            
+            200:
+            description: Always succesuccessful.
+            content:
+                text/plain:
+                schema:
+                    type: string
+                example: OK
+        default:
+          $ref: '#/components/responses/GeneralError'
     parameters:
     - $ref: '#/components/parameters/client'
     - $ref: '#/components/parameters/site'
