@@ -116,11 +116,11 @@ paths:
               example: OK
         default:
           $ref: '#/components/responses/GeneralError'
-        parameters:
-        - $ref: '#/components/parameters/client'
-          required: false
-        - $ref: '#/components/parameters/site'
-          required: false
+      parameters:
+      - $ref: '#/components/parameters/client'
+        required: false
+      - $ref: '#/components/parameters/site'
+        required: false
 components:
   
   schemas:
