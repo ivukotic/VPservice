@@ -93,7 +93,17 @@ paths:
         default:
           $ref: '#/components/responses/GeneralError'
     get:
-      summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned. 
+      summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
+      responses:
+        200:
+          description: returns pairs as json array
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: OK
+        default:
+          $ref: '#/components/responses/GeneralError' 
     delete:
       summary: Dissalows the xcache site to serve the client.
       responses:            
@@ -106,10 +116,11 @@ paths:
               example: OK
         default:
           $ref: '#/components/responses/GeneralError'
-    parameters:
-    - $ref: '#/components/parameters/client'
-    - $ref: '#/components/parameters/site'
-
+        parameters:
+        - $ref: '#/components/parameters/client'
+          required: false
+        - $ref: '#/components/parameters/site'
+          required: false
 components:
   
   schemas:
