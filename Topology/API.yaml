@@ -100,11 +100,12 @@ paths:
       responses:
         200:
           description: returns pairs as json array
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: OK
+          content: 
+            application/json:
+              schema: 
+              type: array
+              items:
+                $ref: '#/components/schemas/VeryComplexType'
         default:
           $ref: '#/components/responses/GeneralError' 
       parameters:
