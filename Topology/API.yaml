@@ -200,6 +200,14 @@ components:
       schema:
         type: string
       example: MWT2_xcache
+    site_opt:
+      name: site
+      description: xcache site
+      in: query
+      required: false
+      schema:
+        type: string
+      example: MWT2_xcache
 
   responses:
     IllegalInput: 
