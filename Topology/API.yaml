@@ -83,21 +83,21 @@ paths:
                             value: 
                             site: ServiceX_1
                             filenname: ivukotic.xAOD.root
-        responses:
-            200:
-            description: Returns address of the XCache server.
-            content:
-                text/plain:
-                schema:
-                    type: string
-                example: root://xcache3.mwt2.org:1094
-            500:
-            $ref: '#/components/responses/IllegalInput'
-            default:
-            $ref: '#/components/responses/GeneralTextError'
-        parameters:
-        - $ref: '#/components/parameters/client'
-        - $ref: '#/components/parameters/filename'
+            responses:
+                200:
+                    description: Returns address of the XCache server.
+                    content:
+                        text/plain:
+                        schema:
+                            type: string
+                        example: root://xcache3.mwt2.org:1094
+                500:
+                    $ref: '#/components/responses/IllegalInput'
+                default:
+                    $ref: '#/components/responses/GeneralTextError'
+            parameters:
+            - $ref: '#/components/parameters/client'
+            - $ref: '#/components/parameters/filename'
 
   /serve:
     put:
