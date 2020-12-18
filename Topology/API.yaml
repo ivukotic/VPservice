@@ -57,8 +57,8 @@ paths:
                     content:
                         text/plain:
                             schema:
-                            type: string
-                            example: OK
+                                type: string
+                                example: OK
                 default:
                     $ref: '#/components/responses/GeneralTextError'
 
