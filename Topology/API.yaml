@@ -100,6 +100,19 @@ paths:
     /serve:
         put:
             summary: For a VP operator to allow the xcache site to serve the client.
+            requestBody:
+                description: json object giving xcache site and client.
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AssociationRequest'
+                        examples:  
+                            grid_site:
+                                summary: grid site is client - xcache site
+                                value: 
+                                    cache_site: MWT2-cache
+                                    client: MWT2
             responses:
                 200:
                     description: Always succesuccessful.
