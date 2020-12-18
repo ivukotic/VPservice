@@ -180,20 +180,22 @@ components:
           description: Total server disk space in MB.
           minimum: 0
           example: 123123123123
+
     PrefixRequest:
-      type: object
-      required:
-        - site
-        - filename
+        type: object
+        required:
+            - site
+            - filename
       properties:
           site:
             type: string
-            description: client site.
+            description: client name. Can be ATLAS DDM endpoint, site, analysis farm
             example: MWT2
           filename:
             type: string
             description: filename.
             example: ivukotic1.xAOD.root
+
     Error:
       type: object
       required:
