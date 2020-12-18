@@ -139,9 +139,9 @@ paths:
                             example: OK
                 default:
                     $ref: '#/components/responses/GeneralTextError'
-        #     parameters:
-        #         $ref: '#/components/parameters/client'
-        #         $ref: '#/components/parameters/site'
+                parameters:
+                    $ref: '#/components/parameters/client'
+                    $ref: '#/components/parameters/site'
 
 
 components:
