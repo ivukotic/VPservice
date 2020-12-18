@@ -211,6 +211,7 @@ components:
                 - filename
             properties:
                 site:
+                    $ref: "#/components/schemas/CacheSite"
                 filename:
                     type: string
                     description: filename.
@@ -225,7 +226,7 @@ components:
             type: string
             description: client name. Can be ATLAS DDM endpoint, site, analysis farm
             example: MWT2
-            
+
         Error:
             type: object
             required:
