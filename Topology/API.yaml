@@ -95,9 +95,9 @@ paths:
                     $ref: '#/components/responses/IllegalInput'
                 default:
                     $ref: '#/components/responses/GeneralTextError'
-            parameters:
-                $ref: '#/components/parameters/client'
-                $ref: '#/components/parameters/filename'
+            # parameters:
+            #     $ref: '#/components/parameters/client'
+            #     $ref: '#/components/parameters/filename'
 
     # /serve:
         # put:
