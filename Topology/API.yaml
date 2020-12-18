@@ -81,8 +81,8 @@ paths:
                             analysis_site:
                                 summary: analysis center asking for a file
                                 value: 
-                                site: ServiceX_1
-                                filenname: ivukotic.xAOD.root
+                                    site: ServiceX_1
+                                    filenname: ivukotic.xAOD.root
             responses:
                 200:
                     description: Returns address of the XCache server.
@@ -90,7 +90,9 @@ paths:
                         text/plain:
                             schema:
                                 type: string
-                        example: root://xcache3.mwt2.org:1094
+                        example: 
+                            value: 
+                                root://xcache3.mwt2.org:1094
                 500:
                     $ref: '#/components/responses/IllegalInput'
                 default:
