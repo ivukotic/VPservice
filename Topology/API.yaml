@@ -100,9 +100,6 @@ paths:
     /serve:
         put:
             summary: For a VP operator to allow the xcache site to serve the client.
-            # parameters:
-            #     $ref: '#/components/parameters/client'
-            #     $ref: '#/components/parameters/site'
             responses:
                 200:
                     description: Always succesuccessful.
@@ -124,9 +121,6 @@ paths:
                                 $ref: '#/components/schemas/ServingPairs'
                 default:
                     $ref: '#/components/responses/GeneralTextError' 
-            # parameters:
-            #     $ref: '#/components/parameters/client_opt'
-            #     $ref: '#/components/parameters/site_opt'
         delete:
             summary: Dissalows the xcache site to serve the client.
             requestBody:
@@ -193,17 +187,13 @@ components:
         AssociationRequest:
             type: object
             required:
-                - site
+                - cache_site
                 - client
             properties:
-                site:
-                    type: string
-                    description: 
-                    example: MWT2
+                cache_site:
+                    $ref: "#/components/schemas/CacheSite"
                 client:
-                    type: string
-                    description: client name. Can be ATLAS DDM endpoint, site, analysis farm
-                    example: MWT2
+                    $ref: "#/components/schemas/Client"
         PrefixRequest:
             type: object
             required:
