@@ -223,10 +223,12 @@ components:
     IllegalInput: 
       description: Illegal input for operation.
     GeneralTextError:
-      text/plain:
-        schema:
-          type: string
-        example: Some ERROR
+      description: General Text returning error
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Some ERROR
     GeneralError: 
       description: General Error
       content: 
