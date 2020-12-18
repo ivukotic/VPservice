@@ -64,40 +64,40 @@ paths:
 
     /prefix:
         get:
-        summary: For a client to ask for a xcache to use.
-        requestBody: 
-            description: prefix request in JSON format
-            required: true
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/PrefixRequest'
-                    examples:  
-                        grid_site:
-                            summary: grid site asking for a file
-                            value: 
-                            site: MWT2
-                            filenname: user.ivukotic:ivukotic.xAOD.root
-                        analysis_site:
-                            summary: analysis center asking for a file
-                            value: 
-                            site: ServiceX_1
-                            filenname: ivukotic.xAOD.root
-            responses:
-                200:
-                    description: Returns address of the XCache server.
-                    content:
-                        text/plain:
-                            schema:
-                                type: string
-                        example: root://xcache3.mwt2.org:1094
-                500:
-                    $ref: '#/components/responses/IllegalInput'
-                default:
-                    $ref: '#/components/responses/GeneralTextError'
-            # parameters:
-            #     $ref: '#/components/parameters/client'
-            #     $ref: '#/components/parameters/filename'
+            summary: For a client to ask for a xcache to use.
+            requestBody: 
+                description: prefix request in JSON format
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PrefixRequest'
+                        examples:  
+                            grid_site:
+                                summary: grid site asking for a file
+                                value: 
+                                site: MWT2
+                                filenname: user.ivukotic:ivukotic.xAOD.root
+                            analysis_site:
+                                summary: analysis center asking for a file
+                                value: 
+                                site: ServiceX_1
+                                filenname: ivukotic.xAOD.root
+                responses:
+                    200:
+                        description: Returns address of the XCache server.
+                        content:
+                            text/plain:
+                                schema:
+                                    type: string
+                            example: root://xcache3.mwt2.org:1094
+                    500:
+                        $ref: '#/components/responses/IllegalInput'
+                    default:
+                        $ref: '#/components/responses/GeneralTextError'
+                parameters:
+                    $ref: '#/components/parameters/client'
+                    $ref: '#/components/parameters/filename'
 
 #     /serve:
 #         put:
