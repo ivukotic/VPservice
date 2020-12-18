@@ -222,6 +222,11 @@ components:
   responses:
     IllegalInput: 
       description: Illegal input for operation.
+    GeneralTextError:
+      text/plain:
+        schema:
+          type: string
+        example: Some ERROR
     GeneralError: 
       description: General Error
       content: 
