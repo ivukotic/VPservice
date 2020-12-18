@@ -1,6 +1,7 @@
 * check what's needed for https
 * run 2 pods per frontend
 * ask for firewall opening 
+* find what is bigger than m2.large
 
 * Add Postman docs for all the REST endpoints.
 * move confing keys or prefix them

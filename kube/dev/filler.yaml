@@ -16,12 +16,20 @@ spec:
     spec:
       containers:
         - name: filler
-          image: vpservice:test
+          image: ivukotic/vpservice:latest
           command: ["node"]
           args: ["filler.js"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 1000Mi
+            limits:
+              cpu: 900m
+              memory: 1500Mi
           volumeMounts:
             - name: conf-volume
               mountPath: "/etc/vps/"
+          imagePullPolicy: Always
       volumes:
         - name: conf-volume
           secret:

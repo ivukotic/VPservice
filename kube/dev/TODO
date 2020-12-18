@@ -1,9 +1,5 @@
 * disabling site does not check that site is there at the first place.
 
-* move deployment to a new OpenStack project.
-
-* add persistent volume for redis
-
 * prefix these keys:
 sites are in a redis set "sites"
 keys "${cloud}:${site}" contain site core number
