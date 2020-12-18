@@ -132,21 +132,21 @@ paths:
             requestBody:
                 description: json object giving xcache site and client.
                 required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/PrefixRequest'
-                        examples:  
-                            grid_site:
-                                summary: grid site asking for a file
-                                value: 
-                                    site: MWT2
-                                    filenname: user.ivukotic:ivukotic.xAOD.root
-                            analysis_site:
-                                summary: analysis center asking for a file
-                                value: 
-                                    site: ServiceX_1
-                                    filenname: ivukotic.xAOD.root
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PrefixRequest'
+                            examples:  
+                                grid_site:
+                                    summary: grid site asking for a file
+                                    value: 
+                                        site: MWT2
+                                        filenname: user.ivukotic:ivukotic.xAOD.root
+                                analysis_site:
+                                    summary: analysis center asking for a file
+                                    value: 
+                                        site: ServiceX_1
+                                        filenname: ivukotic.xAOD.root
             responses:            
                 200:
                     description: Always succesuccessful.
