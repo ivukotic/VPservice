@@ -88,8 +88,8 @@ paths:
                     description: Returns address of the XCache server.
                     content:
                         text/plain:
-                        schema:
-                            type: string
+                            schema:
+                                type: string
                         example: root://xcache3.mwt2.org:1094
                 500:
                     $ref: '#/components/responses/IllegalInput'
