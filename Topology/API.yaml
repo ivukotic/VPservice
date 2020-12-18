@@ -28,39 +28,39 @@ paths:
                     $ref: '#/components/responses/GeneralTextError'
 
     /liveness:
-    post:
-        summary: For XCache servers to report to. Send basic info.
-        requestBody:
-        description: XCache object in JSON format
-        required: true
-        content:
-            application/json:
-            schema:
-                $ref: '#/components/schemas/XCacheServer'
-            examples:  
-                grid_site:
-                summary: grid site deployed cache example
-                value: 
-                    id: xc1
-                    site: MWT2
-                    address: xc1.mwt2.org
-                    size: 123123123
-                in_network_cache:
-                summary: in network cache
-                value: 
-                    id: xc_esnet
-                    site: Sunnyvale
-                    address: xc_esnet.asd.org
-        responses:
-        200:
-            description: Returns OK.
+        post:
+            summary: For XCache servers to report to. Send basic info.
+            requestBody:
+            description: XCache object in JSON format
+            required: true
             content:
-            text/plain:
+                application/json:
                 schema:
-                type: string
-                example: OK
-        default:
-            $ref: '#/components/responses/GeneralTextError'
+                    $ref: '#/components/schemas/XCacheServer'
+                examples:  
+                    grid_site:
+                        summary: grid site deployed cache example
+                        value: 
+                            id: xc1
+                            site: MWT2
+                            address: xc1.mwt2.org
+                            size: 123123123
+                    in_network_cache:
+                        summary: in network cache
+                        value: 
+                            id: xc_esnet
+                            site: Sunnyvale
+                            address: xc_esnet.asd.org
+            responses:
+            200:
+                description: Returns OK.
+                content:
+                text/plain:
+                    schema:
+                    type: string
+                    example: OK
+            default:
+                $ref: '#/components/responses/GeneralTextError'
 
   /prefix:
     get:
