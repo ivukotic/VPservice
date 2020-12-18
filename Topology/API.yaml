@@ -90,9 +90,7 @@ paths:
                         text/plain:
                             schema:
                                 type: string
-                        example: 
-                            value: 
-                                root://xcache3.mwt2.org:1094
+                            example: root://xcache3.mwt2.org:1094
                 500:
                     $ref: '#/components/responses/IllegalInput'
                 default:
