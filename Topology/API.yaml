@@ -229,11 +229,11 @@ components:
         PrefixRequest:
             type: object
             required:
-                - site
+                - client
                 - filename
             properties:
-                site:
-                    $ref: "#/components/schemas/CacheSite"
+                client:
+                    $ref: "#/components/schemas/Client"
                 filename:
                     type: string
                     description: filename.
