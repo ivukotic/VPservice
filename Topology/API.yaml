@@ -146,125 +146,125 @@ paths:
                 $ref: '#/components/parameters/site'
 
 
-components:
+# components:
   
-    schemas:
+#     schemas:
 
-        Version:
-            type: string
-            description: "server & api version"
+#         Version:
+#             type: string
+#             description: "server & api version"
         
-        ServingPairs:
-            type: array
+#         ServingPairs:
+#             type: array
 
-        XCacheServer:
-            type: object
-            required:
-                - id
-                - site
-                - address
-            properties:
-                id:
-                    type: string
-                    description: ID of the server.
-                    example: xcache_dfnu4dfv4_2ed8f
-                site:
-                    type: string
-                    description: site that xcache server belongs to.
-                    example: MWT2_Caches
-                address:
-                    type: string
-                    description: FQDN or IP of xcache server.
-                    example: xcache1.mwt2.org
-                size:
-                    type: integer
-                    format: int64
-                    description: Total server disk space in MB.
-                    minimum: 0
-                    example: 123123123123
+#         XCacheServer:
+#             type: object
+#             required:
+#                 - id
+#                 - site
+#                 - address
+#             properties:
+#                 id:
+#                     type: string
+#                     description: ID of the server.
+#                     example: xcache_dfnu4dfv4_2ed8f
+#                 site:
+#                     type: string
+#                     description: site that xcache server belongs to.
+#                     example: MWT2_Caches
+#                 address:
+#                     type: string
+#                     description: FQDN or IP of xcache server.
+#                     example: xcache1.mwt2.org
+#                 size:
+#                     type: integer
+#                     format: int64
+#                     description: Total server disk space in MB.
+#                     minimum: 0
+#                     example: 123123123123
 
-        PrefixRequest:
-            type: object
-            required:
-                - site
-                - filename
-            properties:
-                site:
-                    type: string
-                    description: client name. Can be ATLAS DDM endpoint, site, analysis farm
-                    example: MWT2
-                filename:
-                    type: string
-                    description: filename.
-                    example: ivukotic1.xAOD.root
+#         PrefixRequest:
+#             type: object
+#             required:
+#                 - site
+#                 - filename
+#             properties:
+#                 site:
+#                     type: string
+#                     description: client name. Can be ATLAS DDM endpoint, site, analysis farm
+#                     example: MWT2
+#                 filename:
+#                     type: string
+#                     description: filename.
+#                     example: ivukotic1.xAOD.root
 
-        Error:
-            type: object
-            required:
-                - code
-                - message
-            properties:
-                code:
-                    type: integer
-                    format: int32
-                message:
-                    type: string
+#         Error:
+#             type: object
+#             required:
+#                 - code
+#                 - message
+#             properties:
+#                 code:
+#                     type: integer
+#                     format: int32
+#                 message:
+#                     type: string
     
-    parameters:
-        client:
-            name: client
-            description: client name. Can be ATLAS DDM endpoint, site, analysis farm
-            in: query
-            required: true
-            schema:
-                type: string
-            example: MWT2_SCRATCHDISK
-        client_opt:
-            name: client
-            description: client name. Can be ATLAS DDM endpoint, site, analysis farm
-            in: query
-            required: false
-            schema:
-                type: string
-            example: MWT2_SCRATCHDISK
-        filename:
-            name: filename
-            description: filename to be looked for
-            in: query
-            required: true
-            schema:
-                type: string
-            example: scope:xAOD.123.23.root
-        site:
-            name: site
-            description: xcache site
-            in: query
-            required: true
-            schema:
-                type: string
-            example: MWT2_xcache
-        site_opt:
-            name: site
-            description: xcache site
-            in: query
-            required: false
-            schema:
-                type: string
-            example: MWT2_xcache
+#     parameters:
+#         client:
+#             name: client
+#             description: client name. Can be ATLAS DDM endpoint, site, analysis farm
+#             in: query
+#             required: true
+#             schema:
+#                 type: string
+#             example: MWT2_SCRATCHDISK
+#         client_opt:
+#             name: client
+#             description: client name. Can be ATLAS DDM endpoint, site, analysis farm
+#             in: query
+#             required: false
+#             schema:
+#                 type: string
+#             example: MWT2_SCRATCHDISK
+#         filename:
+#             name: filename
+#             description: filename to be looked for
+#             in: query
+#             required: true
+#             schema:
+#                 type: string
+#             example: scope:xAOD.123.23.root
+#         site:
+#             name: site
+#             description: xcache site
+#             in: query
+#             required: true
+#             schema:
+#                 type: string
+#             example: MWT2_xcache
+#         site_opt:
+#             name: site
+#             description: xcache site
+#             in: query
+#             required: false
+#             schema:
+#                 type: string
+#             example: MWT2_xcache
 
-    responses:
-        IllegalInput: 
-            description: Illegal input for operation.
-        GeneralTextError:
-            description: General Text returning error
-            content:
-                text/plain:
-                schema:
-                    type: string
-                example: Some ERROR
-        GeneralError: 
-            description: General Error
-            content: 
-                application/json: 
-                schema: 
-                    $ref: "#/components/schemas/Error"
+#     responses:
+#         IllegalInput: 
+#             description: Illegal input for operation.
+#         GeneralTextError:
+#             description: General Text returning error
+#             content:
+#                 text/plain:
+#                 schema:
+#                     type: string
+#                 example: Some ERROR
+#         GeneralError: 
+#             description: General Error
+#             content: 
+#                 application/json: 
+#                 schema: 
+#                     $ref: "#/components/schemas/Error"
