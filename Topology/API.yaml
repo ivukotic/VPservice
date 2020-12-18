@@ -112,6 +112,19 @@ paths:
                     $ref: '#/components/responses/GeneralTextError'
         get:
             summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
+            requestBody:
+                description: json object giving xcache site and/or client.
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AssociationRequest'
+                        examples:  
+                            grid_site:
+                                summary: grid site is client - xcache site
+                                value: 
+                                    cache_site: MWT2-cache
+                                    client: MWT2
             responses:
                 200:
                     description: returns pairs as json array
