@@ -115,8 +115,8 @@ paths:
         #                     example: OK
         #         default:
         #             $ref: '#/components/responses/GeneralTextError'
-        get:
-            summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
+        # get:
+            # summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
             # responses:
             #     200:
             #         description: returns pairs as json array
