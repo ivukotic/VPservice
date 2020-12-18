@@ -76,8 +76,8 @@ paths:
                             grid_site:
                                 summary: grid site asking for a file
                                 value: 
-                                site: MWT2
-                                filenname: user.ivukotic:ivukotic.xAOD.root
+                                    site: MWT2
+                                    filenname: user.ivukotic:ivukotic.xAOD.root
                             analysis_site:
                                 summary: analysis center asking for a file
                                 value: 
