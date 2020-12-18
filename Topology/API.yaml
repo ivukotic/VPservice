@@ -134,7 +134,7 @@ paths:
                             grid_site:
                                 summary: grid site is client - xcache site
                                 value: 
-                                    site: MWT2-cache
+                                    cache_site: MWT2-cache
                                     client: MWT2
             responses:            
                 200:
