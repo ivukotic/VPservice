@@ -249,6 +249,11 @@ components:
             description: client name. Can be ATLAS DDM endpoint, site, analysis farm
             example: MWT2
 
+        Filename:
+            type: string
+            description: filename to be looked for
+            example: scope:xAOD.123.23.root
+            
         Error:
             type: object
             required:
@@ -278,14 +283,7 @@ components:
             schema:
                 type: string
             example: MWT2_SCRATCHDISK
-        filename:
-            name: filename
-            description: filename to be looked for
-            in: query
-            required: true
-            schema:
-                type: string
-            example: scope:xAOD.123.23.root
+
         site:
             name: site
             description: xcache site
