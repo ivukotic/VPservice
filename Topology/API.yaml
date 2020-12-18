@@ -127,18 +127,18 @@ paths:
             # parameters:
             #     $ref: '#/components/parameters/client_opt'
             #     $ref: '#/components/parameters/site_opt'
-        # delete:
-        #     summary: Dissalows the xcache site to serve the client.
-        #     responses:            
-        #         200:
-        #             description: Always succesuccessful.
-        #             content:
-        #                 text/plain:
-        #                     schema:
-        #                         type: string
-        #                     example: OK
-        #         default:
-        #             $ref: '#/components/responses/GeneralTextError'
+        delete:
+            summary: Dissalows the xcache site to serve the client.
+            responses:            
+                200:
+                    description: Always succesuccessful.
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+                            example: OK
+                default:
+                    $ref: '#/components/responses/GeneralTextError'
         #     parameters:
         #         $ref: '#/components/parameters/client'
         #         $ref: '#/components/parameters/site'
