@@ -244,7 +244,7 @@ components:
 
         Client:
             type: string
-            description: client name. Can be ATLAS DDM endpoint, site, analysis farm
+            description: client site name. Can be ATLAS DDM endpoint, site, analysis farm
             example: MWT2
 
         Filename:
