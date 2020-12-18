@@ -15,6 +15,9 @@ echo "create secrets"
 kubectl create secret generic config --from-file=config.json=config.json
 kubectl create secret generic es-conn --from-file=es-conn.json=secrets/es-conn.json
 
+echo "create loadbalancer"
+kubectl create -f loadbalancer.yaml
+
 echo "Start redis"
 kubectl create -f redis.yaml 
 # kubectl create -f redis-slave.yaml
