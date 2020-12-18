@@ -99,51 +99,53 @@ paths:
                 $ref: '#/components/parameters/client'
                 $ref: '#/components/parameters/filename'
 
-  /serve:
-    put:
-      summary: For a VP operator to allow the xcache site to serve the client.
-      parameters:
-      - $ref: '#/components/parameters/client'
-      - $ref: '#/components/parameters/site'
-      responses:
-        200:
-          description: Always succesuccessful.
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: OK
-        default:
-          $ref: '#/components/responses/GeneralTextError'
-    get:
-      summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
-      responses:
-        200:
-          description: returns pairs as json array
-          content: 
-            application/json:
-              schema: 
-                $ref: '#/components/schemas/ServingPairs'
-        default:
-          $ref: '#/components/responses/GeneralTextError' 
-      parameters:
-      - $ref: '#/components/parameters/client_opt'
-      - $ref: '#/components/parameters/site_opt'
-    delete:
-      summary: Dissalows the xcache site to serve the client.
-      responses:            
-        200:
-          description: Always succesuccessful.
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: OK
-        default:
-          $ref: '#/components/responses/GeneralTextError'
-      parameters:
-      - $ref: '#/components/parameters/client'
-      - $ref: '#/components/parameters/site'
+    /serve:
+        put:
+        summary: For a VP operator to allow the xcache site to serve the client.
+        parameters:
+            $ref: '#/components/parameters/client'
+            $ref: '#/components/parameters/site'
+        responses:
+            200:
+                description: Always succesuccessful.
+                content:
+                    text/plain:
+                    schema:
+                        type: string
+                    example: OK
+            default:
+                $ref: '#/components/responses/GeneralTextError'
+        get:
+            summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
+            responses:
+                200:
+                    description: returns pairs as json array
+                    content: 
+                        application/json:
+                        schema: 
+                            $ref: '#/components/schemas/ServingPairs'
+                default:
+                    $ref: '#/components/responses/GeneralTextError' 
+            parameters:
+                $ref: '#/components/parameters/client_opt'
+                $ref: '#/components/parameters/site_opt'
+        delete:
+            summary: Dissalows the xcache site to serve the client.
+            responses:            
+                200:
+                    description: Always succesuccessful.
+                    content:
+                        text/plain:
+                            schema:
+                            type: string
+                        example: OK
+                default:
+                    $ref: '#/components/responses/GeneralTextError'
+            parameters:
+                $ref: '#/components/parameters/client'
+                $ref: '#/components/parameters/site'
+
+
 components:
   
   schemas:
