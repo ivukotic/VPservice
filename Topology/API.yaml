@@ -207,6 +207,13 @@ components:
                     $ref: "#/components/schemas/CacheSite"
                 client:
                     $ref: "#/components/schemas/Client"
+        AssociationRequestOptional:
+            type: object
+            properties:
+                cache_site:
+                    $ref: "#/components/schemas/CacheSite"
+                client:
+                    $ref: "#/components/schemas/Client"
         PrefixRequest:
             type: object
             required:
