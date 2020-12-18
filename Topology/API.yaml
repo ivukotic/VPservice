@@ -76,7 +76,7 @@ paths:
         500:
           $ref: '#/components/responses/IllegalInput'
         default:
-          $ref: '#/components/responses/GeneralError'
+          $ref: '#/components/responses/GeneralTextError'
     parameters:
     - $ref: '#/components/parameters/client'
     - $ref: '#/components/parameters/filename'
