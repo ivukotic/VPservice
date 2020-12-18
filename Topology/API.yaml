@@ -65,6 +65,24 @@ paths:
   /prefix:
     get:
       summary: For a client to ask for a xcache to use.
+      requestBody: 
+        description: prefix request in JSON format
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrefixRequest'
+            examples:  
+              grid_site:
+                summary: grid site asking for a file
+                value: 
+                  site: MWT2
+                  filenname: user.ivukotic:ivukotic.xAOD.root
+              analysis_site:
+                summary: analysis center asking for a file
+                value: 
+                  site: ServiceX_1
+                  filenname: ivukotic.xAOD.root
       responses:
         200:
           description: Returns address of the XCache server.
@@ -162,7 +180,20 @@ components:
           description: Total server disk space in MB.
           minimum: 0
           example: 123123123123
-
+    PrefixRequest:
+      type: object
+      required:
+        - site
+        - filename
+      properties:
+          site:
+            type: string
+            description: client site.
+            example: MWT2
+          filename:
+            type: string
+            description: filename.
+            example: ivukotic1.xAOD.root
     Error:
       type: object
       required:
