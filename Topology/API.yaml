@@ -130,7 +130,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/AssociationRequestOptional'
+                            $ref: '#/components/schemas/AssociationRequest'
                         examples:  
                             grid_site:
                                 summary: grid site is client - xcache site
