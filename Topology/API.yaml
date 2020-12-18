@@ -72,12 +72,12 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/PrefixRequest'
-                        # examples:  
-                        #     grid_site:
-                        #         summary: grid site asking for a file
-                        #         value: 
-                        #             client: MWT2
-                        #             filename: user.ivukotic:ivukotic.xAOD.root
+                        examples:  
+                            example1:
+                                summary: grid site asking a prefix for a file
+                                value: 
+                                    client: MWT2
+                                    filename: "user.ivukotic:ivukotic.xAOD.root"
                         #     analysis_site:
                         #         summary: analysis center asking for a file
                         #         value: 
