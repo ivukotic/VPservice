@@ -11,139 +11,139 @@ info:
 servers:
     - url: "http://localhost:3000"
 
-paths:
+# paths:
 
-    /healthz:
-        get:
-            summary: For a liveness probe. Returns version.
-            responses:
-                200:
-                    description: Returns OK.
-                    content:
-                    text/plain:
-                        schema:
-                        type: string
-                        example: OK
-                default:
-                    $ref: '#/components/responses/GeneralTextError'
+#     /healthz:
+#         get:
+#             summary: For a liveness probe. Returns version.
+#             responses:
+#                 200:
+#                     description: Returns OK.
+#                     content:
+#                     text/plain:
+#                         schema:
+#                         type: string
+#                         example: OK
+#                 default:
+#                     $ref: '#/components/responses/GeneralTextError'
 
-    /liveness:
-        post:
-            summary: For XCache servers to report to. Send basic info.
-            requestBody:
-            description: XCache object in JSON format
-            required: true
-            content:
-                application/json:
-                schema:
-                    $ref: '#/components/schemas/XCacheServer'
-                examples:  
-                    grid_site:
-                        summary: grid site deployed cache example
-                        value: 
-                            id: xc1
-                            site: MWT2
-                            address: xc1.mwt2.org
-                            size: 123123123
-                    in_network_cache:
-                        summary: in network cache
-                        value: 
-                            id: xc_esnet
-                            site: Sunnyvale
-                            address: xc_esnet.asd.org
-            responses:
-                200:
-                    description: Returns OK.
-                    content:
-                    text/plain:
-                        schema:
-                        type: string
-                        example: OK
-                default:
-                    $ref: '#/components/responses/GeneralTextError'
+#     /liveness:
+#         post:
+#             summary: For XCache servers to report to. Send basic info.
+#             requestBody:
+#             description: XCache object in JSON format
+#             required: true
+#             content:
+#                 application/json:
+#                 schema:
+#                     $ref: '#/components/schemas/XCacheServer'
+#                 examples:  
+#                     grid_site:
+#                         summary: grid site deployed cache example
+#                         value: 
+#                             id: xc1
+#                             site: MWT2
+#                             address: xc1.mwt2.org
+#                             size: 123123123
+#                     in_network_cache:
+#                         summary: in network cache
+#                         value: 
+#                             id: xc_esnet
+#                             site: Sunnyvale
+#                             address: xc_esnet.asd.org
+#             responses:
+#                 200:
+#                     description: Returns OK.
+#                     content:
+#                     text/plain:
+#                         schema:
+#                         type: string
+#                         example: OK
+#                 default:
+#                     $ref: '#/components/responses/GeneralTextError'
 
-    /prefix:
-        get:
-        summary: For a client to ask for a xcache to use.
-        requestBody: 
-            description: prefix request in JSON format
-            required: true
-            content:
-                application/json:
-                    schema:
-                    $ref: '#/components/schemas/PrefixRequest'
-                    examples:  
-                        grid_site:
-                            summary: grid site asking for a file
-                            value: 
-                            site: MWT2
-                            filenname: user.ivukotic:ivukotic.xAOD.root
-                        analysis_site:
-                            summary: analysis center asking for a file
-                            value: 
-                            site: ServiceX_1
-                            filenname: ivukotic.xAOD.root
-            responses:
-                200:
-                    description: Returns address of the XCache server.
-                    content:
-                        text/plain:
-                        schema:
-                            type: string
-                        example: root://xcache3.mwt2.org:1094
-                500:
-                    $ref: '#/components/responses/IllegalInput'
-                default:
-                    $ref: '#/components/responses/GeneralTextError'
-            parameters:
-                $ref: '#/components/parameters/client'
-                $ref: '#/components/parameters/filename'
+#     /prefix:
+#         get:
+#         summary: For a client to ask for a xcache to use.
+#         requestBody: 
+#             description: prefix request in JSON format
+#             required: true
+#             content:
+#                 application/json:
+#                     schema:
+#                     $ref: '#/components/schemas/PrefixRequest'
+#                     examples:  
+#                         grid_site:
+#                             summary: grid site asking for a file
+#                             value: 
+#                             site: MWT2
+#                             filenname: user.ivukotic:ivukotic.xAOD.root
+#                         analysis_site:
+#                             summary: analysis center asking for a file
+#                             value: 
+#                             site: ServiceX_1
+#                             filenname: ivukotic.xAOD.root
+#             responses:
+#                 200:
+#                     description: Returns address of the XCache server.
+#                     content:
+#                         text/plain:
+#                         schema:
+#                             type: string
+#                         example: root://xcache3.mwt2.org:1094
+#                 500:
+#                     $ref: '#/components/responses/IllegalInput'
+#                 default:
+#                     $ref: '#/components/responses/GeneralTextError'
+#             parameters:
+#                 $ref: '#/components/parameters/client'
+#                 $ref: '#/components/parameters/filename'
 
-    /serve:
-        put:
-        summary: For a VP operator to allow the xcache site to serve the client.
-        parameters:
-            $ref: '#/components/parameters/client'
-            $ref: '#/components/parameters/site'
-        responses:
-            200:
-                description: Always succesuccessful.
-                content:
-                    text/plain:
-                    schema:
-                        type: string
-                    example: OK
-            default:
-                $ref: '#/components/responses/GeneralTextError'
-        get:
-            summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
-            responses:
-                200:
-                    description: returns pairs as json array
-                    content: 
-                        application/json:
-                        schema: 
-                            $ref: '#/components/schemas/ServingPairs'
-                default:
-                    $ref: '#/components/responses/GeneralTextError' 
-            parameters:
-                $ref: '#/components/parameters/client_opt'
-                $ref: '#/components/parameters/site_opt'
-        delete:
-            summary: Dissalows the xcache site to serve the client.
-            responses:            
-                200:
-                    description: Always succesuccessful.
-                    content:
-                        text/plain:
-                            schema:
-                            type: string
-                        example: OK
-                default:
-                    $ref: '#/components/responses/GeneralTextError'
-            parameters:
-                $ref: '#/components/parameters/client'
-                $ref: '#/components/parameters/site'
+#     /serve:
+#         put:
+#         summary: For a VP operator to allow the xcache site to serve the client.
+#         parameters:
+#             $ref: '#/components/parameters/client'
+#             $ref: '#/components/parameters/site'
+#         responses:
+#             200:
+#                 description: Always succesuccessful.
+#                 content:
+#                     text/plain:
+#                     schema:
+#                         type: string
+#                     example: OK
+#             default:
+#                 $ref: '#/components/responses/GeneralTextError'
+#         get:
+#             summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
+#             responses:
+#                 200:
+#                     description: returns pairs as json array
+#                     content: 
+#                         application/json:
+#                         schema: 
+#                             $ref: '#/components/schemas/ServingPairs'
+#                 default:
+#                     $ref: '#/components/responses/GeneralTextError' 
+#             parameters:
+#                 $ref: '#/components/parameters/client_opt'
+#                 $ref: '#/components/parameters/site_opt'
+#         delete:
+#             summary: Dissalows the xcache site to serve the client.
+#             responses:            
+#                 200:
+#                     description: Always succesuccessful.
+#                     content:
+#                         text/plain:
+#                             schema:
+#                             type: string
+#                         example: OK
+#                 default:
+#                     $ref: '#/components/responses/GeneralTextError'
+#             parameters:
+#                 $ref: '#/components/parameters/client'
+#                 $ref: '#/components/parameters/site'
 
 
 # components:
