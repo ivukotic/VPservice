@@ -72,17 +72,17 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/PrefixRequest'
-                        examples:  
-                            grid_site:
-                                summary: grid site asking for a file
-                                value: 
-                                    client: MWT2
-                                    filename: user.ivukotic:ivukotic.xAOD.root
-                            analysis_site:
-                                summary: analysis center asking for a file
-                                value: 
-                                    client: ServiceX_1
-                                    filename: ivukotic.xAOD.root
+                        # examples:  
+                        #     grid_site:
+                        #         summary: grid site asking for a file
+                        #         value: 
+                        #             client: MWT2
+                        #             filename: user.ivukotic:ivukotic.xAOD.root
+                        #     analysis_site:
+                        #         summary: analysis center asking for a file
+                        #         value: 
+                        #             client: ServiceX_1
+                        #             filename: ivukotic.xAOD.root
             responses:
                 200:
                     description: Returns address of the XCache server.
