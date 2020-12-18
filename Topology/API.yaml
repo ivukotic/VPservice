@@ -124,9 +124,9 @@ paths:
                                 $ref: '#/components/schemas/ServingPairs'
                 default:
                     $ref: '#/components/responses/GeneralTextError' 
-            parameters:
-                $ref: '#/components/parameters/client_opt'
-                $ref: '#/components/parameters/site_opt'
+            # parameters:
+            #     $ref: '#/components/parameters/client_opt'
+            #     $ref: '#/components/parameters/site_opt'
         # delete:
         #     summary: Dissalows the xcache site to serve the client.
         #     responses:            
