@@ -63,7 +63,7 @@ paths:
                     $ref: '#/components/responses/GeneralTextError'
 
     /prefix:
-        get:
+        post:
             summary: For a client to ask for a xcache to use.
             requestBody: 
                 description: prefix request in JSON format
@@ -123,7 +123,7 @@ paths:
                             example: OK
                 default:
                     $ref: '#/components/responses/GeneralTextError'
-        get:
+        post:
             summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
             requestBody:
                 description: json object giving xcache site and/or client.
