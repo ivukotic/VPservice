@@ -96,8 +96,8 @@ paths:
                 default:
                     $ref: '#/components/responses/GeneralTextError'
             parameters:
-            - $ref: '#/components/parameters/client'
-            - $ref: '#/components/parameters/filename'
+                $ref: '#/components/parameters/client'
+                $ref: '#/components/parameters/filename'
 
   /serve:
     put:
