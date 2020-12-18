@@ -229,8 +229,8 @@ components:
         PrefixRequest:
             type: object
             required:
-                client
-                filename
+                - client
+                - filename
             properties:
                 client:
                     $ref: "#/components/schemas/Client"
