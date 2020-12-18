@@ -11,21 +11,21 @@ info:
 servers:
     - url: "http://localhost:3000"
 
-# paths:
+paths:
 
-#     /healthz:
-#         get:
-#             summary: For a liveness probe. Returns version.
-#             responses:
-#                 200:
-#                     description: Returns OK.
-#                     content:
-#                     text/plain:
-#                         schema:
-#                         type: string
-#                         example: OK
-#                 default:
-#                     $ref: '#/components/responses/GeneralTextError'
+    /healthz:
+        get:
+            summary: For a liveness probe. Returns version.
+            responses:
+                200:
+                    description: Returns OK.
+                    content:
+                    text/plain:
+                        schema:
+                        type: string
+                        example: OK
+                default:
+                    $ref: '#/components/responses/GeneralTextError'
 
 #     /liveness:
 #         post:
