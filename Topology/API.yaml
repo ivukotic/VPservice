@@ -110,9 +110,9 @@ paths:
                     description: Always succesuccessful.
                     content:
                         text/plain:
-                        schema:
-                            type: string
-                        example: OK
+                            schema:
+                                type: string
+                            example: OK
                 default:
                     $ref: '#/components/responses/GeneralTextError'
         # get:
