@@ -256,7 +256,7 @@ components:
         GeneralTextError:
             description: General Text returning error
             content:
-                    text/plain:
+                text/plain:
                     schema:
                         type: string
                     example: Some ERROR
