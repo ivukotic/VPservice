@@ -52,15 +52,15 @@ paths:
                             site: Sunnyvale
                             address: xc_esnet.asd.org
             responses:
-            200:
-                description: Returns OK.
-                content:
-                text/plain:
-                    schema:
-                    type: string
-                    example: OK
-            default:
-                $ref: '#/components/responses/GeneralTextError'
+                200:
+                    description: Returns OK.
+                    content:
+                    text/plain:
+                        schema:
+                        type: string
+                        example: OK
+                default:
+                    $ref: '#/components/responses/GeneralTextError'
 
   /prefix:
     get:
