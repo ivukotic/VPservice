@@ -77,12 +77,12 @@ paths:
                                 summary: grid site asking for a file
                                 value: 
                                     client: MWT2
-                                    filenname: user.ivukotic:ivukotic.xAOD.root
+                                    filename: user.ivukotic:ivukotic.xAOD.root
                             analysis_site:
                                 summary: analysis center asking for a file
                                 value: 
                                     client: ServiceX_1
-                                    filenname: ivukotic.xAOD.root
+                                    filename: ivukotic.xAOD.root
             responses:
                 200:
                     description: Returns address of the XCache server.
