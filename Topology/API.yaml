@@ -122,8 +122,8 @@ paths:
                     description: returns pairs as json array
                     content: 
                         application/json:
-                        schema: 
-                            $ref: '#/components/schemas/ServingPairs'
+                            schema: 
+                                $ref: '#/components/schemas/ServingPairs'
                 default:
                     $ref: '#/components/responses/GeneralTextError' 
             parameters:
