@@ -25,7 +25,7 @@ paths:
                 type: string
               example: OK
         default:
-          $ref: '#/components/responses/GeneralError'
+          $ref: '#/components/responses/GeneralTextError'
 
   /liveness:
     post:
@@ -60,7 +60,7 @@ paths:
                 type: string
               example: OK
         default:
-          $ref: '#/components/responses/GeneralError'
+          $ref: '#/components/responses/GeneralTextError'
 
   /prefix:
     get:
