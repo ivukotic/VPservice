@@ -1,12 +1,12 @@
 openapi: 3.0.0
 
 info:
-  version: 1.0.0
-  title: Topology
-  contact:
-    name: Ilija Vukotic
-    url: https://github.com/ivukotic/VPservice
-    email: ivukotic@uchicago.edu
+    version: 1.0.0
+    title: Topology
+    contact:
+        name: Ilija Vukotic
+        url: https://github.com/ivukotic/VPservice
+        email: ivukotic@uchicago.edu
 
 servers:
   - url: "http://localhost:3000"
