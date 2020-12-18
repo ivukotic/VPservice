@@ -129,6 +129,24 @@ paths:
             #     $ref: '#/components/parameters/site_opt'
         delete:
             summary: Dissalows the xcache site to serve the client.
+            requestBody:
+                description: json object giving xcache site and client.
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PrefixRequest'
+                        examples:  
+                            grid_site:
+                                summary: grid site asking for a file
+                                value: 
+                                    site: MWT2
+                                    filenname: user.ivukotic:ivukotic.xAOD.root
+                            analysis_site:
+                                summary: analysis center asking for a file
+                                value: 
+                                    site: ServiceX_1
+                                    filenname: ivukotic.xAOD.root
             responses:            
                 200:
                     description: Always succesuccessful.
@@ -139,9 +157,6 @@ paths:
                             example: OK
                 default:
                     $ref: '#/components/responses/GeneralTextError'
-            parameters:
-                $ref: '#/components/parameters/client'
-                $ref: '#/components/parameters/site'
 
 
 components:
