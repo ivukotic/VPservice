@@ -76,12 +76,12 @@ paths:
                             grid_site:
                                 summary: grid site asking for a file
                                 value: 
-                                    site: MWT2
+                                    client: MWT2
                                     filenname: user.ivukotic:ivukotic.xAOD.root
                             analysis_site:
                                 summary: analysis center asking for a file
                                 value: 
-                                    site: ServiceX_1
+                                    client: ServiceX_1
                                     filenname: ivukotic.xAOD.root
             responses:
                 200:
@@ -253,7 +253,7 @@ components:
             type: string
             description: filename to be looked for
             example: scope:xAOD.123.23.root
-            
+
         Error:
             type: object
             required:
@@ -266,41 +266,6 @@ components:
                 message:
                     type: string
     
-    parameters:
-        client:
-            name: client
-            description: client name. Can be ATLAS DDM endpoint, site, analysis farm
-            in: query
-            required: true
-            schema:
-                type: string
-            example: MWT2_SCRATCHDISK
-        client_opt:
-            name: client
-            description: client name. Can be ATLAS DDM endpoint, site, analysis farm
-            in: query
-            required: false
-            schema:
-                type: string
-            example: MWT2_SCRATCHDISK
-
-        site:
-            name: site
-            description: xcache site
-            in: query
-            required: true
-            schema:
-                type: string
-            example: MWT2_xcache
-        site_opt:
-            name: site
-            description: xcache site
-            in: query
-            required: false
-            schema:
-                type: string
-            example: MWT2_xcache
-
     responses:
         IllegalInput: 
             description: Illegal input for operation.
