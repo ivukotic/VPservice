@@ -347,13 +347,64 @@ app.put('/ds/reassign/:dataset/:sites', async (req, res) => {
 //             TOPOLOGY
 //
 
+app.get('/serve', async (req, res) => {
+  // both parameters are optional
+  const { site } = req.query;
+  const { client } = req.query;
+  console.info(`returning serving for cache: ${site}, client: ${client}`);
+  res.status(200).send();
+});
+
+app.put('/serve', async (req, res) => {
+  // both parameters are mandatory
+  const { site } = req.query;
+  const { client } = req.query;
+  if (site === undefined || site === null) {
+    res.status(400).send('need cache site parameter (eg. ?site=ABC).\n');
+    return;
+  }
+  if (client === undefined || client === null) {
+    res.status(400).send('need client parameter (eg. ?client=ABC).\n');
+    return;
+  }
+  console.info(`adding serving for cache: ${site}, client: ${client}`);
+  res.status(200).send();
+});
+
+app.delete('/serve', async (req, res) => {
+  // both parameters are mandatory
+  const { site } = req.query;
+  const { client } = req.query;
+  if (site === undefined || site === null) {
+    res.status(400).send('need cache site parameter (eg. ?site=ABC).\n');
+    return;
+  }
+  if (client === undefined || client === null) {
+    res.status(400).send('need client parameter (eg. ?client=ABC).\n');
+    return;
+  }
+  console.info(`disallowing serving for cache: ${site}, client: ${client}`);
+  res.status(200).send();
+});
+
 app.get('/prefix/:client/:filename', async (req, res) => {
   const { client } = req.params;
   const { filename } = req.params;
   console.log(`request for prefix client: ${client} filename:${filename}`);
 
-  // here calculation
   let prefix = '';
+
+  // here calculation
+  //   rclient.blpop('unas', 1000, (_err, reply) => {
+  //     if (!reply) {
+  //       res.status(400).send('Timeout');
+  //       return;
+  //     }
+  //     const sites = reply[1].split(',');
+  //     rclient.rpush(ds, sites);
+  //     res.status(200).send(sites);
+  //   });
+
   const doc = {
     timestamp: Date.now(),
     client,
@@ -361,18 +412,7 @@ app.get('/prefix/:client/:filename', async (req, res) => {
     prefix,
   };
 
-//   rclient.blpop('unas', 1000, (_err, reply) => {
-//     if (!reply) {
-//       res.status(400).send('Timeout');
-//       return;
-//     }
-//     const sites = reply[1].split(',');
-//     rclient.rpush(ds, sites);
-//     res.status(200).send(sites);
-//   });
-  
   esAddRequest(esIndexLookups, doc);
-  
   res.status(200).send(prefix);
 });
 
