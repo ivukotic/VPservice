@@ -22,3 +22,22 @@
 * getter for path to a file
 * does it need reconnection after scaling?
 * storing timestamped geo version history
+
+
+* disabling site does not check that site is there at the first place.
+
+* prefix these keys:
+sites are in a redis set "sites"
+keys "${cloud}:${site}" contain site core number
+key 'grid_description_version'
+
+* change flip_pause with pause and unpause.
+* pre-check parameters in /site/:cloud/:sitename/:cores
+
+* fillers doesn't really need more than one instance?
+
+* get an endpoint for rucio to get xcache prefix for a given site and file
+
+* add alarm and alert on VPservice status.
+
+* add really simple web endpoint

@@ -12,6 +12,7 @@ console.log('VPs server starting ... ');
 console.log('config: ', config);
 
 const rclient = redis.createClient(config.PORT, config.HOST);
+const subscriber = rclient.duplicate();
 
 const es = new elasticsearch.Client({ node: espath.ES_HOST, log: 'error' });
 
@@ -30,6 +31,18 @@ if (config.TESTING) {
   esIndexLiveness = 'test_vp_liveness';
   esIndexLookups = 'test_vp_lookups';
 }
+
+// contains info on cache topology
+// format is
+// { 'cache_MWT2': {
+//     'xc1':{
+//         'address':'root://sdf.org', 'lastHeartbeat':13423445}, 
+//      },
+//    }
+// }
+const cacheSites = {};
+
+// const pause = (duration) => new Promise(res => setTimeout(res, duration));
 
 function esAddRequest(index, doc) {
   esData.push({ index: {} }, doc);
@@ -53,6 +66,91 @@ function esAddRequest(index, doc) {
     );
   }
 }
+
+// since there could be multiple server pods, need to use redis to sync state
+// this is executed once per 10 seconds.
+// first checks that there is no lock on it.
+// load state from redis, compares it to in memory state
+// if redis has newer info, updates in memory, else does nothing.
+// if any server exceded TTL, it gets removed.
+// overwrites state in Redis, unsets lock.
+// LOCKING - use set with NX EX, timeout after 5 seconds.
+// no lock deletion by anyone. if locked retry in 6 seconds.
+
+subscriber.on('message', (channel, message) => {
+  console.log(`Received data :${message}`);
+  const HB = JSON.parse(message);
+  if (!(HB.site in cacheSites)) {
+    cacheSites[HB.site] = {};
+  }
+  cacheSites[HB.site][HB.id] = HB;
+});
+
+function cleanDeadServers() {
+  const cutoffTime = Date.now() - config.LIFETIME_INTERVAL * 1000;
+  Object.keys(cacheSites).forEach((cacheSite) => {
+    Object.keys(cacheSites[cacheSite]).forEach((cacheServer) => {
+      if (cacheSites[cacheSite][cacheServer].ts < cutoffTime) {
+        console.log(`removing  site: ${cacheSite} server:${cacheServer}`);
+        delete cacheSites[cacheSite][cacheServer];
+        if (Object.keys(cacheSites[cacheSite]).length === 0) {
+          delete cacheSites[cacheSite];
+        }
+      }
+    });
+  });
+}
+
+// function calcCacheState() {
+//   rclient.get('meta.topology',(_err,reply) => {
+//     if (reply === 'nil'){
+//       console.info('initial writing of cacheSites into meta.topology');
+//     }
+//   })
+// }
+
+// function getCacheStateLock() {
+//   rclient.set(['lock.topology', 'lock', 'NX', 'EX', 5], (_err, reply) => {
+//     if (reply === 'OK') { // lock obtained
+//       calcCacheState();
+//     } else if (reply === 'nil') { // could not obtain lock
+//       pause(6000).then(() => getCacheStateLock());
+//     }
+//   });
+// }
+
+// function synchCacheState() {
+//    getCacheStateLock();
+// }
+//   rclient.setnx('meta_lock', (_err, reply) => {
+//     if (reply === 0) {
+//       rclient.rpoplpush('unas', ds, (errPLP, replyMove) => {
+//         if (!replyMove) {
+//           res.status(400).send(['other']);
+//           return;
+//         }
+//         let sites = replyMove.split(',');
+//         if (nsites > 0) {
+//           sites = sites.filter((site) => !disabled.has(site));
+//           sites = sites.slice(0, nsites);
+//         }
+//         doc.sites = sites;
+//         doc.initial = true;
+//         esAddRequest(esIndexRequests, doc);
+//         res.status(200).send(sites);
+//       });
+//     } else {
+//       rclient.lrange(ds, 0, -1, async (err, replyFound) => {
+//         const sites = replyFound[0].split(',');
+//         // console.log('found', sites);
+//         doc.sites = sites;
+//         doc.initial = false;
+//         esAddRequest(esIndexRequests, doc);
+//         res.status(200).send(sites);
+//       });
+//     }
+//   });
+// }
 
 function backup() {
   console.log('Starting hourly backup...');
@@ -438,7 +536,7 @@ app.post('/liveness', jsonParser, async (req, res) => {
   // size
   b.timestamp = Date.now();
   esAddRequest(esIndexLiveness, b);
-
+  rclient.publish('heartbeats', JSON.stringify(b));
   res.status(200).send('OK');
 });
 
@@ -465,7 +563,7 @@ app.get('/test', async (_req, res, next) => {
 });
 
 app.get('/healthz', (_request, response) => {
-  console.log('health call');
+  console.log('health call', cacheSites);
   try {
     response.status(200).send('OK');
   } catch (err) {
@@ -512,6 +610,9 @@ async function main() {
     });
 
     setInterval(backup, config.BACKUP_INTERVAL * 3600000);
+    setInterval(cleanDeadServers, config.LIFETIME_INTERVAL * 1000);
+
+    subscriber.subscribe('heartbeats');
   } catch (err) {
     console.error('Error: ', err);
   }

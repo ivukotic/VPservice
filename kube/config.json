@@ -6,5 +6,6 @@
     "PRECALCULATED_HWM": 3000,
     "N": 5,
     "BACKUP_INTERVAL": 3,
+    "LIFETIME_INTERVAL": 180,
     "TESTING": false
 }
