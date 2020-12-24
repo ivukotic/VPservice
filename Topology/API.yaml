@@ -136,19 +136,6 @@ paths:
                     $ref: '#/components/responses/GeneralTextError' 
         delete: # client should be path parameter
             summary: Dissalows serving the client.
-            requestBody:
-                description: json object giving xcache site and client.
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/AssociationRequest'
-                        examples:  
-                            grid_site:
-                                summary: grid site is client - xcache site
-                                value: 
-                                    cache_site: MWT2-cache
-                                    client: MWT2
             responses:            
                 200:
                     description: Always succesuccessful.
@@ -159,7 +146,13 @@ paths:
                             example: OK
                 default:
                     $ref: '#/components/responses/GeneralTextError'
-
+        parameters:
+        - name: client
+          in: path
+          description: ID of pet to use
+          required: true
+          schema:
+            type: string  
 
 components:
   
