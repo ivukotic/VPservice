@@ -134,13 +134,6 @@ paths:
                                 $ref: '#/components/schemas/ServingPairs'
                 default:
                     $ref: '#/components/responses/GeneralTextError' 
-            parameters:
-            - name: client
-              in: path
-              description: ID of pet to use
-              required: true
-              schema:
-                type: string  
         delete: # client should be path parameter
             summary: Dissalows serving the client.
             responses:            
@@ -153,6 +146,13 @@ paths:
                             example: OK
                 default:
                     $ref: '#/components/responses/GeneralTextError'
+            parameters:
+            - name: client
+              in: path
+              description: ID of pet to use
+              required: true
+              schema:
+                type: string  
 
 components:
   
