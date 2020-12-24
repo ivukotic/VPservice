@@ -147,7 +147,7 @@ paths:
                 default:
                     $ref: '#/components/responses/GeneralTextError' 
         delete:
-            summary: Dissalows the xcache site to serve the client.
+            summary: Dissalows serving the client.
             requestBody:
                 description: json object giving xcache site and client.
                 required: true
