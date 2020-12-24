@@ -122,7 +122,7 @@ async function fix() {
 
 
 async function getDisabled() {
-  rclient.smembers('disabled_sites', (err, disabled) => {
+  rclient.smembers('meta.disabledSites', (err, disabled) => {
     if (err) {
       console.log('err. sites', err);
       return;

@@ -32,9 +32,20 @@ if (config.TESTING) {
   esIndexLookups = 'test_vp_lookups';
 }
 
+// all special Redis Keys
+const Meta = {
+  ServingTopology: 'meta.servingTopology',
+  DisabledSites: 'meta.disabledSites',
+};
+
 // contains info on currently active servers.
 // populated through pubsub.
+// structure: {'cacheSite':{'cacheServer':{'timestamp':234,'address':'root://'}}}
 const cacheSites = {};
+
+// contains info on which client is served by which cache site
+// structure: {'client':'cacheSite'}
+let servingTopology = {};
 
 // const pause = (duration) => new Promise(res => setTimeout(res, duration));
 
@@ -61,15 +72,38 @@ function esAddRequest(index, doc) {
   }
 }
 
-subscriber.on('message', (channel, message) => {
-  console.log(`Received data :${message}`);
-  const HB = JSON.parse(message);
-  if (!(HB.site in cacheSites)) {
-    cacheSites[HB.site] = {};
+// this function is called on any change in serving map
+// it is triggered through pubsub message.
+function reloadServingTopology() {
+  try {
+    servingTopology = rclient.hgetall(Meta.ServingTopology);
+  } catch (error) {
+    console.error('Problem adding to serving topology', error);
   }
-  cacheSites[HB.site][HB.id] = HB;
+}
+
+// this subscription listens on heartbeat messages
+// it parses them and updates cache topology information
+// for the server. It sends server info to Elasticsearch.
+subscriber.on('message', (channel, message) => {
+  console.log(`Received message: ${message}, on channel: ${channel}`);
+  if (channel === 'heartbeats') {
+    const HB = JSON.parse(message);
+    if (!(HB.site in cacheSites)) {
+      cacheSites[HB.site] = {};
+    }
+    cacheSites[HB.site][HB.id] = HB;
+    HB.live = true;
+    esAddRequest(esIndexLiveness, HB);
+  }
+  if (channel === 'topology') {
+    reloadServingTopology();
+  }
 });
 
+// this function is called periodically and removes from cache topology
+// all servers that did not send a heartbeat in last LIFETIME_INTERVAL
+// it sends data on removed cache server to Elasticsearch.
 function cleanDeadServers() {
   const cutoffTime = Date.now() - config.LIFETIME_INTERVAL * 1000;
   console.log('cleaning dead servers', cutoffTime);
@@ -77,6 +111,10 @@ function cleanDeadServers() {
     Object.keys(cacheSites[cacheSite]).forEach((cacheServer) => {
       if (cacheSites[cacheSite][cacheServer].timestamp < cutoffTime) {
         console.log(`removing  site: ${cacheSite} server:${cacheServer}`);
+        const doc = cacheSites[cacheSite][cacheServer];
+        doc.live = false;
+        doc.timestamp = Date.now();
+        esAddRequest(esIndexLiveness, doc);
         delete cacheSites[cacheSite][cacheServer];
         if (Object.keys(cacheSites[cacheSite]).length === 0) {
           delete cacheSites[cacheSite];
@@ -187,7 +225,7 @@ app.put('/site/disable/:sitename', async (req, res) => {
 
   disabled.add(site);
 
-  rclient.sadd('disabled_sites', site, (err, reply) => {
+  rclient.sadd(Meta.DisabledSites, site, (err, reply) => {
     if (err) {
       console.log('could not add site to disabled sites', err);
       res.status(500).send('could not add site to disabled sites', err);
@@ -204,7 +242,7 @@ app.put('/site/enable/:sitename', async (req, res) => {
 
   disabled.delete(site);
 
-  rclient.srem('disabled_sites', site, (_err, reply) => {
+  rclient.srem(Meta.DisabledSites, site, (_err, reply) => {
     console.log(`removed ${reply} site from disabled sites.`);
   });
 
@@ -241,7 +279,7 @@ app.get('/pause', async (req, res) => {
 app.get('/site/disabled', async (_req, res) => {
   console.log('returning disabled sites');
 
-  rclient.smembers('disabled_sites', (err, replyDisabled) => {
+  rclient.smembers(Meta.DisabledSites, (err, replyDisabled) => {
     if (err) {
       console.log('err. sites', err);
       res.status(500).send('could not find disabled sites list.');
@@ -379,14 +417,13 @@ app.put('/ds/reassign/:dataset/:sites', async (req, res) => {
 //             TOPOLOGY
 //
 
+// returns all of serving topology as JSON
 app.get('/serve', async (req, res) => {
-  // both parameters are optional
-  const { site } = req.query;
-  const { client } = req.query;
-  console.info(`returning serving for cache: ${site}, client: ${client}`);
-  res.status(200).send();
+  console.info('returning serving topology');
+  res.status(200).send(servingTopology);
 });
 
+// allows given xcache to serve a given client
 app.put('/serve', async (req, res) => {
   // both parameters are mandatory
   const { site } = req.query;
@@ -400,29 +437,45 @@ app.put('/serve', async (req, res) => {
     return;
   }
   console.info(`adding serving for cache: ${site}, client: ${client}`);
+  try {
+    await rclient.hset(Meta.ServingTopology, client, site);
+    rclient.publish('topology', 'added');
+  } catch (error) {
+    console.error('Problem adding to serving topology', error);
+  }
   res.status(200).send();
 });
 
-app.delete('/serve', async (req, res) => {
-  // both parameters are mandatory
-  const { site } = req.query;
-  const { client } = req.query;
-  if (site === undefined || site === null) {
-    res.status(400).send('need cache site parameter (eg. ?site=ABC).\n');
-    return;
-  }
-  if (client === undefined || client === null) {
-    res.status(400).send('need client parameter (eg. ?client=ABC).\n');
-    return;
-  }
-  console.info(`disallowing serving for cache: ${site}, client: ${client}`);
-  res.status(200).send();
-});
-
-app.get('/prefix/:client/:filename', async (req, res) => {
+// disallow serving given client
+app.delete('/serve/:client', async (req, res) => {
   const { client } = req.params;
-  const { filename } = req.params;
-  console.log(`request for prefix client: ${client} filename:${filename}`);
+  console.info(`disallowing serving client: ${client}`);
+  try {
+    await rclient.hset(Meta.ServingTopology, client);
+    rclient.publish('topology', 'removed');
+  } catch (error) {
+    console.error('Problem when dissalowing serving.', error);
+  }
+  res.status(200).send();
+});
+
+// for a given client and filename looks up what cache is serving it
+// calculates a server to use and returns its address.
+app.post('/prefix', jsonParser, async (req, res) => {
+  const b = req.body;
+  if (b === undefined || b === null) {
+    res.status(400).send('nothing POSTed.\n');
+    return;
+  }
+  if (b.client === undefined || b.client === null) {
+    res.status(400).send('Client is required.\n');
+    return;
+  }
+  if (b.filename === undefined || b.filename === null) {
+    res.status(400).send('Filename is required.\n');
+    return;
+  }
+  console.log(`request for prefix client: ${b.client} filename:${b.filename}`);
 
   let prefix = '';
 
@@ -437,14 +490,9 @@ app.get('/prefix/:client/:filename', async (req, res) => {
   //     res.status(200).send(sites);
   //   });
 
-  const doc = {
-    timestamp: Date.now(),
-    client,
-    filename,
-    prefix,
-  };
-
-  esAddRequest(esIndexLookups, doc);
+  b.timestamp = Date.now();
+  b.prefix = prefix;
+  esAddRequest(esIndexLookups, b);
   res.status(200).send(prefix);
 });
 
@@ -538,15 +586,17 @@ async function main() {
     rclient.setnx('grid_description_version', '0');
 
     // loads disabled sites
-    rclient.smembers('disabled_sites', (_err, reply) => {
+    rclient.smembers(Meta.DisabledSites, (_err, reply) => {
       console.log('Disabled sites:', reply);
       disabled = new Set(reply);
     });
 
+    reloadServingTopology();
+
     setInterval(backup, config.BACKUP_INTERVAL * 3600000);
     setInterval(cleanDeadServers, config.LIFETIME_INTERVAL * 1000);
 
-    subscriber.subscribe('heartbeats');
+    subscriber.subscribe('heartbeats', 'topology');
   } catch (err) {
     console.error('Error: ', err);
   }
