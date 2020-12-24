@@ -123,20 +123,8 @@ paths:
                             example: OK
                 default:
                     $ref: '#/components/responses/GeneralTextError'
-        post:
-            summary: Returns serving pairs. If cache site and/or client given only ones matching the request are returned.
-            requestBody:
-                description: json object giving xcache site and/or client.
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/AssociationRequestOptional'
-                        examples:  
-                            grid_site:
-                                summary: grid site is client - xcache site
-                                value: 
-                                    cache_site: MWT2-cache
-                                    client: MWT2
+        get:
+            summary: Returns serving pairs.
             responses:
                 200:
                     description: returns pairs as json array
@@ -146,21 +134,8 @@ paths:
                                 $ref: '#/components/schemas/ServingPairs'
                 default:
                     $ref: '#/components/responses/GeneralTextError' 
-        delete:
-            summary: Dissalows the xcache site to serve the client.
-            requestBody:
-                description: json object giving xcache site and client.
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/AssociationRequest'
-                        examples:  
-                            grid_site:
-                                summary: grid site is client - xcache site
-                                value: 
-                                    cache_site: MWT2-cache
-                                    client: MWT2
+        delete: # client should be path parameter
+            summary: Dissalows serving the client.
             responses:            
                 200:
                     description: Always succesuccessful.
@@ -171,7 +146,14 @@ paths:
                             example: OK
                 default:
                     $ref: '#/components/responses/GeneralTextError'
-
+            parameters:
+            - name: client
+              in: path
+              description: client name. Can be ATLAS DDM endpoint, site, analysis farm
+              example: MWT2
+              required: true
+              schema:
+                type: string  
 
 components:
   
