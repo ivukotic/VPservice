@@ -146,7 +146,7 @@ paths:
                                 $ref: '#/components/schemas/ServingPairs'
                 default:
                     $ref: '#/components/responses/GeneralTextError' 
-        delete:
+        delete: # client should be path parameter
             summary: Dissalows serving the client.
             requestBody:
                 description: json object giving xcache site and client.
