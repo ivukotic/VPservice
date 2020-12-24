@@ -1,10 +1,8 @@
 * check what's needed for https
-* run 2 pods per frontend
 * ask for firewall opening 
 * find what is bigger than m2.large
 
 * Add Postman docs for all the REST endpoints.
-* move confing keys or prefix them
 
 * when there is a change in a site config (increase or decrease of share) one must rebalance part of datasets.
     Will be done on demand (so one can change multiple sites and then call rebalancing).
@@ -23,10 +21,9 @@
 * does it need reconnection after scaling?
 * storing timestamped geo version history
 
-
 * disabling site does not check that site is there at the first place.
 
-* prefix these keys:
+* prefix these keys with meta. :
 sites are in a redis set "sites"
 keys "${cloud}:${site}" contain site core number
 key 'grid_description_version'

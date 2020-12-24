@@ -75,11 +75,13 @@ function esAddRequest(index, doc) {
 // this function is called on any change in serving map
 // it is triggered through pubsub message.
 function reloadServingTopology() {
-  try {
-    servingTopology = rclient.hgetall(Meta.ServingTopology);
-  } catch (error) {
-    console.error('Problem adding to serving topology', error);
-  }
+  rclient.hgetall(Meta.ServingTopology, (error, reply) => {
+    if (error) {
+      console.error('Problem loading serving topology', error);
+    }
+    servingTopology = reply;
+    console.log('Serving Topology:', servingTopology);
+  });
 }
 
 // this subscription listens on heartbeat messages
@@ -420,25 +422,30 @@ app.put('/ds/reassign/:dataset/:sites', async (req, res) => {
 // returns all of serving topology as JSON
 app.get('/serve', async (req, res) => {
   console.info('returning serving topology');
-  res.status(200).send(servingTopology);
+  res.status(200).json(servingTopology);
 });
 
 // allows given xcache to serve a given client
-app.put('/serve', async (req, res) => {
+app.put('/serve', jsonParser, async (req, res) => {
   // both parameters are mandatory
-  const { site } = req.query;
-  const { client } = req.query;
-  if (site === undefined || site === null) {
-    res.status(400).send('need cache site parameter (eg. ?site=ABC).\n');
+  const b = req.body;
+  if (b === undefined || b === null) {
+    res.status(400).send('nothing POSTed.\n');
+    return;
+  }
+  const cacheSite = req.body.cache_site;
+  const { client } = req.body;
+  if (cacheSite === undefined || cacheSite === null) {
+    res.status(400).send('need cache_site parameter.\n');
     return;
   }
   if (client === undefined || client === null) {
-    res.status(400).send('need client parameter (eg. ?client=ABC).\n');
+    res.status(400).send('need client parameter.\n');
     return;
   }
-  console.info(`adding serving for cache: ${site}, client: ${client}`);
+  console.info(`adding serving for cache: ${cacheSite}, client: ${client}`);
   try {
-    await rclient.hset(Meta.ServingTopology, client, site);
+    await rclient.hset(Meta.ServingTopology, client, cacheSite);
     rclient.publish('topology', 'added');
   } catch (error) {
     console.error('Problem adding to serving topology', error);
