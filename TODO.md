@@ -38,3 +38,4 @@ key 'grid_description_version'
 * add alarm and alert on VPservice status.
 
 * add really simple web endpoint
+* SITENAME in config not needed?
