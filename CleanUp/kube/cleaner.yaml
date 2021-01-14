@@ -31,7 +31,7 @@ spec:
                 items:
                   - key: userkey
                     path: userkey.pem
-                    mode: 256
+                    mode: 0400
                   - key: usercert
                     path: usercert.pem
           restartPolicy: Never
