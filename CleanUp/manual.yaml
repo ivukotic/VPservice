@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: manual_cleaner
+  name: manual-cleaner
 spec:
   template:
     spec:
