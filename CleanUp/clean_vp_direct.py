@@ -18,27 +18,27 @@ done = 0
 #  scan over all keys
 for k in r.scan_iter(match='*'):
     # print(k)
-    ds = k.strip()
+    ds = k.decode("utf-8").strip()
     if len(ds) < 30:
         print("skipping key:", ds)
         continue
 
     try:
         scope, filen = ds.split(':')
-        # print '----------------------------------------'
-        # print scope, filen
+        # print('----------------------------------------')
+        # print(scope, filen)
 
         rr = c.list_dataset_replicas(scope, filen)
         accessible = False
         for i2 in rr:
-            # print i2
+            # print(i2)
             rse = i2['rse']
-            # print 'replica:', rse
+            # print('replica:', rse)
             rse_info = rsemgr.get_rse_info(i2['rse'])
             if rse_info['rse_type'] == 'TAPE':
-                # print 'TAPE Skip.'
+                # print('TAPE Skip.')
                 continue
-            # print rse_info['protocols']
+            # print(rse_info['protocols'])
             for prot in rse_info['protocols']:
                 if prot['scheme'] == 'root' and prot['domains']['wan']['read'] > 0:
                     accessible = True
@@ -47,7 +47,7 @@ for k in r.scan_iter(match='*'):
                 break
 
         if not accessible:
-            # print 'removing this one.', ds
+            # print('removing this one.', ds)
             r.delete(ds)
             removed += 1
 
