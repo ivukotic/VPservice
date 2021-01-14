@@ -21,18 +21,16 @@ const test_keys = [
 
 const rclient = redis.createClient(config.PORT, config.HOST);
 
-
 function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
 
-
 function rename_site(ds, placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2_VP_DISK') {
   const pos = placements.indexOf(origSite);
   // console.log(placements, pos);
-  if (pos != -1) {
+  if (pos !== -1) {
     placements[pos] = newSite;
     console.log('new placement', placements);
     rclient.ltrim(ds, 1, 0); // removes all
@@ -85,7 +83,6 @@ async function test_fix() {
   }
 }
 
-
 async function fix() {
   rclient.keys('*', async (err, keys) => {
     if (err) return console.log(err);
@@ -119,7 +116,6 @@ async function fix() {
     }
   });
 }
-
 
 async function getDisabled() {
   rclient.smembers('meta.disabledSites', (err, disabled) => {

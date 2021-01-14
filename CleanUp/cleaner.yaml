@@ -14,7 +14,7 @@ spec:
             - name: cleaner
               image: ivukotic/vpservice:cleanup
               imagePullPolicy: Always
-              command: ["start.sh"]
+              command: ["/usr/src/app/start.sh"]
               env:
                 - name: RUCIO_ACCOUNT
                   value: "ivukotic"

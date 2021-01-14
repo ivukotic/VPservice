@@ -39,3 +39,5 @@ key 'grid_description_version'
 
 * add really simple web endpoint
 * SITENAME in config not needed?
+* create HELM chart
+* add cleaner

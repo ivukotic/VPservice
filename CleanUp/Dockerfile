@@ -2,7 +2,9 @@ FROM rucio/rucio-clients:latest
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
+# RUN whoami
 
+USER root
 RUN yum -y update
 
 RUN yum install -y https://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-latest.rpm
@@ -20,6 +22,6 @@ COPY *.py /usr/src/app/
 COPY start.sh requirements.txt /usr/src/app/
 COPY rucio.cfg  /opt/rucio/etc/
 
-RUN python -m pip install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
 
 CMD [ "/usr/src/app/start.sh" ]

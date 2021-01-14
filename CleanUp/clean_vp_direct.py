@@ -52,12 +52,12 @@ for k in r.scan_iter(match='*'):
             removed += 1
 
     except Exception as identifier:
-        print ds
-        print identifier
+        print(ds)
+        print(identifier)
 
     done += 1
     if not done % 10000:
-        print "done:", done, "removed:", removed
+        print("done:", done, "removed:", removed)
 
-print "done:", done
-print "removed:", removed
+print("done:", done)
+print("removed:", removed)
