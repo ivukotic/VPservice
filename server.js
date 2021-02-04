@@ -1,11 +1,16 @@
 const elasticsearch = require('@elastic/elasticsearch');
+const fs = require('fs');
+const https = require('https');
 const express = require('express');
+const helmet = require('helmet');
 const redis = require('redis');
 const config = require('/etc/vps/config.json');
 const espath = require('/etc/vps/es-conn.json');
 const bodyParser = require('body-parser');
 
 const app = express();
+app.use(helmet());
+
 const jsonParser = bodyParser.json();
 
 console.log('VPs server starting ... ');
@@ -573,7 +578,16 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-app.listen(443, () => console.log('Listening on port 443!'));
+// app.listen(80, () => console.log('Listening on port 80!'));
+
+const opt = {
+  key: fs.readFileSync('/etc/vps/tls.key'),
+  cert: fs.readFileSync('/etc/vps/tls.crt'),
+};
+
+https.createServer(opt, app).listen(443, () => {
+  console.log('Listening on port 443!');
+});
 
 async function main() {
   try {

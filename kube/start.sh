@@ -14,6 +14,7 @@ kubectl delete secret es-conn
 echo "create secrets"
 kubectl create secret generic config --from-file=config.json=config.json
 kubectl create secret generic es-conn --from-file=es-conn.json=secrets/es-conn.json
+kubectl create secret generic cert --from-file=secrets/certificates/tls.key --from-file=secrets/certificates/tls.crt
 
 echo "create loadbalancer"
 kubectl create -f loadbalancer.yaml
