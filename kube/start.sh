@@ -24,7 +24,7 @@ kubectl create -f redis.yaml
 
 echo "Deploying filler and server"
 kubectl create -f filler.yaml
-kubectl create -f frontend.yaml
+kubectl create -f frontend_new.yaml
 
 echo "to give a dns"
 export OS_REGION_NAME=sdn1
