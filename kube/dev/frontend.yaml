@@ -47,3 +47,5 @@ spec:
                   name: config
               - secret:
                   name: es-conn
+              - secret:
+                  name: tokens

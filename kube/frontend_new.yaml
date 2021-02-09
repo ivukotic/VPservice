@@ -49,3 +49,5 @@ spec:
                   name: es-conn
               - secret:
                   name: cert
+              - secret:
+                  name: tokens

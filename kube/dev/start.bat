@@ -8,7 +8,8 @@ kubectl delete secret es-conn
 
 REM creating secrets
 kubectl create secret generic config --from-file=config.json=config.json
-kubectl create secret generic es-conn --from-file=es-conn.json=secrets/es-conn.json
+kubectl create secret generic es-conn --from-file=secrets/es-conn.json
+kubectl create secret generic tokens --from-file=secrets/tokens.json
 
 REM create svc
 kubectl create -f loadbalancer.yaml

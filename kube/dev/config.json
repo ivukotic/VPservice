@@ -1,5 +1,4 @@
 {
-    "SITENAME": "localhost",
     "PORT": 6379,
     "HOST": "redis-master.default.svc.cluster.local",
     "PRECALCULATED_LWM": 1000,

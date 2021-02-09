@@ -6,7 +6,10 @@ const helmet = require('helmet');
 const redis = require('redis');
 const config = require('/etc/vps/config.json');
 const espath = require('/etc/vps/es-conn.json');
+const tokens = require('/etc/vps/tokens.json');
 const bodyParser = require('body-parser');
+const passport = require('passport');
+const {Strategy} = require('passport-http-bearer');
 
 const app = express();
 app.use(helmet());
@@ -20,6 +23,15 @@ const rclient = redis.createClient(config.PORT, config.HOST);
 const subscriber = rclient.duplicate();
 
 const es = new elasticsearch.Client({ node: espath.ES_HOST, log: 'error' });
+
+passport.use(new Strategy(
+  (token, done) => {
+    if (token in tokens) {
+      return done(null, tokens[token], { scope: 'all' });
+    }
+    return done(null, false);
+  },
+));
 
 let disabled = new Set();
 let paused = false;
@@ -100,8 +112,6 @@ subscriber.on('message', (channel, message) => {
       cacheSites[HB.site] = {};
     }
     cacheSites[HB.site][HB.id] = HB;
-    HB.live = true;
-    esAddRequest(esIndexLiveness, HB);
   }
   if (channel === 'topology') {
     reloadServingTopology();
@@ -144,7 +154,7 @@ function backup() {
   });
 }
 
-app.delete('/grid/', (_req, res) => {
+app.delete('/grid/', passport.authenticate('bearer', { session: false }), (_req, res) => {
   console.log('deleting all of the grid info.... VERIFIED');
 
   rclient.smembers('sites', (err1, result1) => {
@@ -529,6 +539,7 @@ app.post('/liveness', jsonParser, async (req, res) => {
   }
   // size
   b.timestamp = Date.now();
+  b.live = true;
   esAddRequest(esIndexLiveness, b);
   rclient.publish('heartbeats', JSON.stringify(b));
   res.status(200).send('OK');
@@ -557,7 +568,7 @@ app.get('/test', async (_req, res, next) => {
 });
 
 app.get('/healthz', (_request, response) => {
-  console.log('health call', cacheSites);
+  // console.log('health call', cacheSites);
   try {
     response.status(200).send('OK');
   } catch (err) {

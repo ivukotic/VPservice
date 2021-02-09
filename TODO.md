@@ -1,6 +1,6 @@
-* check what's needed for https
-* ask for firewall opening 
+* check how to get letsencript
 * find what is bigger than m2.large
+* add APIkey support
 
 * Add Postman docs for all the REST endpoints.
 
@@ -21,7 +21,7 @@
 * does it need reconnection after scaling?
 * storing timestamped geo version history
 
-* disabling site does not check that site is there at the first place.
+* disabling site does not check that site is there at the first place. if site not there should return code 500.
 
 * prefix these keys with meta. :
 sites are in a redis set "sites"
@@ -38,6 +38,5 @@ key 'grid_description_version'
 * add alarm and alert on VPservice status.
 
 * add really simple web endpoint
-* SITENAME in config not needed?
 * create HELM chart
 * add cleaner
