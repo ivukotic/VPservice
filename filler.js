@@ -64,7 +64,7 @@ function recalculateWeigths() {
 // called at the startup
 // if grid description not in redis, will retry every 60 seconds
 async function reloadGrid() {
-  rclient.get('grid_description_version', async (err, reply) => {
+  rclient.get('Meta.grid_description_version', async (err, reply) => {
     // console.log('GD version:', reply);
     if (!reply || reply === '0') {
       console.log('grid description not there. will retry in 60 seconds.');

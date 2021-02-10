@@ -174,7 +174,7 @@ app.delete('/grid/', passport.authenticate('bearer', { session: false }), (_req,
   });
 
   console.log('resetting grid description version ...');
-  rclient.set('grid_description_version', '0');
+  rclient.set('Meta.grid_description_version', '0');
 
   res.status(200).send('OK');
 });
@@ -184,7 +184,7 @@ app.delete('/all_data', passport.authenticate('bearer', { session: false }), (_r
   rclient.flushdb((_err, reply) => {
     console.log('reply:', reply);
     console.log('resetting grid description version ...');
-    rclient.set('grid_description_version', '0');
+    rclient.set('Meta.grid_description_version', '0');
     res.status(200).send(reply);
   });
 });
@@ -225,7 +225,7 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
   });
 
   console.log('updating grid description version ...');
-  rclient.incr('grid_description_version', (err, version) => {
+  rclient.incr('Meta.grid_description_version', (err, version) => {
     if (err) {
       next(new Error('Could not increment grid description version.'));
     }
@@ -635,7 +635,7 @@ async function main() {
     }
 
     // initializes value if it does not exist
-    rclient.setnx('grid_description_version', '0');
+    rclient.setnx('Meta.grid_description_version', '0');
 
     // loads disabled sites
     rclient.smembers(Meta.DisabledSites, (_err, reply) => {

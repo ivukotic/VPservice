@@ -25,7 +25,6 @@
 
 * prefix these keys with meta. :
 keys "${cloud}:${site}" contain site core number
-key 'grid_description_version'
 
 * change flip_pause with pause and unpause.
 * pre-check parameters in /site/:cloud/:sitename/:cores
