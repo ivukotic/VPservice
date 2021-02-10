@@ -11,6 +11,8 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const { Strategy } = require('passport-http-bearer');
 
+const Keys = require('./keys');
+
 const app = express();
 app.use(helmet());
 
@@ -49,12 +51,6 @@ if (config.TESTING) {
   esIndexLookups = 'test_vp_lookups';
 }
 
-// all special Redis Keys
-const Meta = {
-  ServingTopology: 'meta.servingTopology',
-  DisabledSites: 'meta.disabledSites',
-};
-
 // contains info on currently active servers.
 // populated through pubsub.
 // structure: {'cacheSite':{'cacheServer':{'timestamp':234,'address':'root://'}}}
@@ -92,7 +88,7 @@ function esAddRequest(index, doc) {
 // this function is called on any change in serving map
 // it is triggered through pubsub message.
 function reloadServingTopology() {
-  rclient.hgetall(Meta.ServingTopology, (error, reply) => {
+  rclient.hgetall(Keys.ServingTopology, (error, reply) => {
     if (error) {
       console.error('Problem loading serving topology', error);
     }
@@ -143,7 +139,7 @@ function cleanDeadServers() {
 
 function updateGridVersion() {
   console.log('updating grid description version ...');
-  rclient.incr('Meta.grid_description_version', (err, version) => {
+  rclient.incr(Keys.GDV, (err, version) => {
     if (err) {
       console.error('Could not increment grid description version.');
     }
@@ -167,13 +163,13 @@ function backup() {
 app.delete('/grid/', passport.authenticate('bearer', { session: false }), (_req, res) => {
   console.log('deleting all of the grid info.... VERIFIED');
 
-  rclient.smembers('Meta.Sites', (err1, result1) => {
+  rclient.smembers(Keys.Sites, (err1, result1) => {
     if (!err1) {
       console.log('deleting sites', result1);
       rclient.del(result1, (err2, result2) => {
         if (!err2) {
           console.log('sites deleted:', result2);
-          rclient.del('Meta.Sites');
+          rclient.del(Keys.Sites);
         } else {
           console.error('could not delete sites');
         }
@@ -184,7 +180,7 @@ app.delete('/grid/', passport.authenticate('bearer', { session: false }), (_req,
   });
 
   console.log('resetting grid description version ...');
-  rclient.set('Meta.grid_description_version', '0');
+  rclient.set(Keys.GDV, '0');
 
   res.status(200).send('OK');
 });
@@ -194,7 +190,7 @@ app.delete('/all_data', passport.authenticate('bearer', { session: false }), (_r
   rclient.flushdb((_err, reply) => {
     console.log('reply:', reply);
     console.log('resetting grid description version ...');
-    rclient.set('Meta.grid_description_version', '0');
+    rclient.set(Keys.GDV, '0');
     res.status(200).send(reply);
   });
 });
@@ -218,9 +214,9 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
   const site = req.params.sitename;
   const { cores } = req.params;
 
-  console.log('adding a site', site, 'to', cloud, 'cloud with', cores, 'cores');
+  console.log(`adding a site ${site} to ${cloud} cloud with ${cores} cores`);
 
-  rclient.sadd('Meta.Sites', `${cloud}:${site}`, (err, numb) => {
+  rclient.sadd(Keys.Sites, `${cloud}:${site}`, (err, numb) => {
     if (err) {
       next(new Error('Could not add site', err));
     }
@@ -239,17 +235,17 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
   res.status(200).send('OK');
 });
 
-app.put('/site/disable/:cloud/:sitename', passport.authenticate('bearer', { session: false }), async (req, res) => {
+app.put('/site/disable/:cloud/:site', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const { cloud } = req.params;
-  const site = req.params.sitename;
+  const { site } = req.params;
   console.log(`disabling site ${site} in cloud ${cloud}`);
 
-  rclient.smembers('Meta.Sites', (err1, result1) => {
+  rclient.smembers(Keys.Sites, (err1, result1) => {
     if (!err1) {
       console.log('found sites:', result1);
       if (`${cloud}:${site}` in result1) {
         disabled.add(site);
-        rclient.sadd(Meta.DisabledSites, site, (err, reply) => {
+        rclient.sadd(Keys.DisabledSites, site, (err, reply) => {
           if (err) {
             console.error('could not add site to disabled sites', err);
             res.status(500).send('could not add site to disabled sites', err);
@@ -262,15 +258,16 @@ app.put('/site/disable/:cloud/:sitename', passport.authenticate('bearer', { sess
         res.status(400).send('Site does not exist. Could not add site to disabled sites.');
       }
     } else {
-      console.error('could not get Meta.Sites!');
+      console.error('could not get Keys.Sites!');
       res.status(500).send('Internal issue');
     }
   });
 });
 
-app.put('/site/enable/:sitename', passport.authenticate('bearer', { session: false }), async (req, res) => {
-  const site = req.params.sitename;
-  console.log('enabling site', site);
+app.put('/site/enable/:cloud/:site', passport.authenticate('bearer', { session: false }), async (req, res) => {
+  const { cloud } = req.params;
+  const { site } = req.params;
+  console.log(`enabling site ${site} in cloud ${cloud}`);
 
   if (site in disabled) {
     disabled.delete(site);
@@ -278,7 +275,7 @@ app.put('/site/enable/:sitename', passport.authenticate('bearer', { session: fal
     res.status(400).send('Site was not disabled!');
   }
 
-  rclient.srem(Meta.DisabledSites, site, (_err, reply) => {
+  rclient.srem(Keys.DisabledSites, `${cloud}:${site}`, (_err, reply) => {
     console.log(`removed ${reply} site from disabled sites.`);
   });
 
@@ -291,7 +288,7 @@ app.put('/rebalance', async (req, res) => {
 
   // const counter = {};
   // get all the keys that represent datasets
-  // no 'sites', individual sites names, disabled_sites, unas, grid_description_version
+  // no 'sites', individual sites names, disabled_sites, unas, gridDescriptionVersion
 
   // calculate what are current shares and check which ones need updates.
 
@@ -320,7 +317,7 @@ app.get('/pause', async (req, res) => {
 app.get('/site/disabled', async (_req, res) => {
   console.log('returning disabled sites');
 
-  rclient.smembers(Meta.DisabledSites, (err, replyDisabled) => {
+  rclient.smembers(Keys.DisabledSites, (err, replyDisabled) => {
     if (err) {
       console.log('err. sites', err);
       res.status(500).send('could not find disabled sites list.');
@@ -332,7 +329,7 @@ app.get('/site/disabled', async (_req, res) => {
 app.get('/grid/', async (_req, res) => {
   console.log('returning all grid info');
 
-  rclient.smembers('Meta.Sites', (err, sites) => {
+  rclient.smembers(Keys.Sites, (err, sites) => {
     if (err) {
       console.log('err. sites', err);
       res.status(500).send('could not find sites list.');
@@ -382,7 +379,7 @@ app.delete('/site/:cloud/:sitename', async (req, res) => {
   rclient.del(site, (err, result) => {
     if (!err) {
       console.log('sites deleted:', result);
-      rclient.srem('Meta.Sites', site);
+      rclient.srem(Keys.Sites, site);
       updateGridVersion();
       res.status(200).send('OK');
     } else {
@@ -501,7 +498,7 @@ app.put('/serve', jsonParser, passport.authenticate('bearer', { session: false }
   }
   console.info(`adding serving for cache: ${cacheSite}, client: ${client}`);
   try {
-    await rclient.hset(Meta.ServingTopology, client, cacheSite);
+    await rclient.hset(Keys.ServingTopology, client, cacheSite);
     rclient.publish('topology', 'added');
   } catch (error) {
     console.error('Problem adding to serving topology', error);
@@ -514,7 +511,7 @@ app.delete('/serve/:client', passport.authenticate('bearer', { session: false })
   const { client } = req.params;
   console.info(`disallowing serving client: ${client}`);
   try {
-    await rclient.hset(Meta.ServingTopology, client);
+    await rclient.hset(Keys.ServingTopology, client);
     rclient.publish('topology', 'removed');
   } catch (error) {
     console.error('Problem when dissalowing serving.', error);
@@ -656,10 +653,10 @@ async function main() {
     }
 
     // initializes value if it does not exist
-    rclient.setnx('Meta.grid_description_version', '0');
+    rclient.setnx(Keys.GDV, '0');
 
     // loads disabled sites
-    rclient.smembers(Meta.DisabledSites, (_err, reply) => {
+    rclient.smembers(Keys.DisabledSites, (_err, reply) => {
       console.log('Disabled sites:', reply);
       disabled = new Set(reply);
     });

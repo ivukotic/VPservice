@@ -13,6 +13,7 @@ Weights - there are cloud weights and site weights.
 
 const redis = require('redis');
 const c = require('./choice.js');
+const Keys = require('./keys');
 const config = require('/etc/vps/config.json');
 
 console.log('config:', config);
@@ -64,7 +65,7 @@ function recalculateWeigths() {
 // called at the startup
 // if grid description not in redis, will retry every 60 seconds
 async function reloadGrid() {
-  rclient.get('Meta.grid_description_version', async (err, reply) => {
+  rclient.get(Keys.GDV, async (err, reply) => {
     // console.log('GD version:', reply);
     if (!reply || reply === '0') {
       console.log('grid description not there. will retry in 60 seconds.');
@@ -84,7 +85,7 @@ async function reloadGrid() {
 
     ready = false;
     resetGrid();
-    await rclient.smembers('Meta.Sites', async (err1, sites) => {
+    await rclient.smembers(Keys.Sites, async (err1, sites) => {
       if (err1) {
         console.log('err. sites', err1);
         return;
