@@ -24,12 +24,9 @@
 * disabling site does not check that site is there at the first place. if site not there should return code 500.
 
 * prefix these keys with meta. :
-keys "${cloud}:${site}" contain site core number
+"${cloud}:${site}" contain site core number
 
-* change flip_pause with pause and unpause.
 * pre-check parameters in /site/:cloud/:sitename/:cores
-
-* fillers doesn't really need more than one instance?
 
 * get an endpoint for rucio to get xcache prefix for a given site and file
 

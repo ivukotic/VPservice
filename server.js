@@ -141,6 +141,16 @@ function cleanDeadServers() {
   });
 }
 
+function updateGridVersion() {
+  console.log('updating grid description version ...');
+  rclient.incr('Meta.grid_description_version', (err, version) => {
+    if (err) {
+      console.error('Could not increment grid description version.');
+    }
+    console.log('current grid version:', version);
+  });
+}
+
 function backup() {
   console.log('Starting hourly backup...');
   rclient.lastsave((_err, reply) => {
@@ -189,10 +199,10 @@ app.delete('/all_data', passport.authenticate('bearer', { session: false }), (_r
   });
 });
 
-app.delete('/ds/:dataset', async (req, res) => {
+app.delete('/ds/:dataset', (req, res) => {
   const ds = req.params.dataset;
   console.log('deleting dataset placement.');
-  await rclient.del(ds, (err, reply) => {
+  rclient.del(ds, (err, reply) => {
     if (err) {
       console.log('error deleting dataset placement ', err);
       res.status(500).send('error deleting dataset placement', err);
@@ -224,13 +234,7 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
     console.log('site added to cloud or updated: ', reply);
   });
 
-  console.log('updating grid description version ...');
-  rclient.incr('Meta.grid_description_version', (err, version) => {
-    if (err) {
-      next(new Error('Could not increment grid description version.'));
-    }
-    console.log('current grid version:', version);
-  });
+  updateGridVersion();
 
   res.status(200).send('OK');
 });
@@ -367,6 +371,23 @@ app.get('/site/:cloud/:sitename', async (req, res) => {
         console.log('found: ', ireply);
         res.status(200).send(`Site found. Cores: ${ireply}`);
       });
+    }
+  });
+});
+
+// completely deletes site
+app.delete('/site/:cloud/:sitename', async (req, res) => {
+  const site = `${req.params.cloud}:${req.params.sitename}`;
+  console.log('deleting site:', site);
+  rclient.del(site, (err, result) => {
+    if (!err) {
+      console.log('sites deleted:', result);
+      rclient.srem('Meta.Sites', site);
+      updateGridVersion();
+      res.status(200).send('OK');
+    } else {
+      console.error('could not delete sites');
+      res.status(500).send('not found.');
     }
   });
 });
