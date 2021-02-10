@@ -281,15 +281,20 @@ app.put('/rebalance', async (req, res) => {
   res.status(200).send('OK');
 });
 
-app.put('/flip_pause', passport.authenticate('bearer', { session: false }), async (req, res) => {
-  // TODO - split to pause and unpause
-  paused = !(paused);
-  console.log('FLIPPED PAUSE', paused);
+app.put('/pause', passport.authenticate('bearer', { session: false }), async (req, res) => {
+  paused = true;
+  console.log('PAUSED!');
+  res.status(200).send('OK');
+});
+
+app.put('/unpause', passport.authenticate('bearer', { session: false }), async (req, res) => {
+  paused = false;
+  console.log('UNPAUSED!');
   res.status(200).send('OK');
 });
 
 app.get('/pause', async (req, res) => {
-  console.log('returning pause state.');
+  console.log('returning pause state:', paused);
   res.status(200).send(paused);
 });
 
@@ -395,7 +400,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
   });
 });
 
-app.get('/ds/reassign/:dataset', async (req, res) => {
+app.get('/ds/reassign/:dataset', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const ds = req.params.dataset;
   // console.log('reassigning ds:', ds);
 
