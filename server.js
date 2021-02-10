@@ -35,7 +35,7 @@ passport.use(new Strategy(
   },
 ));
 
-let disabled = new Set();
+const disabled = new Set();
 let paused = false;
 
 // ES reporting things
@@ -245,7 +245,7 @@ app.put('/site/disable/:cloud/:site', passport.authenticate('bearer', { session:
       console.log('found sites:', result1);
       if (`${cloud}:${site}` in result1) {
         disabled.add(site);
-        rclient.sadd(Keys.DisabledSites, site, (err, reply) => {
+        rclient.sadd(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
           if (err) {
             console.error('could not add site to disabled sites', err);
             res.status(500).send('could not add site to disabled sites', err);
@@ -658,7 +658,7 @@ async function main() {
     // loads disabled sites
     rclient.smembers(Keys.DisabledSites, (_err, reply) => {
       console.log('Disabled sites:', reply);
-      disabled = new Set(reply);
+      reply.forEach((s) => disabled.add(s.split(':')[1]));
     });
 
     reloadServingTopology();

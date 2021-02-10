@@ -1,5 +1,6 @@
 const elasticsearch = require('@elastic/elasticsearch');
 const redis = require('redis');
+const Keys = require('../keys');
 
 const testing = true;
 
@@ -19,7 +20,6 @@ async function insert(data) {
 }
 
 async function storeInES() {
-
   rclient.keys('*', async (err, keys) => {
     if (err) return console.log(err);
 
@@ -62,28 +62,22 @@ async function storeInES() {
       data = [];
       count += 1;
     }
-
   });
-
 }
 
 
 async function getDisabled() {
-
   rclient.smembers('meta.disabledSites', (err, disabled) => {
     if (err) {
       console.log('err. sites', err);
       return;
     }
     console.log('disabled sites', disabled);
-    return;
   });
-
 };
 
 async function getGrid() {
-
-  rclient.smembers('Meta.Sites', (err, sites) => {
+  rclient.smembers(Keys.Sites, (err, sites) => {
     if (err) {
       console.log('err. sites', err);
       return;

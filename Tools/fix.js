@@ -1,4 +1,5 @@
 const redis = require('redis');
+const keys = require('../keys');
 
 config = {
   PORT: 6379,
@@ -128,7 +129,7 @@ async function getDisabled() {
 }
 
 async function getGrid() {
-  rclient.smembers('Meta.Sites', (err, sites) => {
+  rclient.smembers(keys.Sites, (err, sites) => {
     if (err) {
       console.log('err. sites', err);
       return;
