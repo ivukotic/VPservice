@@ -24,7 +24,6 @@
 * disabling site does not check that site is there at the first place. if site not there should return code 500.
 
 * prefix these keys with meta. :
-sites are in a redis set "sites"
 keys "${cloud}:${site}" contain site core number
 key 'grid_description_version'
 

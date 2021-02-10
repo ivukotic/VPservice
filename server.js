@@ -157,13 +157,13 @@ function backup() {
 app.delete('/grid/', passport.authenticate('bearer', { session: false }), (_req, res) => {
   console.log('deleting all of the grid info.... VERIFIED');
 
-  rclient.smembers('sites', (err1, result1) => {
+  rclient.smembers('Meta.Sites', (err1, result1) => {
     if (!err1) {
       console.log('deleting sites', result1);
       rclient.del(result1, (err2, result2) => {
         if (!err2) {
           console.log('sites deleted:', result2);
-          rclient.del('sites');
+          rclient.del('Meta.Sites');
         } else {
           console.error('could not delete sites');
         }
@@ -210,7 +210,7 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
 
   console.log('adding a site', site, 'to', cloud, 'cloud with', cores, 'cores');
 
-  rclient.sadd('sites', `${cloud}:${site}`, (err, numb) => {
+  rclient.sadd('Meta.Sites', `${cloud}:${site}`, (err, numb) => {
     if (err) {
       next(new Error('Could not add site', err));
     }
@@ -235,29 +235,48 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
   res.status(200).send('OK');
 });
 
-app.put('/site/disable/:sitename', passport.authenticate('bearer', { session: false }), async (req, res) => {
-  // TODO - check that site is there - it is in the list of "sites"
+app.put('/site/disable/:cloud/:sitename', passport.authenticate('bearer', { session: false }), async (req, res) => {
+  const cloud = req.params.cloud;
   const site = req.params.sitename;
-  console.log('disabling site', site);
+  console.log(`disabling site ${site} in cloud ${cloud}`);
+ 
+  rclient.smembers('Meta.Sites', (err1, result1) => {
+    if (!err1) {
+      console.log('found sites:', result1);
+      if (`${cloud}:${site}` in result1){
 
-  disabled.add(site);
+        disabled.add(site);
 
-  rclient.sadd(Meta.DisabledSites, site, (err, reply) => {
-    if (err) {
-      console.log('could not add site to disabled sites', err);
-      res.status(500).send('could not add site to disabled sites', err);
+        rclient.sadd(Meta.DisabledSites, site, (err, reply) => {
+          if (err) {
+            console.error('could not add site to disabled sites', err);
+            res.status(500).send('could not add site to disabled sites', err);
+          }
+          console.log(`disabled site: ${reply}.`);
+          res.status(200).send(`disabled site: ${reply}.`);
+        });
+
+      } else {
+        console.error('that site does not exist!');
+        res.status(400).send('Site does not exist. Could not add site to disabled sites.', err);
+      }
+    } else {
+      console.error('could not get Meta.Sites!');
+      res.status(500).send('Internal issue', err);
     }
-    console.log(`disabled site: ${reply}.`);
-    res.status(200).send(`disabled site: ${reply}.`);
-  });
+
+
 });
 
 app.put('/site/enable/:sitename', passport.authenticate('bearer', { session: false }), async (req, res) => {
-  // TODO check that site is in the list of sites.
   const site = req.params.sitename;
   console.log('enabling site', site);
 
-  disabled.delete(site);
+  if (site in disabled){
+    disabled.delete(site);
+  } else {
+    res.status(400).send('Site was not disabled!');
+  }
 
   rclient.srem(Meta.DisabledSites, site, (_err, reply) => {
     console.log(`removed ${reply} site from disabled sites.`);
@@ -313,7 +332,7 @@ app.get('/site/disabled', async (_req, res) => {
 app.get('/grid/', async (_req, res) => {
   console.log('returning all grid info');
 
-  rclient.smembers('sites', (err, sites) => {
+  rclient.smembers('Meta.Sites', (err, sites) => {
     if (err) {
       console.log('err. sites', err);
       res.status(500).send('could not find sites list.');

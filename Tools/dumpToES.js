@@ -83,7 +83,7 @@ async function getDisabled() {
 
 async function getGrid() {
 
-  rclient.smembers('sites', (err, sites) => {
+  rclient.smembers('Meta.Sites', (err, sites) => {
     if (err) {
       console.log('err. sites', err);
       return;
