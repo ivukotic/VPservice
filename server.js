@@ -236,17 +236,15 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
 });
 
 app.put('/site/disable/:cloud/:sitename', passport.authenticate('bearer', { session: false }), async (req, res) => {
-  const cloud = req.params.cloud;
+  const { cloud } = req.params;
   const site = req.params.sitename;
   console.log(`disabling site ${site} in cloud ${cloud}`);
- 
+
   rclient.smembers('Meta.Sites', (err1, result1) => {
     if (!err1) {
       console.log('found sites:', result1);
-      if (`${cloud}:${site}` in result1){
-
+      if (`${cloud}:${site}` in result1) {
         disabled.add(site);
-
         rclient.sadd(Meta.DisabledSites, site, (err, reply) => {
           if (err) {
             console.error('could not add site to disabled sites', err);
@@ -255,24 +253,22 @@ app.put('/site/disable/:cloud/:sitename', passport.authenticate('bearer', { sess
           console.log(`disabled site: ${reply}.`);
           res.status(200).send(`disabled site: ${reply}.`);
         });
-
       } else {
         console.error('that site does not exist!');
-        res.status(400).send('Site does not exist. Could not add site to disabled sites.', err);
+        res.status(400).send('Site does not exist. Could not add site to disabled sites.');
       }
     } else {
       console.error('could not get Meta.Sites!');
-      res.status(500).send('Internal issue', err);
+      res.status(500).send('Internal issue');
     }
-
-
+  });
 });
 
 app.put('/site/enable/:sitename', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const site = req.params.sitename;
   console.log('enabling site', site);
 
-  if (site in disabled){
+  if (site in disabled) {
     disabled.delete(site);
   } else {
     res.status(400).send('Site was not disabled!');
