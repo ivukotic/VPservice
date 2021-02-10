@@ -9,7 +9,7 @@ const espath = require('/etc/vps/es-conn.json');
 const tokens = require('/etc/vps/tokens.json');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const {Strategy} = require('passport-http-bearer');
+const { Strategy } = require('passport-http-bearer');
 
 const app = express();
 app.use(helmet());
@@ -179,7 +179,7 @@ app.delete('/grid/', passport.authenticate('bearer', { session: false }), (_req,
   res.status(200).send('OK');
 });
 
-app.delete('/all_data', (_req, res) => {
+app.delete('/all_data', passport.authenticate('bearer', { session: false }), (_req, res) => {
   console.log('deleting all of the database. VERIFIED');
   rclient.flushdb((_err, reply) => {
     console.log('reply:', reply);
@@ -202,7 +202,7 @@ app.delete('/ds/:dataset', async (req, res) => {
   });
 });
 
-app.put('/site/:cloud/:sitename/:cores', async (req, res, next) => {
+app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { session: false }), async (req, res, next) => {
   // console.log('adding a site.... NOT VERIFIED');
   const { cloud } = req.params;
   const site = req.params.sitename;
@@ -235,7 +235,7 @@ app.put('/site/:cloud/:sitename/:cores', async (req, res, next) => {
   res.status(200).send('OK');
 });
 
-app.put('/site/disable/:sitename', async (req, res) => {
+app.put('/site/disable/:sitename', passport.authenticate('bearer', { session: false }), async (req, res) => {
   // TODO - check that site is there - it is in the list of "sites"
   const site = req.params.sitename;
   console.log('disabling site', site);
@@ -252,7 +252,7 @@ app.put('/site/disable/:sitename', async (req, res) => {
   });
 });
 
-app.put('/site/enable/:sitename', async (req, res) => {
+app.put('/site/enable/:sitename', passport.authenticate('bearer', { session: false }), async (req, res) => {
   // TODO check that site is in the list of sites.
   const site = req.params.sitename;
   console.log('enabling site', site);
@@ -281,7 +281,7 @@ app.put('/rebalance', async (req, res) => {
   res.status(200).send('OK');
 });
 
-app.put('/flip_pause', async (req, res) => {
+app.put('/flip_pause', passport.authenticate('bearer', { session: false }), async (req, res) => {
   // TODO - split to pause and unpause
   paused = !(paused);
   console.log('FLIPPED PAUSE', paused);
@@ -412,7 +412,7 @@ app.get('/ds/reassign/:dataset', async (req, res) => {
 });
 
 // sites is given like AGLT2_VP_DISK,MWT2_VP_DISK,BNL_VP_DISK
-app.put('/ds/reassign/:dataset/:sites', async (req, res) => {
+app.put('/ds/reassign/:dataset/:sites', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const { dataset } = req.params;
   let { sites } = req.params;
   console.log('reassigning ds:', dataset, 'to:', sites);
@@ -441,7 +441,7 @@ app.get('/serve', async (req, res) => {
 });
 
 // allows given xcache to serve a given client
-app.put('/serve', jsonParser, async (req, res) => {
+app.put('/serve', jsonParser, passport.authenticate('bearer', { session: false }), async (req, res) => {
   // both parameters are mandatory
   const b = req.body;
   if (b === undefined || b === null) {
@@ -469,7 +469,7 @@ app.put('/serve', jsonParser, async (req, res) => {
 });
 
 // disallow serving given client
-app.delete('/serve/:client', async (req, res) => {
+app.delete('/serve/:client', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const { client } = req.params;
   console.info(`disallowing serving client: ${client}`);
   try {
