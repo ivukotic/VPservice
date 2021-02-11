@@ -1,7 +1,5 @@
 // all special Redis Keys
-exports.meta = {
-  ServingTopology: 'meta.servingTopology',
-  DisabledSites: 'meta.disabledSites',
-  Sites: 'meta.sites',
-  GDV: 'meta.gridDescriptionVersion',
-};
+exports.ServingTopology = 'meta.servingTopology';
+exports.DisabledSites = 'meta.disabledSites';
+exports.Sites = 'meta.sites';
+exports.GDV = 'meta.gridDescriptionVersion';

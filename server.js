@@ -208,31 +208,16 @@ app.delete('/ds/:dataset', (req, res) => {
   });
 });
 
-app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { session: false }), async (req, res, next) => {
-  // console.log('adding a site.... NOT VERIFIED');
-  const { cloud } = req.params;
-  const site = req.params.sitename;
-  const { cores } = req.params;
+app.get('/site/disabled', async (_req, res) => {
+  console.log('returning disabled sites');
 
-  console.log(`adding a site ${site} to ${cloud} cloud with ${cores} cores`);
-
-  rclient.sadd(Keys.Sites, `${cloud}:${site}`, (err, numb) => {
+  rclient.smembers(Keys.DisabledSites, (err, replyDisabled) => {
     if (err) {
-      next(new Error('Could not add site', err));
+      console.log('err. sites', err);
+      res.status(500).send('could not find disabled sites list.');
     }
-    console.log('sites added:', numb);
+    res.status(200).send(replyDisabled);
   });
-
-  rclient.set(`${cloud}:${site}`, cores, (err, reply) => {
-    if (err) {
-      next(new Error('Could not add site to the cloud', err));
-    }
-    console.log('site added to cloud or updated: ', reply);
-  });
-
-  updateGridVersion();
-
-  res.status(200).send('OK');
 });
 
 app.put('/site/disable/:cloud/:site', passport.authenticate('bearer', { session: false }), async (req, res) => {
@@ -243,7 +228,7 @@ app.put('/site/disable/:cloud/:site', passport.authenticate('bearer', { session:
   rclient.smembers(Keys.Sites, (err1, result1) => {
     if (!err1) {
       console.log('found sites:', result1);
-      if (`${cloud}:${site}` in result1) {
+      if (result1.includes(`${cloud}:${site}`)) {
         disabled.add(site);
         rclient.sadd(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
           if (err) {
@@ -269,7 +254,7 @@ app.put('/site/enable/:cloud/:site', passport.authenticate('bearer', { session: 
   const { site } = req.params;
   console.log(`enabling site ${site} in cloud ${cloud}`);
 
-  if (site in disabled) {
+  if (disabled.has(site)) {
     disabled.delete(site);
   } else {
     res.status(400).send('Site was not disabled!');
@@ -278,6 +263,33 @@ app.put('/site/enable/:cloud/:site', passport.authenticate('bearer', { session: 
   rclient.srem(Keys.DisabledSites, `${cloud}:${site}`, (_err, reply) => {
     console.log(`removed ${reply} site from disabled sites.`);
   });
+
+  res.status(200).send('OK');
+});
+
+app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { session: false }), async (req, res, next) => {
+  // console.log('adding a site.... NOT VERIFIED');
+  const { cloud } = req.params;
+  const site = req.params.sitename;
+  const { cores } = req.params;
+
+  console.log(`adding a site ${site} to ${cloud} cloud with ${cores} cores`);
+
+  rclient.sadd(Keys.Sites, `${cloud}:${site}`, (err, numb) => {
+    if (err) {
+      next(new Error('Could not add site', err));
+    }
+    console.log('sites added:', numb);
+  });
+
+  rclient.set(`${cloud}:${site}`, cores, (err, reply) => {
+    if (err) {
+      next(new Error('Could not add site to the cloud', err));
+    }
+    console.log('site added to cloud or updated: ', reply);
+  });
+
+  updateGridVersion();
 
   res.status(200).send('OK');
 });
@@ -312,18 +324,6 @@ app.put('/unpause', passport.authenticate('bearer', { session: false }), async (
 app.get('/pause', async (req, res) => {
   console.log('returning pause state:', paused);
   res.status(200).send(paused);
-});
-
-app.get('/site/disabled', async (_req, res) => {
-  console.log('returning disabled sites');
-
-  rclient.smembers(Keys.DisabledSites, (err, replyDisabled) => {
-    if (err) {
-      console.log('err. sites', err);
-      res.status(500).send('could not find disabled sites list.');
-    }
-    res.status(200).send(replyDisabled);
-  });
 });
 
 app.get('/grid/', async (_req, res) => {
@@ -639,6 +639,7 @@ https.createServer(opt, app).listen(443, () => {
 });
 
 async function main() {
+  console.log('Keys:', Keys);
   try {
     rclient.on('connect', () => {
       console.log('redis connected OK.');
@@ -656,9 +657,11 @@ async function main() {
     rclient.setnx(Keys.GDV, '0');
 
     // loads disabled sites
-    rclient.smembers(Keys.DisabledSites, (_err, reply) => {
-      console.log('Disabled sites:', reply);
-      reply.forEach((s) => disabled.add(s.split(':')[1]));
+    rclient.smembers(Keys.DisabledSites, (err, reply) => {
+      if (!err) {
+        console.log('Disabled sites:', reply);
+        reply.forEach((s) => disabled.add(s.split(':')[1]));
+      }
     });
 
     reloadServingTopology();
