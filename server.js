@@ -97,6 +97,17 @@ function reloadServingTopology() {
   });
 }
 
+// reloads disabled sites
+function reloadSiteStates() {
+  rclient.smembers(Keys.DisabledSites, (err, reply) => {
+    if (!err) {
+      console.log('Disabled sites:', reply);
+      disabled.clear();
+      reply.forEach((s) => disabled.add(s.split(':')[1]));
+    }
+  });
+}
+
 // this subscription listens on heartbeat messages
 // it parses them and updates cache topology information
 // for the server. It sends server info to Elasticsearch.
@@ -111,6 +122,9 @@ subscriber.on('message', (channel, message) => {
   }
   if (channel === 'topology') {
     reloadServingTopology();
+  }
+  if (channel === 'siteStatus') {
+    reloadSiteStates();
   }
 });
 
@@ -229,12 +243,12 @@ app.put('/site/disable/:cloud/:site', passport.authenticate('bearer', { session:
     if (!err1) {
       console.log('found sites:', result1);
       if (result1.includes(`${cloud}:${site}`)) {
-        disabled.add(site);
         rclient.sadd(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
           if (err) {
             console.error('could not add site to disabled sites', err);
             res.status(500).send('could not add site to disabled sites', err);
           }
+          rclient.publish('siteStatus', 'change');
           console.log(`disabled site: ${reply}.`);
           res.status(200).send(`disabled site: ${reply}.`);
         });
@@ -253,18 +267,20 @@ app.put('/site/enable/:cloud/:site', passport.authenticate('bearer', { session: 
   const { cloud } = req.params;
   const { site } = req.params;
   console.log(`enabling site ${site} in cloud ${cloud}`);
-
   if (disabled.has(site)) {
-    disabled.delete(site);
+    rclient.srem(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
+      if (!err) {
+        console.log(`removed ${reply} site from disabled sites.`);
+        rclient.publish('siteStatus', 'change');
+        res.status(200).send('OK');
+      } else {
+        console.error('could not remove from DisabledSites', err);
+        res.status(500).send('Internal Issue');
+      }
+    });
   } else {
     res.status(400).send('Site was not disabled!');
   }
-
-  rclient.srem(Keys.DisabledSites, `${cloud}:${site}`, (_err, reply) => {
-    console.log(`removed ${reply} site from disabled sites.`);
-  });
-
-  res.status(200).send('OK');
 });
 
 app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { session: false }), async (req, res, next) => {
@@ -656,14 +672,7 @@ async function main() {
     // initializes value if it does not exist
     rclient.setnx(Keys.GDV, '0');
 
-    // loads disabled sites
-    rclient.smembers(Keys.DisabledSites, (err, reply) => {
-      if (!err) {
-        console.log('Disabled sites:', reply);
-        reply.forEach((s) => disabled.add(s.split(':')[1]));
-      }
-    });
-
+    reloadSiteStates();
     reloadServingTopology();
 
     setInterval(backup, config.BACKUP_INTERVAL * 3600000);
