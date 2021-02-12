@@ -10,6 +10,7 @@ const tokens = require('/etc/vps/tokens.json');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const { Strategy } = require('passport-http-bearer');
+const mod = require('hash-mod');
 
 const Keys = require('./keys');
 
@@ -119,11 +120,9 @@ subscriber.on('message', (channel, message) => {
       cacheSites[HB.site] = {};
     }
     cacheSites[HB.site][HB.id] = HB;
-  }
-  if (channel === 'topology') {
+  } else if (channel === 'topology') {
     reloadServingTopology();
-  }
-  if (channel === 'siteStatus') {
+  } else if (channel === 'siteStatus') {
     reloadSiteStates();
   }
 });
@@ -512,27 +511,35 @@ app.put('/serve', jsonParser, passport.authenticate('bearer', { session: false }
     res.status(400).send('need client parameter.\n');
     return;
   }
-  console.info(`adding serving for cache: ${cacheSite}, client: ${client}`);
-  try {
-    await rclient.hset(Keys.ServingTopology, client, cacheSite);
-    rclient.publish('topology', 'added');
-  } catch (error) {
-    console.error('Problem adding to serving topology', error);
-  }
-  res.status(200).send();
+
+  rclient.hset(Keys.ServingTopology, client, cacheSite, (err, reply) => {
+    if (!err) {
+      console.log(reply);
+      rclient.publish('topology', 'added');
+    } else {
+      console.error('Problem adding to serving topology', err);
+      res.status(500).send(err);
+    }
+  });
+  res.status(200).send('OK');
 });
 
 // disallow serving given client
 app.delete('/serve/:client', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const { client } = req.params;
   console.info(`disallowing serving client: ${client}`);
-  try {
-    await rclient.hset(Keys.ServingTopology, client);
-    rclient.publish('topology', 'removed');
-  } catch (error) {
-    console.error('Problem when dissalowing serving.', error);
-  }
-  res.status(200).send();
+
+  rclient.hdel(Keys.ServingTopology, client, (err, reply) => {
+    if (!err) {
+      console.log(reply);
+      rclient.publish('topology', 'removed');
+    } else {
+      console.error('Problem when dissalowing serving.', err);
+      res.status(500).send(err);
+    }
+  });
+
+  res.status(200).send('OK');
 });
 
 // for a given client and filename looks up what cache is serving it
@@ -555,6 +562,15 @@ app.post('/prefix', jsonParser, async (req, res) => {
 
   let prefix = '';
 
+  if (!(b.client in servingTopology)) {
+    console.log(`client ${b.client} is not served by any cache`);
+    res.status(200).send(prefix);
+  } else {
+    const servingSite = servingTopology[b.client];
+    const nservers=
+    const sn = mod(nservers)(b.filename);
+  }
+
   // here calculation
   //   rclient.blpop('unas', 1000, (_err, reply) => {
   //     if (!reply) {
@@ -570,6 +586,16 @@ app.post('/prefix', jsonParser, async (req, res) => {
   b.prefix = prefix;
   esAddRequest(esIndexLookups, b);
   res.status(200).send(prefix);
+});
+
+//
+//              LIVENESS
+//
+
+// returns a list of active xcache servers
+app.get('/liveness', (req, res) => {
+  console.log('returning cacheSites');
+  res.status(200).json(cacheSites);
 });
 
 // XCache endpoints will send heartbeats here
@@ -622,7 +648,6 @@ app.get('/test', async (_req, res, next) => {
 });
 
 app.get('/healthz', (_request, response) => {
-  // console.log('health call', cacheSites);
   try {
     response.status(200).send('OK');
   } catch (err) {

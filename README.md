@@ -19,8 +19,17 @@ Filler makes sure there are more than LWM and less than HWM unassigned VPs in Re
     * place the downloaded files into CleanUp directory
     * execute: python clean_vp.py
 
+### Liveness
+
+Each xcache server sends heartbeat to the VP service. Service keeps track of active servers. 
+
+### Serving
+
+Different clients can be set to use different xcache sites. One client can use only one xcache. 
+For a given xcache site and filename one gets address of the server to use to get it.
 
 ### Tools 
     This directory contains several node.js scripts tools. *Some coding needed.*
     * fix.js - can go through all the keys and change them. 
     * dumpToES.js - dumps all of the current virtual placements to an index in ES.
+

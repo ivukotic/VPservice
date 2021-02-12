@@ -1,6 +1,7 @@
+* get an endpoint for rucio to get xcache prefix for a given site and file
+* split away routes in different files
 * check how to get letsencript
 * find what is bigger than m2.large
-* add APIkey support
 
 * Add Postman docs for all the REST endpoints.
 
@@ -16,19 +17,13 @@
     * do full recalculation in memory
     * do all the corrections in one go
 
-* calculate server a file will be on
-* getter for path to a file
 * does it need reconnection after scaling?
 * storing timestamped geo version history
-
-* disabling site does not check that site is there at the first place. if site not there should return code 500.
 
 * prefix these keys with meta. :
 "${cloud}:${site}" contain site core number
 
 * pre-check parameters in /site/:cloud/:sitename/:cores
-
-* get an endpoint for rucio to get xcache prefix for a given site and file
 
 * add alarm and alert on VPservice status.
 
