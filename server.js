@@ -116,6 +116,7 @@ function reloadSiteStates() {
 // called on each change in number of servers in a cache site
 // recalculates server ranges.
 function recalculateCluster(clusterName) {
+  console.log(`recalculating cluster ${clusterName}`);
   const serverSizes = [];
   cacheSites[clusterName].forEach((sid) => {
     serverSizes.push([cacheSites[clusterName][sid].address, 123]);
@@ -706,7 +707,6 @@ async function main() {
 
     reloadSiteStates();
     reloadServingTopology();
-    Prefix.init();
 
     setInterval(backup, config.BACKUP_INTERVAL * 3600000);
     setInterval(cleanDeadServers, config.LIFETIME_INTERVAL * 1000);
