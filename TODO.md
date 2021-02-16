@@ -1,7 +1,6 @@
 * get an endpoint for rucio to get xcache prefix for a given site and file
 * split away routes in different files
 * check how to get letsencript
-* find what is bigger than m2.large
 
 * Add Postman docs for all the REST endpoints.
 

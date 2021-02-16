@@ -10,9 +10,9 @@ const tokens = require('/etc/vps/tokens.json');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const { Strategy } = require('passport-http-bearer');
-const mod = require('hash-mod');
 
 const Keys = require('./keys');
+const Prefix = require('./prefix');
 
 const app = express();
 app.use(helmet());
@@ -560,32 +560,19 @@ app.post('/prefix', jsonParser, async (req, res) => {
   }
   console.log(`request for prefix client: ${b.client} filename:${b.filename}`);
 
-  let prefix = '';
+  b.prefix = '';
 
   if (!(b.client in servingTopology)) {
     console.log(`client ${b.client} is not served by any cache`);
-    res.status(200).send(prefix);
   } else {
     const servingSite = servingTopology[b.client];
-    const nservers=
-    const sn = mod(nservers)(b.filename);
+    console.log('servingSite:', servingSite);
+    b.prefix = Prefix.getServer(1, b.filename);
   }
 
-  // here calculation
-  //   rclient.blpop('unas', 1000, (_err, reply) => {
-  //     if (!reply) {
-  //       res.status(400).send('Timeout');
-  //       return;
-  //     }
-  //     const sites = reply[1].split(',');
-  //     rclient.rpush(ds, sites);
-  //     res.status(200).send(sites);
-  //   });
-
   b.timestamp = Date.now();
-  b.prefix = prefix;
   esAddRequest(esIndexLookups, b);
-  res.status(200).send(prefix);
+  res.status(200).send(b.prefix);
 });
 
 //
@@ -699,6 +686,7 @@ async function main() {
 
     reloadSiteStates();
     reloadServingTopology();
+    Prefix.init();
 
     setInterval(backup, config.BACKUP_INTERVAL * 3600000);
     setInterval(cleanDeadServers, config.LIFETIME_INTERVAL * 1000);
