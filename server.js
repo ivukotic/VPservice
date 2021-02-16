@@ -12,7 +12,7 @@ const passport = require('passport');
 const { Strategy } = require('passport-http-bearer');
 
 const Keys = require('./keys');
-const Prefix = require('./prefix');
+const Cluster = require('./cluster');
 
 const app = express();
 app.use(helmet());
@@ -60,6 +60,10 @@ const cacheSites = {};
 // contains info on which client is served by which cache site
 // structure: {'client':'cacheSite'}
 let servingTopology = {};
+
+// each objects of class Cluster. Serves to calculate prefixes.
+// filled on each change to a cluster.
+const clusters = {};
 
 // const pause = (duration) => new Promise(res => setTimeout(res, duration));
 
@@ -109,6 +113,16 @@ function reloadSiteStates() {
   });
 }
 
+// called on each change in number of servers in a cache site
+// recalculates server ranges.
+function recalculateCluster(clusterName) {
+  const serverSizes = [];
+  cacheSites[clusterName].forEach((sid) => {
+    serverSizes.push([cacheSites[clusterName][sid].address, 123]);
+  });
+  clusters[clusterName] = new Cluster(serverSizes);
+}
+
 // this subscription listens on heartbeat messages
 // it parses them and updates cache topology information
 // for the server. It sends server info to Elasticsearch.
@@ -119,7 +133,12 @@ subscriber.on('message', (channel, message) => {
     if (!(HB.site in cacheSites)) {
       cacheSites[HB.site] = {};
     }
-    cacheSites[HB.site][HB.id] = HB;
+    if (cacheSites[HB.site].has(HB.id)) {
+      cacheSites[HB.site][HB.id] = HB; // this can't be combined.
+    } else {
+      cacheSites[HB.site][HB.id] = HB;
+      recalculateCluster(HB.site);
+    }
   } else if (channel === 'topology') {
     reloadServingTopology();
   } else if (channel === 'siteStatus') {
@@ -145,6 +164,7 @@ function cleanDeadServers() {
         if (Object.keys(cacheSites[cacheSite]).length === 0) {
           delete cacheSites[cacheSite];
         }
+        recalculateCluster(cacheSite);
       }
     });
   });
@@ -567,7 +587,7 @@ app.post('/prefix', jsonParser, async (req, res) => {
   } else {
     const servingSite = servingTopology[b.client];
     console.log('servingSite:', servingSite);
-    b.prefix = Prefix.getServer(1, b.filename);
+    b.prefix = clusters[servingSite].getServer(b.filename);
   }
 
   b.timestamp = Date.now();
