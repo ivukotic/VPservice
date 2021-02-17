@@ -72,8 +72,9 @@ class Cluster {
       ul += i[1];
       this.Ranges.push([i[0], ul]);
     });
-    console.log('================================');
-    console.log('fractions:', f, '\nranges:', this.Ranges);
+    // console.log('================================');
+    // console.log('fractions:', f);
+    console.log('ranges:', this.Ranges);
   }
 
   getServer(filename) {

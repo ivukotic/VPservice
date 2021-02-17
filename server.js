@@ -118,10 +118,10 @@ function reloadSiteStates() {
 function recalculateCluster(clusterName) {
   console.log(`recalculating cluster ${clusterName}`);
   const serverSizes = [];
-  cacheSites[clusterName].forEach((sid) => {
-    serverSizes.push([cacheSites[clusterName][sid].address, 123]);
+  Object.keys(cacheSites[clusterName]).forEach((cacheServer) => {
+    serverSizes.push([cacheSites[clusterName][cacheServer].address, 123]);
   });
-  clusters[clusterName] = new Cluster(serverSizes);
+  clusters[clusterName] = new Cluster.Cluster(serverSizes);
 }
 
 // this subscription listens on heartbeat messages
@@ -134,7 +134,7 @@ subscriber.on('message', (channel, message) => {
     if (!(HB.site in cacheSites)) {
       cacheSites[HB.site] = {};
     }
-    if (cacheSites[HB.site].has(HB.id)) {
+    if (HB.id in cacheSites[HB.site]) {
       cacheSites[HB.site][HB.id] = HB; // this can't be combined.
     } else {
       cacheSites[HB.site][HB.id] = HB;
@@ -164,8 +164,10 @@ function cleanDeadServers() {
         delete cacheSites[cacheSite][cacheServer];
         if (Object.keys(cacheSites[cacheSite]).length === 0) {
           delete cacheSites[cacheSite];
+          delete clusters[cacheSite];
+        } else {
+          recalculateCluster(cacheSite);
         }
-        recalculateCluster(cacheSite);
       }
     });
   });

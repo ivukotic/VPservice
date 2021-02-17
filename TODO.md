@@ -1,6 +1,11 @@
+BUGs:
+
+
+TODO:
 * get an endpoint for rucio to get xcache prefix for a given site and file
 * test recalculateCluster
 * test adding and removing server
+* make xcache report disk size.
 * make cluster take into account space at different servers when calculating ranges.
 * split away routes in different files
 * check how to get letsencript
