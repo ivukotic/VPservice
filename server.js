@@ -119,7 +119,10 @@ function recalculateCluster(clusterName) {
   console.log(`recalculating cluster ${clusterName}`);
   const serverSizes = [];
   Object.keys(cacheSites[clusterName]).forEach((cacheServer) => {
-    serverSizes.push([cacheSites[clusterName][cacheServer].address, 123]);
+    serverSizes.push([
+      cacheSites[clusterName][cacheServer].address,
+      cacheSites[clusterName][cacheServer].size,
+    ]);
   });
   clusters[clusterName] = new Cluster.Cluster(serverSizes);
 }
@@ -596,6 +599,15 @@ app.post('/prefix', jsonParser, async (req, res) => {
   b.timestamp = Date.now();
   esAddRequest(esIndexLookups, b);
   res.status(200).send(b.prefix);
+});
+
+app.get('/serverRanges', (req, res) => {
+  const ranges = {};
+  Object.keys(clusters).forEach((cluster) => {
+    ranges[cluster] = { servers: clusters[cluster].servers, ranges: clusters[cluster].Ranges };
+  });
+  console.log('returning ranges', ranges);
+  res.status(200).json(ranges);
 });
 
 //

@@ -1,7 +1,8 @@
 BUGs:
 
 TODO:
-* get an endpoint for rucio to get xcache prefix for a given site and file
+* find from Mario where in CRIC to make client site -> xcache site association. 
+
 * test recalculateCluster
 * test adding and removing server
 * make xcache report disk size.
