@@ -1,11 +1,12 @@
 BUGs:
 
 TODO:
-* find from Mario where in CRIC to make client site -> xcache site association. 
+
+* create HELM chart
+    * add cleaner
+    * add Prometheus monitoring to Redis, app itself
 
 * test recalculateCluster
-* test adding and removing server
-* make xcache report disk size.
 * make cluster take into account space at different servers when calculating ranges.
 * split away routes in different files
 * check how to get letsencript
@@ -35,5 +36,3 @@ TODO:
 * add alarm and alert on VPservice status.
 
 * add really simple web endpoint
-* create HELM chart
-* add cleaner

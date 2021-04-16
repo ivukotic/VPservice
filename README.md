@@ -33,3 +33,5 @@ For a given xcache site and filename one gets address of the server to use to ge
     * fix.js - can go through all the keys and change them. 
     * dumpToES.js - dumps all of the current virtual placements to an index in ES.
 
+### Deployment
+

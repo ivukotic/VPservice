@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: filler
-          image: ivukotic/vpservice:latest
+          image: ivukotic/vpservice:test
           command: ["node"]
           args: ["filler.js"]
           resources:

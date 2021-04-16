@@ -68,13 +68,13 @@ const clusters = {};
 // const pause = (duration) => new Promise(res => setTimeout(res, duration));
 
 function esAddRequest(index, doc) {
-  esData.push({ index: {} }, doc);
+  esData.push({ index: {_index: index} }, doc);
   // for each doc added arrays grows by 2
   if (esData.length > batchSize * 2 && inProgress === false) {
     inProgress = true;
 
     es.bulk(
-      { index, body: esData.slice(0, batchSize * 2) },
+      { body: esData.slice(0, batchSize * 2) },
       (err, result) => {
         if (err) {
           console.error('ES indexing failed\n', err);
