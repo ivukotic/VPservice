@@ -68,7 +68,7 @@ const clusters = {};
 // const pause = (duration) => new Promise(res => setTimeout(res, duration));
 
 function esAddRequest(index, doc) {
-  esData.push({ index: {_index: index} }, doc);
+  esData.push({ index: { _index: index } }, doc);
   // for each doc added arrays grows by 2
   if (esData.length > batchSize * 2 && inProgress === false) {
     inProgress = true;
@@ -606,7 +606,7 @@ app.get('/serverRanges', (req, res) => {
   Object.keys(clusters).forEach((cluster) => {
     ranges[cluster] = { servers: clusters[cluster].servers, ranges: clusters[cluster].Ranges };
   });
-  console.log('returning ranges', ranges);
+  console.debug('returned ranges');
   res.status(200).json(ranges);
 });
 
@@ -616,7 +616,7 @@ app.get('/serverRanges', (req, res) => {
 
 // returns a list of active xcache servers
 app.get('/liveness', (req, res) => {
-  console.log('returning cacheSites');
+  console.debug('returning cacheSites');
   res.status(200).json(cacheSites);
 });
 
