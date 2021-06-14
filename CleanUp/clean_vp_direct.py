@@ -14,12 +14,13 @@ c = Client(rucio_host="https://rucio-lb-int.cern.ch")
 
 removed = 0
 done = 0
+had_replica = 0
 
 #  scan over all keys
 for k in r.scan_iter(match='*'):
     # print(k)
     ds = k.decode("utf-8").strip()
-    if len(ds) < 30:
+    if len(ds) < 30 or ds[0:5] == 'meta.':
         print("skipping key:", ds)
         continue
 
@@ -31,6 +32,7 @@ for k in r.scan_iter(match='*'):
         rr = c.list_dataset_replicas(scope, filen)
         accessible = False
         for i2 in rr:
+            had_replica += 1
             # print(i2)
             rse = i2['rse']
             # print('replica:', rse)
@@ -57,7 +59,7 @@ for k in r.scan_iter(match='*'):
 
     done += 1
     if not done % 10000:
-        print("done:", done, "removed:", removed)
+        print("done:", done, "removed:", removed, 'had replica', had_replica)
 
 print("done:", done)
 print("removed:", removed)
