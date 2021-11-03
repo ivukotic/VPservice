@@ -2,10 +2,6 @@ BUGs:
 
 TODO:
 
-* create HELM chart
-    * add cleaner
-    * add Prometheus monitoring to Redis, app itself
-
 * test recalculateCluster
 * make cluster take into account space at different servers when calculating ranges.
 * split away routes in different files
