@@ -9,7 +9,7 @@
   "author": "Ilija Vukotic",
   "license": "ISC",
   "dependencies": {
-    "@elastic/elasticsearch": "^7.10.0",
-    "redis": "^3.1.1"
+    "@elastic/elasticsearch": "^7.14.0",
+    "redis": "^3.1.2"
   }
 }
