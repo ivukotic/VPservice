@@ -6,7 +6,7 @@ testing = False
 if testing:
     sitename = 'http://localhost:80'
 else:
-    sitename = 'http://vpservice.cern.ch'
+    sitename = 'https://vps.cern.ch'
 
 print('connecting to:', sitename)
 

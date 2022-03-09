@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filler
+  labels:
+    k8s-app: filler
+spec:
+  replicas: {{ .Values.filler.replicaCount }}
+  selector:
+    matchLabels:
+      k8s-app: filler
+  template:
+    metadata:
+      labels:
+        k8s-app: filler
+    spec:
+      containers:
+        - name: filler
+          image: {{ .Values.image.repository }}/vpservice:{{ .Values.image.tag }}
+          command: ["node"]
+          args: ["filler.js"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 1000Mi
+            limits:
+              cpu: 900m
+              memory: 1500Mi
+          volumeMounts:
+            - name: conf-volume
+              mountPath: "/etc/vps/"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+      volumes:
+        - name: conf-volume
+          secret:
+            secretName: config

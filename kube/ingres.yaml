@@ -2,19 +2,20 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: vps
+  namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/frontend-entry-points: https
     traefik.ingress.kubernetes.io/redirect-entry-point: https
 spec:
   rules:
-  - host: vps.cern.ch
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: vps
-            port:
-              number: 80
+    - host: vps.cern.ch
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vps
+                port:
+                  number: 443

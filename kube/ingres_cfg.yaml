@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  traefik.toml: |-
+    logLevel = "INFO"
+    defaultEntryPoints = ["https"]
+    [api]
+    [kubernetes]
+    [acme]
+      email = "ilija.vukotic@cern.ch"
+      storage = "acme.json"
+      entryPoint = "https"
+      ACMELogging = true
+    [acme.tlsChallenge]
+    [[acme.domains]]
+      main = "vps.cern.ch"
+    [entryPoints]

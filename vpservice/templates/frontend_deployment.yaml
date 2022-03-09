@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    k8s-app: vps
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      k8s-app: vps
+  template:
+    metadata:
+      labels:
+        k8s-app: vps
+    spec:
+      containers:
+        - name: vps
+          image: {{ .Values.image.repository }}/vpservice:{{ .Values.image.tag }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 1000Mi
+            limits:
+              cpu: 900m
+              memory: 1500Mi
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: settings-volume
+              mountPath: "/etc/vps/"
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /healthz
+              port: 80
+            periodSeconds: 60
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+      volumes:
+        - name: settings-volume
+          projected:
+            sources:
+              - secret:
+                  name: config
+              - secret:
+                  name: es-conn
+              - secret:
+                  name: cert
+              - secret:
+                  name: tokens

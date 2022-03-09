@@ -1,6 +1,7 @@
 const elasticsearch = require('@elastic/elasticsearch');
 const fs = require('fs');
-const https = require('https');
+// const https = require('https');
+const http = require('http');
 const express = require('express');
 const helmet = require('helmet');
 const redis = require('redis');
@@ -690,15 +691,17 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-// app.listen(80, () => console.log('Listening on port 80!'));
-
 const opt = {
   key: fs.readFileSync('/etc/vps/tls.key'),
   cert: fs.readFileSync('/etc/vps/tls.crt'),
 };
 
-https.createServer(opt, app).listen(443, () => {
-  console.log('Listening on port 443!');
+// https.createServer(opt, app).listen(443, () => {
+//   console.log('Listening on port 443!');
+// });
+
+http.createServer(opt, app).listen(80, () => {
+  console.log('Listening on port 80!');
 });
 
 async function main() {

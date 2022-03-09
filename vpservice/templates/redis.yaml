@@ -51,5 +51,5 @@ spec:
       volumes:
         - name: redis-cinder-pvc
           cinder:
-            volumeID: 028c046b-d61d-47fd-b3d5-e4c999cf6fe1
-            fsType: ext4
+            volumeID: {{ .Values.redis.persistence.existingClaim.cinder.volumeID }}
+            fsType: {{ .Values.redis.persistence.existingClaim.cinder.fsType }}
