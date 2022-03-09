@@ -8,7 +8,7 @@ metadata:
     traefik.ingress.kubernetes.io/redirect-entry-point: http
 spec:
   rules:
-  - host: vps.cern.ch
+  - host: {{ .Values.frontend.domain  }}
     http:
       paths:
       - path: /

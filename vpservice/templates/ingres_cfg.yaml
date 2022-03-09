@@ -13,5 +13,5 @@ data:
       ACMELogging = true
     [acme.tlsChallenge]
     [[acme.domains]]
-      main = "vps.cern.ch"
+      main = "{{ .Values.frontend.domain  }}"
     [entryPoints]

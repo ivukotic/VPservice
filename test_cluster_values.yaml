@@ -6,7 +6,7 @@ image:
 frontend:
   replicaCount: 1
   port: 80
-  domain: vps.cern.ch
+  domain: vps-test.cern.ch
 
 filler:
   replicaCount: 2
@@ -15,5 +15,5 @@ redis:
   persistence:
     existingClaim:
       cinder:
-        volumeID: 028c046b-d61d-47fd-b3d5-e4c999cf6fe1
+        volumeID: b583a2ab-8ebb-493d-862d-822912944526
         fsType: ext4
