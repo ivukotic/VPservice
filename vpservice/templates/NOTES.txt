@@ -1,1 +1,4 @@
-If redis has been redeployed with cleaned up storage, 
+Hope you alredy labeled the nodes with role ingress:
+kubectl label node <node> role=ingress
+
+If redis has been redeployed with cleaned up storage, grid need to be recreated.

@@ -25,7 +25,7 @@ spec:
               cpu: 900m
               memory: 1500Mi
           ports:
-            - containerPort: 80
+            - containerPort: {{ .Values.frontend.port }}
           volumeMounts:
             - name: settings-volume
               mountPath: "/etc/vps/"
@@ -34,7 +34,7 @@ spec:
             httpGet:
               scheme: HTTP
               path: /healthz
-              port: 80
+              port: {{ .Values.frontend.port }}
             periodSeconds: 60
             initialDelaySeconds: 60
             timeoutSeconds: 10
@@ -43,7 +43,7 @@ spec:
         - name: settings-volume
           projected:
             sources:
-              - secret:
+              - configMap:
                   name: config
               - secret:
                   name: es-conn
