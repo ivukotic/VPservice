@@ -8,11 +8,11 @@ echo "try deleting all of the components."
 kubectl delete -f filler.yaml
 kubectl delete -f frontend.yaml
 kubectl delete -f redis.yaml 
-kubectl delete secret config
+kubectl delete cm config
 kubectl delete secret es-conn
 
-echo "create secrets"
-kubectl create secret generic config --from-file=config.json
+echo "create cm and secrets"
+kubectl create -f config.yaml
 kubectl create secret generic es-conn --from-file=secrets/es-conn.json
 kubectl create secret generic cert --from-file=secrets/certificates/tls.key --from-file=secrets/certificates/tls.crt
 kubectl create secret generic tokens --from-file=secrets/tokens.json
