@@ -6,7 +6,7 @@ image:
 frontend:
   replicaCount: 1
   port: 80
-  domain: vps-test.cern.ch
+  domain: ilija-z42lmh2tqlys-node-0.cern.ch
 
 filler:
   replicaCount: 2
