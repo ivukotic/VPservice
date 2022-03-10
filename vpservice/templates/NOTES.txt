@@ -1,5 +1,30 @@
-Hope you alredy labeled the nodes with role ingress:
+Hope you alredy labeled one of the nodes with role ingress:
 kubectl label node <node> role=ingress
 
 If redis has been redeployed with cleaned up storage, grid need to be recreated.
 
+Need to edit:
+kc edit cm ingress-traefik -n kube-system
+
+add this:
+    [acme]
+      email = "ilija.vukotic@cern.ch"
+      storage = "acme.json"
+      entryPoint = "https"
+      ACMELogging = true
+    [acme.tlsChallenge]
+    [[acme.domains]]
+      main = "vps.cern.ch"
+
+then kill traefik containers.
+
+
+If k8s cluster disapears and need to create it with new nodes, loadbalancer will still be there but with wrong members.
+
+One need to add the new nodes:
+export OS_REGION_NAME=sdn1 ; export OS_PROJECT_NAME="ATLAS Virtual Placement"
+openstack loadbalancer member list 2995e682-0e3d-43c7-9841-0cfab1e7ab67
+openstack  loadbalancer member create --protocol-port 443 --address 188.185.120.211 2995e682-0e3d-43c7-9841-0cfab1e7ab67
+
+and delete old ones:
+openstack loadbalancer member delete 2995e682-0e3d-43c7-9841-0cfab1e7ab67 <member id>
