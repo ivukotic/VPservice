@@ -477,7 +477,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
 
 app.get('/ds/reassign/:dataset', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const ds = req.params.dataset;
-  // console.log('reassigning ds:', ds);
+  console.log('reassigning ds:', ds, 'in random way');
 
   rclient.blpop('unas', 1000, (_err, reply) => {
     if (!reply) {
@@ -494,9 +494,9 @@ app.get('/ds/reassign/:dataset', passport.authenticate('bearer', { session: fals
 // sites is given like AGLT2_VP_DISK,MWT2_VP_DISK,BNL_VP_DISK
 app.put('/ds/reassign/:dataset/:sites', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const { dataset } = req.params;
-  let { sites } = req.params;
+  const { sites } = req.params;
   console.log('reassigning ds:', dataset, 'to:', sites);
-  sites = sites.split(',');
+  // sites = sites.split(',');
   rclient.del(dataset, (_err1, reply1) => {
     if (!reply1) {
       console.log('that DS was not assigned before');
