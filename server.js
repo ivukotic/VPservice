@@ -720,12 +720,12 @@ http.createServer(opt, app).listen(80, () => {
 
 async function main() {
   console.log('Keys:', Keys);
-  rclient.on('connect', async () => {
-    console.log('redis connected OK.');
-  });
-  rclient.on('error', (err) => {
-    console.log(`Error ${err}`);
-  });
+  // rclient.on('connect', async () => {
+  //   console.log('redis connected OK.');
+  // });
+  // rclient.on('error', (err) => {
+  //   console.log(`Error ${err}`);
+  // });
   await rclient.connect();
 
   try {
@@ -738,6 +738,7 @@ async function main() {
 
   // initializes value if it does not exist
   rclient.setNX(Keys.GDV, '0');
+  console.log('initialized GDV.');
 
   try {
     reloadSiteStates();
