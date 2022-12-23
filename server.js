@@ -749,21 +749,24 @@ async function main() {
     console.error('Error: ', err);
   }
   await subscriber.connect();
-  
-  await subscriber.subscribe('message', (channel, message) => {
+
+  await subscriber.subscribe('heartbeats', (channel, message) => {
     console.log(`Received message: ${message}, on channel: ${channel}`);
-    if (channel === 'heartbeats') {
-      const HB = JSON.parse(message);
-      if (!(HB.site in cacheSites)) {
-        cacheSites[HB.site] = {};
-      }
-      if (HB.id in cacheSites[HB.site]) {
-        cacheSites[HB.site][HB.id] = HB; // this can't be combined.
-      } else {
-        cacheSites[HB.site][HB.id] = HB;
-        recalculateCluster(HB.site);
-      }
-    } else if (channel === 'topology') {
+    const HB = JSON.parse(message);
+    if (!(HB.site in cacheSites)) {
+      cacheSites[HB.site] = {};
+    }
+    if (HB.id in cacheSites[HB.site]) {
+      cacheSites[HB.site][HB.id] = HB; // this can't be combined.
+    } else {
+      cacheSites[HB.site][HB.id] = HB;
+      recalculateCluster(HB.site);
+    }
+  });
+
+  await subscriber.subscribe('topology', (channel, message) => {
+    console.log(`Received message: ${message}, on channel: ${channel}`);
+    if (channel === 'topology') {
       reloadServingTopology();
     } else if (channel === 'siteStatus') {
       reloadSiteStates();
