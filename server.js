@@ -720,9 +720,10 @@ http.createServer(opt, app).listen(80, () => {
 
 async function main() {
   console.log('Keys:', Keys);
-  // rclient.on('connect', async () => {
-  //   console.log('redis connected OK.');
-  // });
+  rclient.on('connect', async () => {
+    console.log('redis connected OK.');
+    subscriber.subscribe('heartbeats', 'topology');
+  });
   // rclient.on('error', (err) => {
   //   console.log(`Error ${err}`);
   // });
@@ -747,7 +748,7 @@ async function main() {
     setInterval(backup, config.BACKUP_INTERVAL * 3600000);
     setInterval(cleanDeadServers, config.LIFETIME_INTERVAL * 1000);
 
-    subscriber.subscribe('heartbeats', 'topology');
+    // subscriber.subscribe('heartbeats', 'topology');
   } catch (err) {
     console.error('Error: ', err);
   }
