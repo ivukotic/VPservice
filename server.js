@@ -28,6 +28,7 @@ const rclient = redis.createClient({
     host: config.HOST,
     port: config.PORT,
   },
+  legacyMode: true,
 });
 
 const subscriber = rclient.duplicate();
@@ -719,26 +720,26 @@ http.createServer(opt, app).listen(80, () => {
 
 async function main() {
   console.log('Keys:', Keys);
+  rclient.on('connect', async () => {
+    console.log('redis connected OK.');
+  });
+  rclient.on('error', (err) => {
+    console.log(`Error ${err}`);
+  });
+  await rclient.connect();
+
   try {
-    rclient.on('connect', () => {
-      console.log('redis connected OK.');
+    es.ping((err, resp) => {
+      console.log('ES ping:', resp.statusCode);
     });
+  } catch (err) {
+    console.error('server error: ', err);
+  }
 
-    rclient.on('error', (err) => {
-      console.log(`Error ${err}`);
-    });
+  // initializes value if it does not exist
+  rclient.setNX(Keys.GDV, '0');
 
-    try {
-      es.ping((err, resp) => {
-        console.log('ES ping:', resp.statusCode);
-      });
-    } catch (err) {
-      console.error('server error: ', err);
-    }
-    await rclient.connect();
-    // initializes value if it does not exist
-    rclient.setNX(Keys.GDV, '0');
-
+  try {
     reloadSiteStates();
     reloadServingTopology();
 

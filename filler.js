@@ -188,7 +188,6 @@ async function main() {
   await reloadGrid();
   // fills every 2 seconds
   setInterval(fill, 2000);
-
 }
 
 main();
