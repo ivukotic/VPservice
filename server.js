@@ -31,7 +31,7 @@ const rclient = redis.createClient({
   legacyMode: true,
 });
 
-// const subscriber = rclient.duplicate();
+const subscriber = rclient.duplicate();
 
 const es = new elasticsearch.Client({ node: espath.ES_HOST, log: 'error' });
 
@@ -134,6 +134,29 @@ function recalculateCluster(clusterName) {
   });
   clusters[clusterName] = new Cluster.Cluster(serverSizes);
 }
+
+// this subscription listens on heartbeat messages
+// it parses them and updates cache topology information
+// for the server. It sends server info to Elasticsearch.
+subscriber.on('message', (channel, message) => {
+  console.log(`Received message: ${message}, on channel: ${channel}`);
+  if (channel === 'heartbeats') {
+    const HB = JSON.parse(message);
+    if (!(HB.site in cacheSites)) {
+      cacheSites[HB.site] = {};
+    }
+    if (HB.id in cacheSites[HB.site]) {
+      cacheSites[HB.site][HB.id] = HB; // this can't be combined.
+    } else {
+      cacheSites[HB.site][HB.id] = HB;
+      recalculateCluster(HB.site);
+    }
+  } else if (channel === 'topology') {
+    reloadServingTopology();
+  } else if (channel === 'siteStatus') {
+    reloadSiteStates();
+  }
+});
 
 // this function is called periodically and removes from cache topology
 // all servers that did not send a heartbeat in last LIFETIME_INTERVAL
@@ -705,31 +728,6 @@ async function main() {
   // });
   await rclient.connect();
 
-  const subscriber = rclient.duplicate();
-
-  // this subscription listens on heartbeat messages
-  // it parses them and updates cache topology information
-  // for the server. It sends server info to Elasticsearch.
-  subscriber.on('message', (channel, message) => {
-    console.log(`Received message: ${message}, on channel: ${channel}`);
-    if (channel === 'heartbeats') {
-      const HB = JSON.parse(message);
-      if (!(HB.site in cacheSites)) {
-        cacheSites[HB.site] = {};
-      }
-      if (HB.id in cacheSites[HB.site]) {
-        cacheSites[HB.site][HB.id] = HB; // this can't be combined.
-      } else {
-        cacheSites[HB.site][HB.id] = HB;
-        recalculateCluster(HB.site);
-      }
-    } else if (channel === 'topology') {
-      reloadServingTopology();
-    } else if (channel === 'siteStatus') {
-      reloadSiteStates();
-    }
-  });
-
   try {
     es.ping((err, resp) => {
       console.log('ES ping:', resp.statusCode);
@@ -748,7 +746,7 @@ async function main() {
 
     setInterval(backup, config.BACKUP_INTERVAL * 3600000);
     setInterval(cleanDeadServers, config.LIFETIME_INTERVAL * 1000);
-
+    await subscriber.connect();
     subscriber.subscribe('heartbeats', 'topology');
   } catch (err) {
     console.error('Error: ', err);
