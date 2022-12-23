@@ -85,7 +85,7 @@ async function reloadGrid() {
 
     ready = false;
     resetGrid();
-    await rclient.smembers(Keys.Sites, async (err1, sites) => {
+    await rclient.sMembers(Keys.Sites, async (err1, sites) => {
       if (err1) {
         console.log('err. sites', err1);
         return;

@@ -105,7 +105,7 @@ function reloadServingTopology() {
 
 // reloads disabled sites
 function reloadSiteStates() {
-  rclient.smembers(Keys.DisabledSites, (err, reply) => {
+  rclient.sMembers(Keys.DisabledSites, (err, reply) => {
     if (!err) {
       console.log('Disabled sites:', reply);
       disabled.clear();
@@ -203,7 +203,7 @@ function backup() {
 app.delete('/grid/', passport.authenticate('bearer', { session: false }), (_req, res) => {
   console.log('deleting all of the grid info.... VERIFIED');
 
-  rclient.smembers(Keys.Sites, (err1, result1) => {
+  rclient.sMembers(Keys.Sites, (err1, result1) => {
     if (!err1) {
       console.log('deleting sites', result1);
       rclient.del(result1, (err2, result2) => {
@@ -251,7 +251,7 @@ app.delete('/ds/:dataset', (req, res) => {
 app.get('/site/disabled', async (_req, res) => {
   console.log('returning disabled sites');
 
-  rclient.smembers(Keys.DisabledSites, (err, replyDisabled) => {
+  rclient.sMembers(Keys.DisabledSites, (err, replyDisabled) => {
     if (err) {
       console.log('err. sites', err);
       res.status(500).send('could not find disabled sites list.');
@@ -265,7 +265,7 @@ app.put('/site/disable/:cloud/:site', passport.authenticate('bearer', { session:
   const { site } = req.params;
   console.log(`disabling site ${site} in cloud ${cloud}`);
 
-  rclient.smembers(Keys.Sites, (err1, result1) => {
+  rclient.sMembers(Keys.Sites, (err1, result1) => {
     if (!err1) {
       console.log('found sites:', result1);
       if (result1.includes(`${cloud}:${site}`)) {
@@ -371,7 +371,7 @@ app.get('/pause', async (req, res) => {
 app.get('/grid/', async (_req, res) => {
   console.log('returning all grid info');
 
-  rclient.smembers(Keys.Sites, (err, sites) => {
+  rclient.sMembers(Keys.Sites, (err, sites) => {
     if (err) {
       console.log('err. sites', err);
       res.status(500).send('could not find sites list.');
@@ -727,7 +727,7 @@ async function main() {
     }
 
     // initializes value if it does not exist
-    // rclient.setnx(Keys.GDV, '0');
+    rclient.setNX(Keys.GDV, '0');
 
     reloadSiteStates();
     reloadServingTopology();

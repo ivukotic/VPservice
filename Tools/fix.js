@@ -119,7 +119,7 @@ async function fix() {
 }
 
 async function getDisabled() {
-  rclient.smembers('meta.disabledSites', (err, disabled) => {
+  rclient.sMembers('meta.disabledSites', (err, disabled) => {
     if (err) {
       console.log('err. sites', err);
       return;
@@ -129,7 +129,7 @@ async function getDisabled() {
 }
 
 async function getGrid() {
-  rclient.smembers(keys.Sites, (err, sites) => {
+  rclient.sMembers(keys.Sites, (err, sites) => {
     if (err) {
       console.log('err. sites', err);
       return;
