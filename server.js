@@ -751,26 +751,30 @@ async function main() {
   await subscriber.connect();
 
   await subscriber.subscribe('heartbeats', (message) => {
-    console.log(`Received message: ${message}`);
-    const HB = JSON.parse(message);
-    if (!(HB.site in cacheSites)) {
-      cacheSites[HB.site] = {};
-    }
-    if (HB.id in cacheSites[HB.site]) {
-      cacheSites[HB.site][HB.id] = HB; // this can't be combined.
-    } else {
-      cacheSites[HB.site][HB.id] = HB;
-      recalculateCluster(HB.site);
+    console.log(`Received hb message: ${message}`);
+    try {
+      const HB = JSON.parse(message);
+      if (!(HB.site in cacheSites)) {
+        cacheSites[HB.site] = {};
+      }
+      if (HB.id in cacheSites[HB.site]) {
+        cacheSites[HB.site][HB.id] = HB; // this can't be combined.
+      } else {
+        cacheSites[HB.site][HB.id] = HB;
+        recalculateCluster(HB.site);
+      }
+    } catch (err) {
+      console.error('Error: ', err);
     }
   });
 
   await subscriber.subscribe('topology', (message) => {
-    console.log(`Received message: ${message}`);
+    console.log(`Received topology message: ${message}`);
     reloadServingTopology();
   });
 
   await subscriber.subscribe('siteStatus', (message) => {
-    console.log(`Received message: ${message}`);
+    console.log(`Received siteStatus message: ${message}`);
     reloadSiteStates();
   });
 }
