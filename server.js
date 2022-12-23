@@ -751,7 +751,7 @@ async function main() {
   await subscriber.connect();
 
   await subscriber.subscribe('heartbeats', (message) => {
-    console.log(`Received hb message: ${message}`);
+    console.log(`Received heartbeats message: ${message}`);
     try {
       const HB = JSON.parse(message);
       if (!(HB.site in cacheSites)) {
@@ -768,15 +768,15 @@ async function main() {
     }
   });
 
-  await subscriber.subscribe('topology', (message) => {
-    console.log(`Received topology message: ${message}`);
-    reloadServingTopology();
-  });
+  // await subscriber.subscribe('topology', (message) => {
+  //   console.log(`Received topology message: ${message}`);
+  //   reloadServingTopology();
+  // });
 
-  await subscriber.subscribe('siteStatus', (message) => {
-    console.log(`Received siteStatus message: ${message}`);
-    reloadSiteStates();
-  });
+  // await subscriber.subscribe('siteStatus', (message) => {
+  //   console.log(`Received siteStatus message: ${message}`);
+  //   reloadSiteStates();
+  // });
 }
 
 main();
