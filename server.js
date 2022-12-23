@@ -439,6 +439,13 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
   }
   const nsites = parseInt(req.params.nsites, 10);
   const ds = req.params.dataset;
+
+  if (ds.startsWith('panda:panda.um.')) {
+    // these are pmerge input datasets and are not cachable.
+    res.status(200).send(['other']);
+    return;
+  }
+
   // console.log('ds to vp:', ds);
   const doc = {
     timestamp: Date.now(),

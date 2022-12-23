@@ -24,7 +24,19 @@ for k in r.scan_iter(match='*'):
         print("skipping key:", ds)
         continue
 
+    if ds.startswith('panda:panda.um.'):
+        r.delete(ds)
+        removed += 1
+        continue
+
+    v = r.get(k)
+    if "ATLAS_VP_DISK" in v:
+        r.delete(ds)
+        removed += 1
+        continue
+
     try:
+
         scope, filen = ds.split(':')
         # print('----------------------------------------')
         # print(scope, filen)
