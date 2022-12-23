@@ -737,7 +737,7 @@ async function main() {
     } catch (err) {
       console.error('server error: ', err);
     }
-
+    await rclient.connect();
     // initializes value if it does not exist
     rclient.setNX(Keys.GDV, '0');
 

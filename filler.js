@@ -19,7 +19,6 @@ const config = require('/etc/vps/config.json');
 console.log('config:', config);
 
 const rclient = redis.createClient(config.PORT, config.HOST);
-
 let ready = false;
 let gridDescriptionVersion = 0;
 const grid = {};
@@ -173,6 +172,7 @@ function fill() {
 
 async function main() {
   try {
+    await rclient.connect();
     rclient.on('connect', async () => {
       console.log('redis connected');
       await reloadGrid();
