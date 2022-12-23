@@ -155,11 +155,11 @@ function fill() {
   }
 
   if (!ready) return;
-  rclient.llen('unas', (err, count) => {
+  rclient.lLen('unas', (err, count) => {
     console.log('unassigned :', count);
     if (count < config.PRECALCULATED_LWM) {
       for (let i = 0; i < config.PRECALCULATED_HWM - count; i++) {
-        rclient.lpush('unas', generate(), (err1) => {
+        rclient.lPush('unas', generate(), (err1) => {
           if (err1) {
             console.error('error adding new unas.');
           }

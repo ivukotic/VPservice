@@ -34,8 +34,8 @@ function rename_site(ds, placements, origSite = 'MWT2_DATADISK', newSite = 'MWT2
   if (pos !== -1) {
     placements[pos] = newSite;
     console.log('new placement', placements);
-    rclient.ltrim(ds, 1, 0); // removes all
-    rclient.rpush(ds, placements);
+    rclient.lTrim(ds, 1, 0); // removes all
+    rclient.rPush(ds, placements);
   }
 }
 
@@ -47,8 +47,8 @@ function replace_combination(ds, placements, origCombo = ['other', 'other', 'oth
     }
   }
   console.log('replaced with', newCombo);
-  rclient.ltrim(ds, 1, 0); // removes all
-  rclient.rpush(ds, newCombo);
+  rclient.lTrim(ds, 1, 0); // removes all
+  rclient.rPush(ds, newCombo);
 }
 
 function remove_large(ds, placements) {
@@ -68,7 +68,7 @@ async function test_fix() {
     if (ds.length < 10) {
       console.log('skipping key', ds);
     }
-    rclient.lrange(ds, 0, -1, async (err, reply) => {
+    rclient.lRange(ds, 0, -1, async (err, reply) => {
       console.log(ds, reply);
       if (err) {
         console.log('err. ', err);
@@ -97,7 +97,7 @@ async function fix() {
       if (ds.length < 10) {
         console.log('skipping key', ds);
       }
-      rclient.lrange(ds, 0, -1, async (err, reply) => {
+      rclient.lRange(ds, 0, -1, async (err, reply) => {
         // console.log(ds, reply);
         if (err) {
           console.log('err. ', err);
@@ -135,7 +135,7 @@ async function getGrid() {
       return;
     }
 
-    rclient.mget(sites, (_err, site_cores) => {
+    rclient.mGet(sites, (_err, site_cores) => {
       const cores = {};
       for (i in sites) {
         [cloud, site_name] = sites[i].split(':');
@@ -157,7 +157,7 @@ async function getPlacement(dataset) {
     if (reply === 0) {
       console.log('not found');
     } else {
-      rclient.lrange(ds, 0, -1, (err, reply) => {
+      rclient.lRange(ds, 0, -1, (err, reply) => {
         console.log('found', reply);
       });
     }

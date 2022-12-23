@@ -38,7 +38,7 @@ async function storeInES() {
         if (ds.length < 10) {
           console.log('skipping key', ds);
         }
-        rclient.lrange(ds, 0, -1, async (err, reply) => {
+        rclient.lRange(ds, 0, -1, async (err, reply) => {
           // console.log(ds, reply);
           if (err) {
             console.log('err. ', err);
@@ -83,7 +83,7 @@ async function getGrid() {
       return;
     }
 
-    rclient.mget(sites, (_err, site_cores) => {
+    rclient.mGet(sites, (_err, site_cores) => {
       const cores = {};
       for (i in sites) {
         [cloud, site_name] = sites[i].split(':');
@@ -105,7 +105,7 @@ async function getPlacement(dataset) {
     if (reply === 0) {
       console.log('not found');
     } else {
-      rclient.lrange(ds, 0, -1, (err, reply) => {
+      rclient.lRange(ds, 0, -1, (err, reply) => {
         console.log("found", reply);
         return;
       });

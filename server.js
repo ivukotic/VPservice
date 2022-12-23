@@ -94,7 +94,7 @@ function esAddRequest(index, doc) {
 // this function is called on any change in serving map
 // it is triggered through pubsub message.
 function reloadServingTopology() {
-  rclient.hgetall(Keys.ServingTopology, (error, reply) => {
+  rclient.hGetAll(Keys.ServingTopology, (error, reply) => {
     if (error) {
       console.error('Problem loading serving topology', error);
     }
@@ -189,11 +189,11 @@ function updateGridVersion() {
 
 function backup() {
   console.log('Starting hourly backup...');
-  rclient.lastsave((_err, reply) => {
+  rclient.lastSave((_err, reply) => {
     if (new Date() < (reply + 3600000)) {
       console.log('last backup at less then one hour. Skipping.');
     } else {
-      rclient.bgsave((_ierr, reply1) => {
+      rclient.bgSave((_ierr, reply1) => {
         console.log(reply1);
       });
     }
@@ -227,7 +227,7 @@ app.delete('/grid/', passport.authenticate('bearer', { session: false }), (_req,
 
 app.delete('/all_data', passport.authenticate('bearer', { session: false }), (_req, res) => {
   console.log('deleting all of the database. VERIFIED');
-  rclient.flushdb((_err, reply) => {
+  rclient.flushDb((_err, reply) => {
     console.log('reply:', reply);
     console.log('resetting grid description version ...');
     rclient.set(Keys.GDV, '0');
@@ -269,7 +269,7 @@ app.put('/site/disable/:cloud/:site', passport.authenticate('bearer', { session:
     if (!err1) {
       console.log('found sites:', result1);
       if (result1.includes(`${cloud}:${site}`)) {
-        rclient.sadd(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
+        rclient.sAdd(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
           if (err) {
             console.error('could not add site to disabled sites', err);
             res.status(500).send('could not add site to disabled sites', err);
@@ -294,7 +294,7 @@ app.put('/site/enable/:cloud/:site', passport.authenticate('bearer', { session: 
   const { site } = req.params;
   console.log(`enabling site ${site} in cloud ${cloud}`);
   if (disabled.has(site)) {
-    rclient.srem(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
+    rclient.sRem(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
       if (!err) {
         console.log(`removed ${reply} site from disabled sites.`);
         rclient.publish('siteStatus', 'change');
@@ -317,7 +317,7 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
 
   console.log(`adding a site ${site} to ${cloud} cloud with ${cores} cores`);
 
-  rclient.sadd(Keys.Sites, `${cloud}:${site}`, (err, numb) => {
+  rclient.sAdd(Keys.Sites, `${cloud}:${site}`, (err, numb) => {
     if (err) {
       next(new Error('Could not add site', err));
     }
@@ -379,7 +379,7 @@ app.get('/grid/', async (_req, res) => {
 
     console.log('sites:', sites);
 
-    rclient.mget(sites, (_err, siteCores) => {
+    rclient.mGet(sites, (_err, siteCores) => {
       const cores = {};
       sites.forEach((site, i) => {
         console.log(site, siteCores[i]);
@@ -421,7 +421,7 @@ app.delete('/site/:cloud/:sitename', async (req, res) => {
   rclient.del(site, (err, result) => {
     if (!err) {
       console.log('sites deleted:', result);
-      rclient.srem(Keys.Sites, site);
+      rclient.sRem(Keys.Sites, site);
       updateGridVersion();
       res.status(200).send('OK');
     } else {
@@ -454,7 +454,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
 
   rclient.exists(ds, (_err, reply) => {
     if (reply === 0) { // console.log('not found');
-      rclient.rpoplpush('unas', ds, (errPLP, replyMove) => {
+      rclient.rPopLPush('unas', ds, (errPLP, replyMove) => {
         if (!replyMove) {
           res.status(400).send(['other']);
           return;
@@ -470,7 +470,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
         res.status(200).send(sites);
       });
     } else {
-      rclient.lrange(ds, 0, -1, async (err, replyFound) => {
+      rclient.lRange(ds, 0, -1, async (err, replyFound) => {
         const sites = replyFound[0].split(',');
         // console.log('found', sites);
         doc.sites = sites;
@@ -486,14 +486,14 @@ app.get('/ds/reassign/:dataset', passport.authenticate('bearer', { session: fals
   const ds = req.params.dataset;
   console.log('reassigning ds:', ds, 'in random way');
 
-  rclient.blpop('unas', 1000, (_err, reply) => {
+  rclient.blPop('unas', 1000, (_err, reply) => {
     if (!reply) {
       res.status(400).send('Timeout');
       return;
     }
     const sites = reply[1].split(',');
     rclient.del(ds);
-    rclient.rpush(ds, sites);
+    rclient.rPush(ds, sites);
     res.status(200).send(sites);
   });
 });
@@ -508,7 +508,7 @@ app.put('/ds/reassign/:dataset/:sites', passport.authenticate('bearer', { sessio
     if (!reply1) {
       console.log('that DS was not assigned before');
     }
-    rclient.rpush(dataset, sites, (_err2, reply2) => {
+    rclient.rPush(dataset, sites, (_err2, reply2) => {
       if (!reply2) {
         res.status(400).send('Timeout');
       }
@@ -546,7 +546,7 @@ app.put('/serve', jsonParser, passport.authenticate('bearer', { session: false }
     return;
   }
 
-  rclient.hset(Keys.ServingTopology, client, cacheSite, (err, reply) => {
+  rclient.hSet(Keys.ServingTopology, client, cacheSite, (err, reply) => {
     if (!err) {
       console.log(reply);
       rclient.publish('topology', 'added');
@@ -563,7 +563,7 @@ app.delete('/serve/:client', passport.authenticate('bearer', { session: false })
   const { client } = req.params;
   console.info(`disallowing serving client: ${client}`);
 
-  rclient.hdel(Keys.ServingTopology, client, (err, reply) => {
+  rclient.hDel(Keys.ServingTopology, client, (err, reply) => {
     if (!err) {
       console.log(reply);
       rclient.publish('topology', 'removed');
