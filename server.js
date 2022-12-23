@@ -743,14 +743,13 @@ async function main() {
   try {
     reloadSiteStates();
     reloadServingTopology();
-
     setInterval(backup, config.BACKUP_INTERVAL * 3600000);
     setInterval(cleanDeadServers, config.LIFETIME_INTERVAL * 1000);
-    await subscriber.connect();
-    subscriber.subscribe('heartbeats', 'topology');
   } catch (err) {
     console.error('Error: ', err);
   }
+  await subscriber.connect();
+  subscriber.subscribe('heartbeats', 'topology');
 }
 
 main();
