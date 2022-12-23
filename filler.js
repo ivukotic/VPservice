@@ -23,6 +23,7 @@ const rclient = redis.createClient({
     host: config.HOST,
     port: config.PORT,
   },
+  legacyMode: true,
 });
 
 let ready = false;
@@ -177,6 +178,7 @@ function fill() {
 }
 
 async function main() {
+
   try {
     rclient.on('connect', async () => {
       console.log('redis connected');
