@@ -23,7 +23,15 @@ const jsonParser = bodyParser.json();
 console.log('VPs server starting ... ');
 console.log('config: ', config);
 
-const rclient = redis.createClient(config.PORT, config.HOST);
+// const rclient = redis.createClient(config.PORT, config.HOST);
+
+const rclient = redis.createClient({
+  socket: {
+    host: config.HOST,
+    port: config.PORT,
+  },
+});
+
 const subscriber = rclient.duplicate();
 
 const es = new elasticsearch.Client({ node: espath.ES_HOST, log: 'error' });
