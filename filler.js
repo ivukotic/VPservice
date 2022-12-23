@@ -178,17 +178,17 @@ function fill() {
 }
 
 async function main() {
+  rclient.on('connect', async () => {
+    console.log('redis connected');
+  });
+  rclient.on('error', (err) => {
+    console.log(`Error ${err}`);
+  });
+  await rclient.connect();
+  await reloadGrid();
+  // fills every 2 seconds
+  setInterval(fill, 2000);
 
-  try {
-    rclient.on('connect', async () => {
-      console.log('redis connected');
-      await reloadGrid();
-      // fills every 2 seconds
-      setInterval(fill, 2000);
-    });
-  } catch (err) {
-    console.error('Redis Connect Error: ', err);
-  }
 }
 
 main();
