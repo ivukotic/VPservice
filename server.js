@@ -23,8 +23,6 @@ const jsonParser = bodyParser.json();
 console.log('VPs server starting ... ');
 console.log('config: ', config);
 
-// const rclient = redis.createClient(config.PORT, config.HOST);
-
 const rclient = redis.createClient({
   socket: {
     host: config.HOST,

@@ -18,7 +18,13 @@ const config = require('/etc/vps/config.json');
 
 console.log('config:', config);
 
-const rclient = redis.createClient(config.PORT, config.HOST);
+const rclient = redis.createClient({
+  socket: {
+    host: config.HOST,
+    port: config.PORT,
+  },
+});
+
 let ready = false;
 let gridDescriptionVersion = 0;
 const grid = {};
