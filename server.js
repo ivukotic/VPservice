@@ -727,7 +727,7 @@ async function main() {
     }
 
     // initializes value if it does not exist
-    rclient.setnx(Keys.GDV, '0');
+    // rclient.setnx(Keys.GDV, '0');
 
     reloadSiteStates();
     reloadServingTopology();
