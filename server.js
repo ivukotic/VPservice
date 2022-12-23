@@ -750,8 +750,8 @@ async function main() {
   }
   await subscriber.connect();
 
-  await subscriber.subscribe('heartbeats', (channel, message) => {
-    console.log(`Received message: ${message}, on channel: ${channel}`);
+  await subscriber.subscribe('heartbeats', (message) => {
+    console.log(`Received message: ${message}`);
     const HB = JSON.parse(message);
     if (!(HB.site in cacheSites)) {
       cacheSites[HB.site] = {};
@@ -764,8 +764,8 @@ async function main() {
     }
   });
 
-  await subscriber.subscribe('topology', (channel, message) => {
-    console.log(`Received message: ${message}, on channel: ${channel}`);
+  await subscriber.subscribe('topology', (message) => {
+    console.log(`Received message: ${message}`);
     if (channel === 'topology') {
       reloadServingTopology();
     } else if (channel === 'siteStatus') {
@@ -773,7 +773,10 @@ async function main() {
     }
   });
 
-  // subscriber.subscribe('heartbeats', 'topology');
+  await subscriber.subscribe('siteStatus', (message) => {
+    console.log(`Received message: ${message}`);
+    reloadSiteStates();
+  });
 }
 
 main();
