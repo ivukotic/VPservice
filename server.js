@@ -766,11 +766,7 @@ async function main() {
 
   await subscriber.subscribe('topology', (message) => {
     console.log(`Received message: ${message}`);
-    if (channel === 'topology') {
-      reloadServingTopology();
-    } else if (channel === 'siteStatus') {
-      reloadSiteStates();
-    }
+    reloadServingTopology();
   });
 
   await subscriber.subscribe('siteStatus', (message) => {
