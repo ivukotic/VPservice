@@ -135,28 +135,28 @@ function recalculateCluster(clusterName) {
   clusters[clusterName] = new Cluster.Cluster(serverSizes);
 }
 
-// this subscription listens on heartbeat messages
-// it parses them and updates cache topology information
-// for the server. It sends server info to Elasticsearch.
-subscriber.on('message', (channel, message) => {
-  console.log(`Received message: ${message}, on channel: ${channel}`);
-  if (channel === 'heartbeats') {
-    const HB = JSON.parse(message);
-    if (!(HB.site in cacheSites)) {
-      cacheSites[HB.site] = {};
-    }
-    if (HB.id in cacheSites[HB.site]) {
-      cacheSites[HB.site][HB.id] = HB; // this can't be combined.
-    } else {
-      cacheSites[HB.site][HB.id] = HB;
-      recalculateCluster(HB.site);
-    }
-  } else if (channel === 'topology') {
-    reloadServingTopology();
-  } else if (channel === 'siteStatus') {
-    reloadSiteStates();
-  }
-});
+// // this subscription listens on heartbeat messages
+// // it parses them and updates cache topology information
+// // for the server. It sends server info to Elasticsearch.
+// subscriber.on('message', (channel, message) => {
+//   console.log(`Received message: ${message}, on channel: ${channel}`);
+//   if (channel === 'heartbeats') {
+//     const HB = JSON.parse(message);
+//     if (!(HB.site in cacheSites)) {
+//       cacheSites[HB.site] = {};
+//     }
+//     if (HB.id in cacheSites[HB.site]) {
+//       cacheSites[HB.site][HB.id] = HB; // this can't be combined.
+//     } else {
+//       cacheSites[HB.site][HB.id] = HB;
+//       recalculateCluster(HB.site);
+//     }
+//   } else if (channel === 'topology') {
+//     reloadServingTopology();
+//   } else if (channel === 'siteStatus') {
+//     reloadSiteStates();
+//   }
+// });
 
 // this function is called periodically and removes from cache topology
 // all servers that did not send a heartbeat in last LIFETIME_INTERVAL
@@ -749,7 +749,28 @@ async function main() {
     console.error('Error: ', err);
   }
   await subscriber.connect();
-  subscriber.subscribe('heartbeats', 'topology');
+  
+  await subscriber.subscribe('message', (channel, message) => {
+    console.log(`Received message: ${message}, on channel: ${channel}`);
+    if (channel === 'heartbeats') {
+      const HB = JSON.parse(message);
+      if (!(HB.site in cacheSites)) {
+        cacheSites[HB.site] = {};
+      }
+      if (HB.id in cacheSites[HB.site]) {
+        cacheSites[HB.site][HB.id] = HB; // this can't be combined.
+      } else {
+        cacheSites[HB.site][HB.id] = HB;
+        recalculateCluster(HB.site);
+      }
+    } else if (channel === 'topology') {
+      reloadServingTopology();
+    } else if (channel === 'siteStatus') {
+      reloadSiteStates();
+    }
+  });
+
+  // subscriber.subscribe('heartbeats', 'topology');
 }
 
 main();
