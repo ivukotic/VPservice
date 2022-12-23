@@ -726,6 +726,10 @@ async function main() {
       console.log('redis connected OK.');
     });
 
+    rclient.on('error', (err) => {
+      console.log(`Error ${err}`);
+    });
+
     try {
       es.ping((err, resp) => {
         console.log('ES ping:', resp.statusCode);
