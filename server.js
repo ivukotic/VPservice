@@ -418,6 +418,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
   };
   try {
     const reply = await rclient.exists(ds);
+    console.log('replyyyyyyyyyyyyyy> ', reply);
     if (reply === 0) {
       console.log('not found');
       const replyMove = await rclient.rPopLPush('unas', ds);
