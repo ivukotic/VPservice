@@ -28,8 +28,9 @@ const rclient = redis.createClient({
     host: config.HOST,
     port: config.PORT,
   },
-  legacyMode: true,
 });
+
+const subscriber = rclient.duplicate();
 
 const es = new elasticsearch.Client({ node: espath.ES_HOST, log: 'error' });
 
@@ -728,8 +729,6 @@ async function main() {
     console.log(`Error ${err}`);
   });
 
-  const subscriber = rclient.duplicate();
-
   await rclient.connect();
   await subscriber.connect();
 
@@ -754,34 +753,34 @@ async function main() {
     console.error('Error: ', err);
   }
 
-  // await subscriber.subscribe('heartbeats', (message) => {
-  //   console.log(`Received heartbeats message: ${message}`);
-  //   // try {
-  //   //   const HB = JSON.parse(message);
-  //   //   // console.log(HB);
-  //   //   if (!(HB.site in cacheSites)) {
-  //   //     cacheSites[HB.site] = {};
-  //   //   }
-  //   //   if (HB.id in cacheSites[HB.site]) {
-  //   //     cacheSites[HB.site][HB.id] = HB; // this can't be combined.
-  //   //   } else {
-  //   //     cacheSites[HB.site][HB.id] = HB;
-  //   //     recalculateCluster(HB.site);
-  //   //   }
-  //   // } catch (err) {
-  //   //   console.error('Error in Heartbeats handling: ', err);
-  //   // }
-  // });
+  await subscriber.subscribe('heartbeats', (message) => {
+    console.log(`Received heartbeats message: ${message}`);
+    // try {
+    //   const HB = JSON.parse(message);
+    //   // console.log(HB);
+    //   if (!(HB.site in cacheSites)) {
+    //     cacheSites[HB.site] = {};
+    //   }
+    //   if (HB.id in cacheSites[HB.site]) {
+    //     cacheSites[HB.site][HB.id] = HB; // this can't be combined.
+    //   } else {
+    //     cacheSites[HB.site][HB.id] = HB;
+    //     recalculateCluster(HB.site);
+    //   }
+    // } catch (err) {
+    //   console.error('Error in Heartbeats handling: ', err);
+    // }
+  });
 
-  // await subscriber.subscribe('topology', (message) => {
-  //   console.log(`Received topology message: ${message}`);
-  //   reloadServingTopology();
-  // });
+  await subscriber.subscribe('topology', (message) => {
+    console.log(`Received topology message: ${message}`);
+    reloadServingTopology();
+  });
 
-  // await subscriber.subscribe('siteStatus', (message) => {
-  //   console.log(`Received siteStatus message: ${message}`);
-  //   reloadSiteStates();
-  // });
+  await subscriber.subscribe('siteStatus', (message) => {
+    console.log(`Received siteStatus message: ${message}`);
+    reloadSiteStates();
+  });
 }
 
 main();
