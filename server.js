@@ -365,14 +365,13 @@ app.get('/site/:cloud/:sitename', async (req, res) => {
   console.log('looking up site:', site);
 
   try {
-    const reply = await rclient.exists(site);
-    if (reply === 0) {
+    const reply = await rclient.get(site);
+    if (!reply) {
       console.log('not found');
       res.status(500).send('not found.');
     } else {
-      const ireply = await rclient.get(site);
-      console.log('found: ', ireply);
-      res.status(200).send(`Site found. Cores: ${ireply}`);
+      console.log('found: ', reply);
+      res.status(200).send(`Site found. Cores: ${reply}`);
     }
   } catch (err) {
     console.log('big error:', err);
@@ -417,9 +416,9 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     ds,
   };
   try {
-    const reply = await rclient.exists(ds);
+    const reply = await rclient.lRange(ds);
     console.log('replyyyyyyyyyyyyyy> ', reply);
-    if (reply === 0) {
+    if (!reply.length) {
       console.log('not found');
       const replyMove = await rclient.rPopLPush('unas', ds);
       if (!replyMove) {
@@ -437,8 +436,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
       console.log('returning:', sites);
       res.status(200).send(sites);
     } else {
-      const replyFound = await rclient.lRange(ds, 0, -1);
-      const sites = replyFound[0].split(',');
+      const sites = reply[0].split(',');
       console.log('found', sites);
       doc.sites = sites;
       doc.initial = false;
