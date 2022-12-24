@@ -23,7 +23,6 @@ const rclient = redis.createClient({
     host: config.HOST,
     port: config.PORT,
   },
-  legacyMode: true,
 });
 
 let ready = false;
@@ -153,13 +152,6 @@ function generate() {
 }
 
 function fill() {
-  if (!rclient.connected) {
-    rclient.on('connect', () => {
-      console.log('connected');
-    });
-    return;
-  }
-
   if (!ready) return;
   rclient.lLen('unas', (err, count) => {
     console.log('unassigned :', count);
@@ -179,12 +171,13 @@ function fill() {
 
 async function main() {
   rclient.on('connect', async () => {
-    console.log('redis connected');
-  });
-  rclient.on('error', (err) => {
+    console.log('redis connected OK.');
+  }).on('error', (err) => {
     console.log(`Error ${err}`);
   });
+
   await rclient.connect();
+
   await reloadGrid();
   // fills every 2 seconds
   setInterval(fill, 2000);
