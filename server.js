@@ -760,16 +760,16 @@ async function main() {
     console.log(`Received heartbeats message: ${message}`);
     try {
       const HB = JSON.parse(message);
-      console.log(HB);
-      // if (!(HB.site in cacheSites)) {
-      //   cacheSites[HB.site] = {};
-      // }
-      // if (HB.id in cacheSites[HB.site]) {
-      //   cacheSites[HB.site][HB.id] = HB; // this can't be combined.
-      // } else {
-      //   cacheSites[HB.site][HB.id] = HB;
-      //   recalculateCluster(HB.site);
-      // }
+      // console.log(HB);
+      if (!(HB.site in cacheSites)) {
+        cacheSites[HB.site] = {};
+      }
+      if (HB.id in cacheSites[HB.site]) {
+        cacheSites[HB.site][HB.id] = HB; // this can't be combined.
+      } else {
+        cacheSites[HB.site][HB.id] = HB;
+        recalculateCluster(HB.site);
+      }
     } catch (err) {
       console.error('Error in Heartbeats handling: ', err);
     }
