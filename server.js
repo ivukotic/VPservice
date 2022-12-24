@@ -49,7 +49,7 @@ let paused = false;
 // ES reporting things
 let esData = []; // buffer to hold a batch of ES reporting data.
 let inProgress = false;
-const batchSize = 10;
+const batchSize = 100;
 let esIndexRequests = 'virtual_placement';
 let esIndexLiveness = 'vp_liveness';
 let esIndexLookups = 'vp_lookups';
@@ -77,11 +77,8 @@ const clusters = {};
 async function esAddRequest(index, doc) {
   esData.push({ index: { _index: index } }, doc);
   // for each doc added arrays grows by 2
-  console.log('ES>>>', esData.length, inProgress);
   if (esData.length > batchSize * 2 && inProgress === false) {
     inProgress = true;
-
-    console.log('ES WRITING', esData.length, inProgress);
 
     const operations = esData.slice(0, batchSize * 2);
     const bulkResponse = await es.bulk({ refresh: true, operations });
@@ -91,27 +88,11 @@ async function esAddRequest(index, doc) {
       console.log('dropping data.');
       esData = [];
     } else {
-      console.log('ES indexing done\n', bulkResponse);
+      console.log('ES indexing done in', bulkResponse.took, 'ms');
       esData = esData.slice(batchSize * 2);
     }
 
     inProgress = false;
-
-    // es.bulk(
-    //   { body: esData.slice(0, batchSize * 2) },
-    //   (err, result) => {
-    //     console.log('INDEXING >>>>>>>>>', err, result);
-    //     // if (err) {
-    //     //   console.error('ES indexing failed\n', err);
-    //     //   console.log('dropping data.');
-    //     //   esData = [];
-    //     // } else {
-    //     //   console.log('ES indexing done in', result.body.took, 'ms');
-    //     //   esData = esData.slice(batchSize * 2);
-    //     // }
-    //     inProgress = false;
-    //   },
-    // );
   }
 }
 
