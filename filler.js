@@ -70,8 +70,10 @@ function recalculateWeigths() {
 // called at the startup
 // if grid description not in redis, will retry every 60 seconds
 async function reloadGrid() {
-  rclient.get(Keys.GDV, async (err, reply) => {
-    // console.log('GD version:', reply);
+  try {
+    const reply = await rclient.get(Keys.GDV);
+    console.log('GD version:', reply);
+
     if (!reply || reply === '0') {
       console.log('grid description not there. will retry in 60 seconds.');
       await sleep(60000);
@@ -90,49 +92,39 @@ async function reloadGrid() {
 
     ready = false;
     resetGrid();
-    await rclient.sMembers(Keys.Sites, async (err1, sites) => {
-      if (err1) {
-        console.log('err. sites', err1);
-        return;
-      }
 
-      console.log('sites:', sites);
+    const sites = await rclient.sMembers(Keys.Sites);
+    console.log('sites:', sites);
 
-      const sdone = [];
-      for (let i = 0; i < sites.length; i++) {
-        const site = sites[i];
-        console.log('looking up site:', site);
-        await rclient.get(site, (err2, siteCores) => {
-          if (err2) {
-            console.error('error in getting site:', site, err2);
-          }
-          const [cloud, siteName] = site.split(':');
-          if (!(cloud in grid.cores)) {
-            grid.cores[cloud] = [];
-          }
-          grid.cores[cloud].push([siteName, Number(siteCores)]);
-          sdone.push(i);
-        });
+    const sdone = [];
+    for (let i = 0; i < sites.length; i++) {
+      const site = sites[i];
+      console.log('looking up site:', site);
+      const siteCores = await rclient.get(site);
+      const [cloud, siteName] = site.split(':');
+      if (!(cloud in grid.cores)) {
+        grid.cores[cloud] = [];
       }
-      while (sdone.length < sites.length) {
-        console.log(`not yet here. looked up ${sdone.length} from ${sites.length}.`);
-        await sleep(5000);
-      }
-      console.log('all sites looked up');
-      recalculateWeigths();
-    });
+      grid.cores[cloud].push([siteName, Number(siteCores)]);
+      sdone.push(i);
+    }
+
+    while (sdone.length < sites.length) {
+      console.log(`not yet here. looked up ${sdone.length} from ${sites.length}.`);
+      await sleep(5000);
+    }
+
+    console.log('all sites looked up');
+    recalculateWeigths();
 
     // setTimeout(recalculateWeigths, 3000);
 
     // dropping previous unas values
-    rclient.del('unas', (err1, removed) => {
-      if (err1) {
-        console.error('issue when deleting unas', err1);
-        return;
-      }
-      console.log(`dropped ${removed} unassigned.`);
-    });
-  });
+    const removed = await rclient.del('unas');
+    console.log(`dropped ${removed} unassigned.`);
+  } catch (err) {
+    console.error('error caught in grid reload');
+  }
 }
 
 function generate() {

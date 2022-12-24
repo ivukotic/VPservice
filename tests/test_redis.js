@@ -8,7 +8,6 @@ const rclient = redis.createClient({
   },
 });
 
-
 const subscriber = rclient.duplicate();
 
 async function addKey() {
