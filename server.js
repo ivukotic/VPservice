@@ -49,7 +49,7 @@ let paused = false;
 // ES reporting things
 let esData = []; // buffer to hold a batch of ES reporting data.
 let inProgress = false;
-const batchSize = 100;
+const batchSize = 10;
 let esIndexRequests = 'virtual_placement';
 let esIndexLiveness = 'vp_liveness';
 let esIndexLookups = 'vp_lookups';
@@ -411,14 +411,15 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     return;
   }
 
-  // console.log('ds to vp:', ds);
+  console.log('ds to vp:', ds);
   const doc = {
     timestamp: Date.now(),
     ds,
   };
   try {
     const reply = await rclient.exists(ds);
-    if (reply === 0) { // console.log('not found');
+    if (reply === 0) {
+      console.log('not found');
       const replyMove = await rclient.rPopLPush('unas', ds);
       if (!replyMove) {
         res.status(400).send(['other']);
@@ -432,11 +433,12 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
       doc.sites = sites;
       doc.initial = true;
       esAddRequest(esIndexRequests, doc);
+      console.log('returning:', sites);
       res.status(200).send(sites);
     } else {
       const replyFound = await rclient.lRange(ds, 0, -1);
       const sites = replyFound[0].split(',');
-      // console.log('found', sites);
+      console.log('found', sites);
       doc.sites = sites;
       doc.initial = false;
       esAddRequest(esIndexRequests, doc);
