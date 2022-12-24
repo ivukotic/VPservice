@@ -74,27 +74,44 @@ const clusters = {};
 
 // const pause = (duration) => new Promise(res => setTimeout(res, duration));
 
-function esAddRequest(index, doc) {
+async function esAddRequest(index, doc) {
   esData.push({ index: { _index: index } }, doc);
   // for each doc added arrays grows by 2
+  console.log('ES>>>', esData.length, inProgress);
   if (esData.length > batchSize * 2 && inProgress === false) {
     inProgress = true;
 
-    es.bulk(
-      { body: esData.slice(0, batchSize * 2) },
-      (err, result) => {
-        console.log('INDEXING >>>>>>>>>', err, result);
-        // if (err) {
-        //   console.error('ES indexing failed\n', err);
-        //   console.log('dropping data.');
-        //   esData = [];
-        // } else {
-        //   console.log('ES indexing done in', result.body.took, 'ms');
-        //   esData = esData.slice(batchSize * 2);
-        // }
-        inProgress = false;
-      },
-    );
+    console.log('ES WRITING', esData.length, inProgress);
+
+    const operations = esData.slice(0, batchSize * 2);
+    const bulkResponse = await es.bulk({ refresh: true, operations });
+
+    if (bulkResponse.errors) {
+      console.error('ES indexing failed\n', bulkResponse.items);
+      console.log('dropping data.');
+      esData = [];
+    } else {
+      console.log('ES indexing done\n', bulkResponse);
+      esData = esData.slice(batchSize * 2);
+    }
+
+    inProgress = false;
+
+    // es.bulk(
+    //   { body: esData.slice(0, batchSize * 2) },
+    //   (err, result) => {
+    //     console.log('INDEXING >>>>>>>>>', err, result);
+    //     // if (err) {
+    //     //   console.error('ES indexing failed\n', err);
+    //     //   console.log('dropping data.');
+    //     //   esData = [];
+    //     // } else {
+    //     //   console.log('ES indexing done in', result.body.took, 'ms');
+    //     //   esData = esData.slice(batchSize * 2);
+    //     // }
+    //     inProgress = false;
+    //   },
+    // );
   }
 }
 
