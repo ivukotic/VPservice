@@ -197,7 +197,7 @@ app.delete('/grid/', passport.authenticate('bearer', { session: false }), async 
     await rclient.del(Keys.Sites);
 
     console.log('resetting grid description version ...');
-    rclient.set(Keys.GDV, '0');
+    await rclient.set(Keys.GDV, '0');
 
     res.status(200).send('OK');
   } catch (err) {
@@ -214,11 +214,11 @@ app.delete('/all_data', passport.authenticate('bearer', { session: false }), asy
   res.status(200).send(reply);
 });
 
-app.delete('/ds/:dataset', (req, res) => {
+app.delete('/ds/:dataset', async (req, res) => {
   const ds = req.params.dataset;
   console.log('deleting dataset placement.');
   try {
-    const reply = rclient.del(ds);
+    const reply = await rclient.del(ds);
     const rep = `datasets deleted: ${reply}`;
     res.status(200).send(rep);
   } catch (err) {
@@ -364,15 +364,19 @@ app.get('/site/:cloud/:sitename', async (req, res) => {
 
   console.log('looking up site:', site);
 
-  const reply = await rclient.exists(site);
-  if (reply === 0) {
-    console.log('not found');
-    res.status(500).send('not found.');
-  } else {
-    rclient.get(site, (_ierr, ireply) => {
+  try {
+    const reply = await rclient.exists(site);
+    if (reply === 0) {
+      console.log('not found');
+      res.status(500).send('not found.');
+    } else {
+      const ireply = await rclient.get(site);
       console.log('found: ', ireply);
       res.status(200).send(`Site found. Cores: ${ireply}`);
-    });
+    }
+  } catch (err) {
+    console.log('big error:', err);
+    res.status(500).send('not found.');
   }
 });
 
@@ -413,7 +417,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     ds,
   };
   try {
-    const reply = rclient.exists(ds);
+    const reply = await rclient.exists(ds);
     if (reply === 0) { // console.log('not found');
       const replyMove = await rclient.rPopLPush('unas', ds);
       if (!replyMove) {
@@ -454,8 +458,8 @@ app.get('/ds/reassign/:dataset', passport.authenticate('bearer', { session: fals
       return;
     }
     const sites = reply[1].split(',');
-    rclient.del(ds);
-    rclient.rPush(ds, sites);
+    await rclient.del(ds);
+    await rclient.rPush(ds, sites);
     res.status(200).send(sites);
   } catch (err) {
     console.error('could not reassign. err:', err);
@@ -468,17 +472,16 @@ app.put('/ds/reassign/:dataset/:sites', passport.authenticate('bearer', { sessio
   const { sites } = req.params;
   console.log('reassigning ds:', dataset, 'to:', sites);
   // sites = sites.split(',');
-  rclient.del(dataset, (_err1, reply1) => {
-    if (!reply1) {
-      console.log('that DS was not assigned before');
-    }
-    rclient.rPush(dataset, sites, (_err2, reply2) => {
-      if (!reply2) {
-        res.status(400).send('Timeout');
-      }
-      res.status(200).send('Done.');
-    });
-  });
+  const reply1 = await rclient.del(dataset);
+  if (!reply1) {
+    console.log('that DS was not assigned before');
+    res.status(400).send('that DS was not assigned before');
+  }
+  const reply2 = rclient.rPush(dataset, sites);
+  if (!reply2) {
+    res.status(400).send('Timeout');
+  }
+  res.status(200).send('Done.');
 });
 
 //
@@ -634,14 +637,14 @@ app.get('/test', async (_req, res) => {
   console.log('TEST starting...');
 
   try {
-    const reply = await rclient.set('ds', 'TEST_OK');
+    let reply = await rclient.set('ds', 'TEST_OK');
     console.log(reply);
 
-    const reply1 = await rclient.get('ds');
-    console.log(reply1);
+    reply = await rclient.get('ds');
+    console.log(reply);
 
-    rclient.del('ds');
-    res.send(reply1);
+    reply = await rclient.del('ds');
+    res.send(reply);
   } catch (err) {
     console.error('big error!');
   }
@@ -702,7 +705,7 @@ async function main() {
   }
 
   // initializes value if it does not exist
-  rclient.setNX(Keys.GDV, '0');
+  await rclient.setNX(Keys.GDV, '0');
   console.log('initialized GDV.');
 
   try {
