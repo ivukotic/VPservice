@@ -416,7 +416,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     ds,
   };
   try {
-    const reply = await rclient.lRange(ds);
+    const reply = await rclient.lRange(ds, 0, -1);
     console.log('replyyyyyyyyyyyyyy> ', reply);
     if (!reply.length) {
       console.log('not found');
