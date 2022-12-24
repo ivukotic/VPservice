@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: filler
+  name: filler1
   labels:
-    k8s-app: filler
+    k8s-app: filler1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: filler
+      k8s-app: filler1
   template:
     metadata:
       labels:
-        k8s-app: filler
+        k8s-app: filler1
     spec:
       containers:
         - name: filler

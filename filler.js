@@ -143,22 +143,16 @@ function generate() {
   return res.join(',');
 }
 
-function fill() {
+async function fill() {
   if (!ready) return;
-  rclient.lLen('unas', (err, count) => {
-    console.log('unassigned :', count);
-    if (count < config.PRECALCULATED_LWM) {
-      for (let i = 0; i < config.PRECALCULATED_HWM - count; i++) {
-        rclient.lPush('unas', generate(), (err1) => {
-          if (err1) {
-            console.error('error adding new unas.');
-          }
-          // console.log('after adding. unassigned:', numb);
-        });
-      }
+  const count = await rclient.lLen('unas');
+  console.log('unassigned :', count);
+  if (count < config.PRECALCULATED_LWM) {
+    for (let i = 0; i < config.PRECALCULATED_HWM - count; i++) {
+      await rclient.lPush('unas', generate());
     }
-    reloadGrid();
-  });
+  }
+  reloadGrid();
 }
 
 async function main() {
