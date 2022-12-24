@@ -272,28 +272,25 @@ app.put('/site/disable/:cloud/:site', passport.authenticate('bearer', { session:
   const { site } = req.params;
   console.log(`disabling site ${site} in cloud ${cloud}`);
 
-  rclient.sMembers(Keys.Sites, (err1, result1) => {
-    if (!err1) {
-      console.log('found sites:', result1);
-      if (result1.includes(`${cloud}:${site}`)) {
-        rclient.sAdd(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
-          if (err) {
-            console.error('could not add site to disabled sites', err);
-            res.status(500).send('could not add site to disabled sites', err);
-          }
-          rclient.publish('siteStatus', 'change');
-          console.log(`disabled site: ${reply}.`);
-          res.status(200).send(`disabled site: ${reply}.`);
-        });
+  try {
+    const result = await rclient.sMembers(Keys.Sites);
+    if (result) {
+      console.log('found sites:', result);
+      if (result.includes(`${cloud}:${site}`)) {
+        await rclient.sAdd(Keys.DisabledSites, `${cloud}:${site}`);
+        await rclient.publish('siteStatus', 'change');
+        console.log('disabled site.');
+        res.status(200).send('disabled site');
       } else {
         console.error('that site does not exist!');
         res.status(400).send('Site does not exist. Could not add site to disabled sites.');
       }
     } else {
       console.error('could not get Keys.Sites!');
-      res.status(500).send('Internal issue');
     }
-  });
+  } catch (err) {
+    res.status(500).send('Internal issue');
+  }
 });
 
 app.put('/site/enable/:cloud/:site', passport.authenticate('bearer', { session: false }), async (req, res) => {
@@ -301,16 +298,15 @@ app.put('/site/enable/:cloud/:site', passport.authenticate('bearer', { session: 
   const { site } = req.params;
   console.log(`enabling site ${site} in cloud ${cloud}`);
   if (disabled.has(site)) {
-    rclient.sRem(Keys.DisabledSites, `${cloud}:${site}`, (err, reply) => {
-      if (!err) {
-        console.log(`removed ${reply} site from disabled sites.`);
-        rclient.publish('siteStatus', 'change');
-        res.status(200).send('OK');
-      } else {
-        console.error('could not remove from DisabledSites', err);
-        res.status(500).send('Internal Issue');
-      }
-    });
+    try {
+      const reply = await rclient.sRem(Keys.DisabledSites, `${cloud}:${site}`);
+      console.log(`removed ${reply} site from disabled sites.`);
+      await rclient.publish('siteStatus', 'change');
+      res.status(200).send('OK');
+    } catch (err) {
+      console.error('could not remove from DisabledSites', err);
+      res.status(500).send('Internal Issue');
+    }
   } else {
     res.status(400).send('Site was not disabled!');
   }
@@ -553,15 +549,20 @@ app.put('/serve', jsonParser, passport.authenticate('bearer', { session: false }
     return;
   }
 
-  rclient.hSet(Keys.ServingTopology, client, cacheSite, (err, reply) => {
-    if (!err) {
-      console.log(reply);
-      rclient.publish('topology', 'added');
+  const errMessage = 'Problem adding to serving topology.';
+  try {
+    const result = await rclient.hSet(Keys.ServingTopology, client, cacheSite);
+    if (result > 0) {
+      console.log('Added xcache to a client');
+      await rclient.publish('topology', 'added');
     } else {
-      console.error('Problem adding to serving topology', err);
-      res.status(500).send(err);
+      console.error(errMessage);
+      res.status(500).send(errMessage);
     }
-  });
+  } catch (err) {
+    console.error(errMessage);
+    res.status(500).send(err);
+  }
   res.status(200).send('OK');
 });
 
@@ -569,17 +570,19 @@ app.put('/serve', jsonParser, passport.authenticate('bearer', { session: false }
 app.delete('/serve/:client', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const { client } = req.params;
   console.info(`disallowing serving client: ${client}`);
-
-  rclient.hDel(Keys.ServingTopology, client, (err, reply) => {
-    if (!err) {
-      console.log(reply);
-      rclient.publish('topology', 'removed');
+  const errMessage = 'Problem when dissalowing serving.';
+  try {
+    await rclient.hDel(Keys.ServingTopology, client);
+    if (res === 0) {
+      console.error(errMessage);
+      res.status(500).send(errMessage);
     } else {
-      console.error('Problem when dissalowing serving.', err);
-      res.status(500).send(err);
+      await rclient.publish('topology', 'removed');
     }
-  });
-
+  } catch (err) {
+    console.error(errMessage);
+    res.status(500).send(errMessage);
+  }
   res.status(200).send('OK');
 });
 
@@ -658,7 +661,7 @@ app.post('/liveness', jsonParser, async (req, res) => {
   b.timestamp = Date.now();
   b.live = true;
   esAddRequest(esIndexLiveness, b);
-  rclient.publish('heartbeats', JSON.stringify(b));
+  await rclient.publish('heartbeats', JSON.stringify(b));
   res.status(200).send('OK');
 });
 
@@ -720,12 +723,15 @@ http.createServer(opt, app).listen(80, () => {
 
 async function main() {
   console.log('Keys:', Keys);
-  rclient.on('connect', async () => {
-    console.log('redis connected OK.');
-  });
-  // rclient.on('error', (err) => {
-  //   console.log(`Error ${err}`);
-  // });
+
+  rclient
+    .on('connect', async () => {
+      console.log('redis connected OK.');
+    })
+    .on('error', (err) => {
+      console.log(`Error ${err}`);
+    });
+
   await rclient.connect();
 
   try {
@@ -769,15 +775,15 @@ async function main() {
     }
   });
 
-  // await subscriber.subscribe('topology', (message) => {
-  //   console.log(`Received topology message: ${message}`);
-  //   reloadServingTopology();
-  // });
+  await subscriber.subscribe('topology', (message) => {
+    console.log(`Received topology message: ${message}`);
+    reloadServingTopology();
+  });
 
-  // await subscriber.subscribe('siteStatus', (message) => {
-  //   console.log(`Received siteStatus message: ${message}`);
-  //   reloadSiteStates();
-  // });
+  await subscriber.subscribe('siteStatus', (message) => {
+    console.log(`Received siteStatus message: ${message}`);
+    reloadSiteStates();
+  });
 }
 
 main();
