@@ -72,7 +72,7 @@ function recalculateWeigths() {
 async function reloadGrid() {
   try {
     const reply = await rclient.get(Keys.GDV);
-    console.log('GD version:', reply);
+    // console.log('GD version:', reply);
 
     if (!reply || reply === '0') {
       console.log('grid description not there. will retry in 60 seconds.');

@@ -31,8 +31,6 @@ const rclient = redis.createClient({
   legacyMode: true,
 });
 
-const subscriber = rclient.duplicate();
-
 const es = new elasticsearch.Client({ node: espath.ES_HOST, log: 'error' });
 
 passport.use(new Strategy(
@@ -724,15 +722,16 @@ http.createServer(opt, app).listen(80, () => {
 async function main() {
   console.log('Keys:', Keys);
 
-  rclient
-    .on('connect', async () => {
-      console.log('redis connected OK.');
-    })
-    .on('error', (err) => {
-      console.log(`Error ${err}`);
-    });
+  rclient.on('connect', async () => {
+    console.log('redis connected OK.');
+  }).on('error', (err) => {
+    console.log(`Error ${err}`);
+  });
+
+  const subscriber = rclient.duplicate();
 
   await rclient.connect();
+  await subscriber.connect();
 
   try {
     es.ping((err, resp) => {
@@ -754,25 +753,24 @@ async function main() {
   } catch (err) {
     console.error('Error: ', err);
   }
-  await subscriber.connect();
 
   await subscriber.subscribe('heartbeats', (message) => {
     console.log(`Received heartbeats message: ${message}`);
-    try {
-      const HB = JSON.parse(message);
-      // console.log(HB);
-      if (!(HB.site in cacheSites)) {
-        cacheSites[HB.site] = {};
-      }
-      if (HB.id in cacheSites[HB.site]) {
-        cacheSites[HB.site][HB.id] = HB; // this can't be combined.
-      } else {
-        cacheSites[HB.site][HB.id] = HB;
-        recalculateCluster(HB.site);
-      }
-    } catch (err) {
-      console.error('Error in Heartbeats handling: ', err);
-    }
+    // try {
+    //   const HB = JSON.parse(message);
+    //   // console.log(HB);
+    //   if (!(HB.site in cacheSites)) {
+    //     cacheSites[HB.site] = {};
+    //   }
+    //   if (HB.id in cacheSites[HB.site]) {
+    //     cacheSites[HB.site][HB.id] = HB; // this can't be combined.
+    //   } else {
+    //     cacheSites[HB.site][HB.id] = HB;
+    //     recalculateCluster(HB.site);
+    //   }
+    // } catch (err) {
+    //   console.error('Error in Heartbeats handling: ', err);
+    // }
   });
 
   await subscriber.subscribe('topology', (message) => {
