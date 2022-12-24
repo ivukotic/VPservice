@@ -83,6 +83,7 @@ function esAddRequest(index, doc) {
     es.bulk(
       { body: esData.slice(0, batchSize * 2) },
       (err, result) => {
+        console.log('INDEXING >>>>>>>>>', err, result);
         if (err) {
           console.error('ES indexing failed\n', err);
           console.log('dropping data.');
@@ -410,16 +411,15 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     return;
   }
 
-  console.log('ds to vp:', ds);
+  // console.log('ds to vp:', ds);
   const doc = {
     timestamp: Date.now(),
     ds,
   };
   try {
     const reply = await rclient.lRange(ds, 0, -1);
-    console.log('replyyyyyyyyyyyyyy> ', reply);
     if (!reply.length) {
-      console.log('not found');
+      // console.log('not found');
       const replyMove = await rclient.rPopLPush('unas', ds);
       if (!replyMove) {
         res.status(400).send(['other']);
@@ -433,11 +433,11 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
       doc.sites = sites;
       doc.initial = true;
       esAddRequest(esIndexRequests, doc);
-      console.log('returning:', sites);
+      // console.log('returning:', sites);
       res.status(200).send(sites);
     } else {
       const sites = reply[0].split(',');
-      console.log('found', sites);
+      // console.log('found', sites);
       doc.sites = sites;
       doc.initial = false;
       esAddRequest(esIndexRequests, doc);
