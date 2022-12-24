@@ -84,14 +84,14 @@ function esAddRequest(index, doc) {
       { body: esData.slice(0, batchSize * 2) },
       (err, result) => {
         console.log('INDEXING >>>>>>>>>', err, result);
-        if (err) {
-          console.error('ES indexing failed\n', err);
-          console.log('dropping data.');
-          esData = [];
-        } else {
-          console.log('ES indexing done in', result.body.took, 'ms');
-          esData = esData.slice(batchSize * 2);
-        }
+        // if (err) {
+        //   console.error('ES indexing failed\n', err);
+        //   console.log('dropping data.');
+        //   esData = [];
+        // } else {
+        //   console.log('ES indexing done in', result.body.took, 'ms');
+        //   esData = esData.slice(batchSize * 2);
+        // }
         inProgress = false;
       },
     );
