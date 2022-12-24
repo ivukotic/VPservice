@@ -99,25 +99,26 @@ function esAddRequest(index, doc) {
 
 // this function is called on any change in serving map
 // it is triggered through pubsub message.
-function reloadServingTopology() {
-  rclient.hGetAll(Keys.ServingTopology, (error, reply) => {
-    if (error) {
-      console.error('Problem loading serving topology', error);
-    }
+async function reloadServingTopology() {
+  try {
+    const reply = await rclient.hGetAll(Keys.ServingTopology);
     servingTopology = reply;
     console.log('Serving Topology:', servingTopology);
-  });
+  } catch (err) {
+    console.error('Problem loading serving topology', err);
+  }
 }
 
 // reloads disabled sites
-function reloadSiteStates() {
-  rclient.sMembers(Keys.DisabledSites, (err, reply) => {
-    if (!err) {
-      console.log('Disabled sites:', reply);
-      disabled.clear();
-      reply.forEach((s) => disabled.add(s.split(':')[1]));
-    }
-  });
+async function reloadSiteStates() {
+  try {
+    const reply = await rclient.sMembers(Keys.DisabledSites);
+    console.log('Disabled sites:', reply);
+    disabled.clear();
+    reply.forEach((s) => disabled.add(s.split(':')[1]));
+  } catch (err) {
+    console.error('Problem loading serving topology', err);
+  }
 }
 
 // called on each change in number of servers in a cache site
@@ -133,29 +134,6 @@ function recalculateCluster(clusterName) {
   });
   clusters[clusterName] = new Cluster.Cluster(serverSizes);
 }
-
-// // this subscription listens on heartbeat messages
-// // it parses them and updates cache topology information
-// // for the server. It sends server info to Elasticsearch.
-// subscriber.on('message', (channel, message) => {
-//   console.log(`Received message: ${message}, on channel: ${channel}`);
-//   if (channel === 'heartbeats') {
-//     const HB = JSON.parse(message);
-//     if (!(HB.site in cacheSites)) {
-//       cacheSites[HB.site] = {};
-//     }
-//     if (HB.id in cacheSites[HB.site]) {
-//       cacheSites[HB.site][HB.id] = HB; // this can't be combined.
-//     } else {
-//       cacheSites[HB.site][HB.id] = HB;
-//       recalculateCluster(HB.site);
-//     }
-//   } else if (channel === 'topology') {
-//     reloadServingTopology();
-//   } else if (channel === 'siteStatus') {
-//     reloadSiteStates();
-//   }
-// });
 
 // this function is called periodically and removes from cache topology
 // all servers that did not send a heartbeat in last LIFETIME_INTERVAL
@@ -183,87 +161,81 @@ function cleanDeadServers() {
   });
 }
 
-function updateGridVersion() {
+async function updateGridVersion() {
   console.log('updating grid description version ...');
-  rclient.incr(Keys.GDV, (err, version) => {
-    if (err) {
-      console.error('Could not increment grid description version.');
-    }
+  try {
+    const version = await rclient.incr(Keys.GDV);
     console.log('current grid version:', version);
-  });
+  } catch (err) {
+    console.error('Could not increment grid description version.');
+  }
 }
 
-function backup() {
+async function backup() {
   console.log('Starting hourly backup...');
-  rclient.lastSave((_err, reply) => {
+  try {
+    const reply = await rclient.lastSave();
     if (new Date() < (reply + 3600000)) {
       console.log('last backup at less then one hour. Skipping.');
     } else {
-      rclient.bgSave((_ierr, reply1) => {
-        console.log(reply1);
-      });
+      const reply1 = rclient.bgSave();
+      console.log(reply1);
     }
-  });
+  } catch (err) {
+    console.error('issue with creating hourly backup.', err);
+  }
 }
 
-app.delete('/grid/', passport.authenticate('bearer', { session: false }), (_req, res) => {
-  console.log('deleting all of the grid info.... VERIFIED');
+app.delete('/grid/', passport.authenticate('bearer', { session: false }), async (_req, res) => {
+  console.log('deleting all of the grid info....');
 
-  rclient.sMembers(Keys.Sites, (err1, result1) => {
-    if (!err1) {
-      console.log('deleting sites', result1);
-      rclient.del(result1, (err2, result2) => {
-        if (!err2) {
-          console.log('sites deleted:', result2);
-          rclient.del(Keys.Sites);
-        } else {
-          console.error('could not delete sites');
-        }
-      });
-    } else {
-      console.error('could not get sites to delete');
-    }
-  });
+  try {
+    const result1 = await rclient.sMembers(Keys.Sites);
+    console.log('deleting sites', result1);
+    const result2 = await rclient.del(result1);
+    console.log('sites deleted:', result2);
+    await rclient.del(Keys.Sites);
 
-  console.log('resetting grid description version ...');
-  rclient.set(Keys.GDV, '0');
-
-  res.status(200).send('OK');
-});
-
-app.delete('/all_data', passport.authenticate('bearer', { session: false }), (_req, res) => {
-  console.log('deleting all of the database. VERIFIED');
-  rclient.flushDb((_err, reply) => {
-    console.log('reply:', reply);
     console.log('resetting grid description version ...');
     rclient.set(Keys.GDV, '0');
-    res.status(200).send(reply);
-  });
+
+    res.status(200).send('OK');
+  } catch (err) {
+    console.error('could not get sites to delete', err);
+  }
+});
+
+app.delete('/all_data', passport.authenticate('bearer', { session: false }), async (_req, res) => {
+  console.log('deleting all of the database.');
+  const reply = await rclient.flushDb();
+  console.log('reply:', reply);
+  console.log('resetting grid description version ...');
+  rclient.set(Keys.GDV, '0');
+  res.status(200).send(reply);
 });
 
 app.delete('/ds/:dataset', (req, res) => {
   const ds = req.params.dataset;
   console.log('deleting dataset placement.');
-  rclient.del(ds, (err, reply) => {
-    if (err) {
-      console.log('error deleting dataset placement ', err);
-      res.status(500).send('error deleting dataset placement', err);
-    }
+  try {
+    const reply = rclient.del(ds);
     const rep = `datasets deleted: ${reply}`;
     res.status(200).send(rep);
-  });
+  } catch (err) {
+    console.log('error deleting dataset placement ', err);
+    res.status(500).send('error deleting dataset placement', err);
+  }
 });
 
 app.get('/site/disabled', async (_req, res) => {
   console.log('returning disabled sites');
-
-  rclient.sMembers(Keys.DisabledSites, (err, replyDisabled) => {
-    if (err) {
-      console.log('err. sites', err);
-      res.status(500).send('could not find disabled sites list.');
-    }
+  try {
+    const replyDisabled = await rclient.sMembers(Keys.DisabledSites);
     res.status(200).send(replyDisabled);
-  });
+  } catch (err) {
+    console.log('err. sites', err);
+    res.status(500).send('could not find disabled sites list.');
+  }
 });
 
 app.put('/site/disable/:cloud/:site', passport.authenticate('bearer', { session: false }), async (req, res) => {
@@ -311,31 +283,24 @@ app.put('/site/enable/:cloud/:site', passport.authenticate('bearer', { session: 
   }
 });
 
-app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { session: false }), async (req, res, next) => {
-  // console.log('adding a site.... NOT VERIFIED');
+app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { session: false }), async (req, res) => {
+  // console.log('adding a site....');
   const { cloud } = req.params;
   const site = req.params.sitename;
   const { cores } = req.params;
 
   console.log(`adding a site ${site} to ${cloud} cloud with ${cores} cores`);
-
-  rclient.sAdd(Keys.Sites, `${cloud}:${site}`, (err, numb) => {
-    if (err) {
-      next(new Error('Could not add site', err));
-    }
+  try {
+    const numb = await rclient.sAdd(Keys.Sites, `${cloud}:${site}`);
     console.log('sites added:', numb);
-  });
 
-  rclient.set(`${cloud}:${site}`, cores, (err, reply) => {
-    if (err) {
-      next(new Error('Could not add site to the cloud', err));
-    }
+    const reply = await rclient.set(`${cloud}:${site}`, cores);
     console.log('site added to cloud or updated: ', reply);
-  });
 
-  updateGridVersion();
-
-  res.status(200).send('OK');
+    updateGridVersion();
+  } catch (err) {
+    res.status(200).send('OK');
+  }
 });
 
 app.put('/rebalance', async (req, res) => {
@@ -373,64 +338,58 @@ app.get('/pause', async (req, res) => {
 app.get('/grid/', async (_req, res) => {
   console.log('returning all grid info');
 
-  rclient.sMembers(Keys.Sites, (err, sites) => {
-    if (err) {
-      console.log('err. sites', err);
-      res.status(500).send('could not find sites list.');
-    }
-
+  try {
+    const sites = await rclient.sMembers(Keys.Sites);
     console.log('sites:', sites);
 
-    rclient.mGet(sites, (_err, siteCores) => {
-      const cores = {};
-      sites.forEach((site, i) => {
-        console.log(site, siteCores[i]);
-        const [cloud, siteName] = site.split(':');
-        if (!(cloud in cores)) {
-          cores[cloud] = [];
-        }
-        cores[cloud].push([siteName, Number(siteCores[i])]);
-      });
-
-      res.status(200).send(cores);
+    const siteCores = await rclient.mGet(sites);
+    const cores = {};
+    sites.forEach((site, i) => {
+      console.log(site, siteCores[i]);
+      const [cloud, siteName] = site.split(':');
+      if (!(cloud in cores)) {
+        cores[cloud] = [];
+      }
+      cores[cloud].push([siteName, Number(siteCores[i])]);
     });
-  });
+
+    res.status(200).send(cores);
+  } catch (err) {
+    res.status(500).send(err);
+  }
 });
 
 app.get('/site/:cloud/:sitename', async (req, res) => {
-  console.log('If there is such a site in such a cloud returns number of cores. VERIFIED');
   const site = `${req.params.cloud}:${req.params.sitename}`;
 
   console.log('looking up site:', site);
 
-  rclient.exists(site, (_err, reply) => {
-    if (reply === 0) {
-      console.log('not found');
-      res.status(500).send('not found.');
-    } else {
-      rclient.get(site, (_ierr, ireply) => {
-        console.log('found: ', ireply);
-        res.status(200).send(`Site found. Cores: ${ireply}`);
-      });
-    }
-  });
+  const reply = await rclient.exists(site);
+  if (reply === 0) {
+    console.log('not found');
+    res.status(500).send('not found.');
+  } else {
+    rclient.get(site, (_ierr, ireply) => {
+      console.log('found: ', ireply);
+      res.status(200).send(`Site found. Cores: ${ireply}`);
+    });
+  }
 });
 
 // completely deletes site
 app.delete('/site/:cloud/:sitename', async (req, res) => {
   const site = `${req.params.cloud}:${req.params.sitename}`;
   console.log('deleting site:', site);
-  rclient.del(site, (err, result) => {
-    if (!err) {
-      console.log('sites deleted:', result);
-      rclient.sRem(Keys.Sites, site);
-      updateGridVersion();
-      res.status(200).send('OK');
-    } else {
-      console.error('could not delete sites');
-      res.status(500).send('not found.');
-    }
-  });
+  try {
+    const result = await rclient.del(site);
+    console.log('sites deleted:', result);
+    await rclient.sRem(Keys.Sites, site);
+    updateGridVersion();
+    res.status(200).send('OK');
+  } catch (err) {
+    console.error('could not delete sites', err);
+    res.status(500).send('could not delete site');
+  }
 });
 
 // the main function !
@@ -453,42 +412,43 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     timestamp: Date.now(),
     ds,
   };
-
-  rclient.exists(ds, (_err, reply) => {
+  try {
+    const reply = rclient.exists(ds);
     if (reply === 0) { // console.log('not found');
-      rclient.rPopLPush('unas', ds, (errPLP, replyMove) => {
-        if (!replyMove) {
-          res.status(400).send(['other']);
-          return;
-        }
-        let sites = replyMove.split(',');
-        if (nsites > 0) {
-          sites = sites.filter((site) => !disabled.has(site));
-          sites = sites.slice(0, nsites);
-        }
-        doc.sites = sites;
-        doc.initial = true;
-        esAddRequest(esIndexRequests, doc);
-        res.status(200).send(sites);
-      });
+      const replyMove = await rclient.rPopLPush('unas', ds);
+      if (!replyMove) {
+        res.status(400).send(['other']);
+        return;
+      }
+      let sites = replyMove.split(',');
+      if (nsites > 0) {
+        sites = sites.filter((site) => !disabled.has(site));
+        sites = sites.slice(0, nsites);
+      }
+      doc.sites = sites;
+      doc.initial = true;
+      esAddRequest(esIndexRequests, doc);
+      res.status(200).send(sites);
     } else {
-      rclient.lRange(ds, 0, -1, async (err, replyFound) => {
-        const sites = replyFound[0].split(',');
-        // console.log('found', sites);
-        doc.sites = sites;
-        doc.initial = false;
-        esAddRequest(esIndexRequests, doc);
-        res.status(200).send(sites);
-      });
+      const replyFound = await rclient.lRange(ds, 0, -1);
+      const sites = replyFound[0].split(',');
+      // console.log('found', sites);
+      doc.sites = sites;
+      doc.initial = false;
+      esAddRequest(esIndexRequests, doc);
+      res.status(200).send(sites);
     }
-  });
+  } catch (err) {
+    console.error('big error:', err);
+    res.status(400).send(['other']);
+  }
 });
 
 app.get('/ds/reassign/:dataset', passport.authenticate('bearer', { session: false }), async (req, res) => {
   const ds = req.params.dataset;
   console.log('reassigning ds:', ds, 'in random way');
-
-  rclient.blPop('unas', 1000, (_err, reply) => {
+  try {
+    const reply = rclient.blPop('unas', 1000);
     if (!reply) {
       res.status(400).send('Timeout');
       return;
@@ -497,7 +457,9 @@ app.get('/ds/reassign/:dataset', passport.authenticate('bearer', { session: fals
     rclient.del(ds);
     rclient.rPush(ds, sites);
     res.status(200).send(sites);
-  });
+  } catch (err) {
+    console.error('could not reassign. err:', err);
+  }
 });
 
 // sites is given like AGLT2_VP_DISK,MWT2_VP_DISK,BNL_VP_DISK
@@ -571,8 +533,8 @@ app.delete('/serve/:client', passport.authenticate('bearer', { session: false })
   console.info(`disallowing serving client: ${client}`);
   const errMessage = 'Problem when dissalowing serving.';
   try {
-    await rclient.hDel(Keys.ServingTopology, client);
-    if (res === 0) {
+    const result = await rclient.hDel(Keys.ServingTopology, client);
+    if (result === 0) {
       console.error(errMessage);
       res.status(500).send(errMessage);
     } else {
@@ -668,22 +630,21 @@ app.post('/liveness', jsonParser, async (req, res) => {
 //                TEST, HEALTH, ERRORS and DEFAULTS
 //
 
-app.get('/test', async (_req, res, next) => {
+app.get('/test', async (_req, res) => {
   console.log('TEST starting...');
 
-  rclient.set('ds', 'TEST_OK', (err, reply) => {
-    if (err) {
-      next(new Error('Could not set a key in Redis'));
-    } else {
-      console.log(reply);
-    }
-  });
-
-  rclient.get('ds', (_err, reply) => {
+  try {
+    const reply = await rclient.set('ds', 'TEST_OK');
     console.log(reply);
+
+    const reply1 = await rclient.get('ds');
+    console.log(reply1);
+
     rclient.del('ds');
-    res.send(reply);
-  });
+    res.send(reply1);
+  } catch (err) {
+    console.error('big error!');
+  }
 });
 
 app.get('/healthz', (_request, response) => {
@@ -702,7 +663,7 @@ app.all('*', (req, res) => {
 });
 
 // handles all kinds of issues.
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
@@ -745,8 +706,8 @@ async function main() {
   console.log('initialized GDV.');
 
   try {
-    reloadSiteStates();
-    reloadServingTopology();
+    await reloadSiteStates();
+    await reloadServingTopology();
     setInterval(backup, config.BACKUP_INTERVAL * 3600000);
     setInterval(cleanDeadServers, config.LIFETIME_INTERVAL * 1000);
   } catch (err) {
@@ -772,14 +733,14 @@ async function main() {
     }
   });
 
-  await subscriber.subscribe('topology', (message) => {
+  await subscriber.subscribe('topology', async (message) => {
     console.log(`Received topology message: ${message}`);
-    reloadServingTopology();
+    await reloadServingTopology();
   });
 
-  await subscriber.subscribe('siteStatus', (message) => {
+  await subscriber.subscribe('siteStatus', async (message) => {
     console.log(`Received siteStatus message: ${message}`);
-    reloadSiteStates();
+    await reloadSiteStates();
   });
 }
 
