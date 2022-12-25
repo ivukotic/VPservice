@@ -420,6 +420,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
       // console.log('not found');
       const replyMove = await rclient.rPopLPush(Keys.Unassigned, ds);
       if (!replyMove) {
+        console.error('Should always return a list of sites. Now returned:', replyMove);
         res.status(400).send(['other']);
         return;
       }
