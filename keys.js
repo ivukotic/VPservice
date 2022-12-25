@@ -3,4 +3,4 @@ exports.ServingTopology = 'meta.servingTopology';
 exports.DisabledSites = 'meta.disabledSites';
 exports.Sites = 'meta.sites';
 exports.GDV = 'meta.gridDescriptionVersion';
-exports.Unasigned = 'meta.Unasigned';
+exports.Unasigned = 'devunas';
