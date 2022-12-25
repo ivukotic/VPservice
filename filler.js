@@ -145,11 +145,13 @@ function generate() {
 
 async function fill() {
   if (!ready) return;
-  const count = await rclient.lLen('unas');
+  const count = await rclient.lLen('devunas');
   console.log('unassigned :', count);
   if (count < config.PRECALCULATED_LWM) {
     for (let i = 0; i < config.PRECALCULATED_HWM - count; i++) {
-      await rclient.lPush('unas', generate());
+      const g=generate();
+      console.log('Adding:', g);
+      await rclient.lPush('unas', g);
     }
   }
   reloadGrid();
