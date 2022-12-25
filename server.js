@@ -417,9 +417,10 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
   try {
     const reply = await rclient.lRange(ds, 0, -1);
     if (!reply.length) {
-      // console.log('not found');
+      console.log('not found');
       const replyMove = await rclient.rPopLPush('unas', ds);
       if (!replyMove) {
+        console.warn('this should not happen. L423');
         res.status(400).send(['other']);
         return;
       }

@@ -149,7 +149,7 @@ async function fill() {
   console.log('unassigned :', count);
   if (count < config.PRECALCULATED_LWM) {
     for (let i = 0; i < config.PRECALCULATED_HWM - count; i++) {
-      const g=generate();
+      const g = generate();
       console.log('Adding:', g);
       await rclient.lPush('unas', g);
     }
