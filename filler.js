@@ -12,7 +12,7 @@ Weights - there are cloud weights and site weights.
 */
 
 const redis = require('redis');
-const c = require('./choice.js');
+const c = require('./choice');
 const Keys = require('./keys');
 const config = require('/etc/vps/config.json');
 
@@ -120,7 +120,7 @@ async function reloadGrid() {
     // setTimeout(recalculateWeigths, 3000);
 
     // dropping previous unas values
-    const removed = await rclient.del('unas');
+    const removed = await rclient.del(Keys.Unassigned);
     console.log(`dropped ${removed} unassigned.`);
   } catch (err) {
     console.error('error caught in grid reload');
@@ -145,11 +145,11 @@ function generate() {
 
 async function fill() {
   if (!ready) return;
-  const count = await rclient.lLen('unas');
+  const count = await rclient.lLen(Keys.Unassigned);
   console.log('unassigned :', count);
   if (count < config.PRECALCULATED_LWM) {
     for (let i = 0; i < config.PRECALCULATED_HWM - count; i++) {
-      await rclient.lPush('unas', generate());
+      await rclient.lPush(Keys.Unassigned, generate());
     }
   }
   reloadGrid();

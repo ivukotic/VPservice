@@ -418,7 +418,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     const reply = await rclient.lRange(ds, 0, -1);
     if (!reply.length) {
       // console.log('not found');
-      const replyMove = await rclient.rPopLPush('unas', ds);
+      const replyMove = await rclient.rPopLPush(Keys.Unassigned, ds);
       if (!replyMove) {
         res.status(400).send(['other']);
         return;
@@ -451,7 +451,7 @@ app.get('/ds/reassign/:dataset', passport.authenticate('bearer', { session: fals
   const ds = req.params.dataset;
   console.log('reassigning ds:', ds, 'in random way');
   try {
-    const reply = rclient.blPop('unas', 1000);
+    const reply = rclient.blPop(Keys.Unassigned, 1000);
     if (!reply) {
       res.status(400).send('Timeout');
       return;
