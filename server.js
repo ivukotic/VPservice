@@ -406,7 +406,7 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
 
   if (ds.startsWith('panda:panda.um.')) {
     // these are pmerge input datasets and are not cachable.
-    console.log('pmerge. returning "other"');
+    // console.log('pmerge. returning "other"');
     res.status(200).send(['other']);
     return;
   }
@@ -417,9 +417,9 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     ds,
   };
   try {
-    console.log('looking up:', ds);
+    // console.log('looking up:', ds);
     const reply = await rclient.lRange(ds, 0, -1);
-    console.log('found:', reply);
+    // console.log('found:', reply);
     if (!reply.length) {
       // console.log('not found');
       const replyMove = await rclient.rPopLPush(Keys.Unassigned, ds);
@@ -436,11 +436,11 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
       doc.sites = sites;
       doc.initial = true;
       esAddRequest(esIndexRequests, doc);
-      console.log('initial placement:', sites);
+      // console.log('initial placement:', sites);
       res.status(200).send(sites);
     } else {
       const sites = reply[0].split(',');
-      console.log('repeated placement:', sites);
+      // console.log('repeated placement:', sites);
       doc.sites = sites;
       doc.initial = false;
       esAddRequest(esIndexRequests, doc);
