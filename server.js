@@ -397,6 +397,7 @@ app.delete('/site/:cloud/:sitename', async (req, res) => {
 // the main function !
 app.get('/ds/:nsites/:dataset', async (req, res) => {
   if (paused) {
+    console.warn('PAUSED!');
     res.status(200).send(['other']);
     return;
   }
@@ -416,7 +417,9 @@ app.get('/ds/:nsites/:dataset', async (req, res) => {
     ds,
   };
   try {
+    console.log('looking up:', ds);
     const reply = await rclient.lRange(ds, 0, -1);
+    console.log('found:', reply);
     if (!reply.length) {
       // console.log('not found');
       const replyMove = await rclient.rPopLPush(Keys.Unassigned, ds);
