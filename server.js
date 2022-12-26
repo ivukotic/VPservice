@@ -283,7 +283,7 @@ app.put('/site/enable/:cloud/:site', passport.authenticate('bearer', { session: 
 });
 
 app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { session: false }), async (req, res) => {
-  // console.log('adding a site....');
+  // console.log('adding a site.... if already exist it just gets updated.');
   const { cloud } = req.params;
   const site = req.params.sitename;
   const { cores } = req.params;
@@ -296,7 +296,7 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
     const reply = await rclient.set(`${cloud}:${site}`, cores);
     console.log('site added to cloud or updated: ', reply);
 
-    updateGridVersion();
+    await updateGridVersion();
   } catch (err) {
     res.status(200).send('OK');
   }
@@ -386,7 +386,7 @@ app.delete('/site/:cloud/:sitename', async (req, res) => {
     const result = await rclient.del(site);
     console.log('sites deleted:', result);
     await rclient.sRem(Keys.Sites, site);
-    updateGridVersion();
+    await updateGridVersion();
     res.status(200).send('OK');
   } catch (err) {
     console.error('could not delete sites', err);

@@ -152,7 +152,7 @@ async function fill() {
       await rclient.lPush(Keys.Unassigned, generate());
     }
   }
-  reloadGrid();
+  await reloadGrid();
 }
 
 async function main() {
