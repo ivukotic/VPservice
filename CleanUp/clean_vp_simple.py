@@ -1,5 +1,6 @@
 # deletes only datasets matching simple patterns.
 import redis
+import time
 
 r = redis.Redis(host='redis-master.default.svc.cluster.local', port=6379, db=0)
 
@@ -28,7 +29,7 @@ for k in r.scan_iter(match='*'):
         removed += 1
         continue
 
-    if not checked % 10000:
+    if not checked % 1000:
         print("done:", checked, "removed:", removed)
-
+        time.sleep(10)
 print("done:", checked, "removed:", removed)

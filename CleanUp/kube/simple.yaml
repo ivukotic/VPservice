@@ -8,7 +8,6 @@ spec:
       containers:
         - name: cleaner
           image: ivukotic/vpservice:cleanup
-          # command: ["/usr/src/app/start.sh"]
           command: ["sleep"]
           args: ["99999999"]
           imagePullPolicy: Always
