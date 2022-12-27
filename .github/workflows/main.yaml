@@ -27,6 +27,7 @@ jobs:
           image: ivukotic/vpservice
           tags: cleanup
           dockerfile: CleanUp/Dockerfile
+          directory: CleanUp
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
