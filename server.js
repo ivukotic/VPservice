@@ -297,8 +297,9 @@ app.put('/site/:cloud/:sitename/:cores', passport.authenticate('bearer', { sessi
     console.log('site added to cloud or updated: ', reply);
 
     await updateGridVersion();
-  } catch (err) {
     res.status(200).send('OK');
+  } catch (err) {
+    res.status(500).send(err);
   }
 });
 
