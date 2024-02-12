@@ -1,40 +1,16 @@
 {
-    "other": [
-        [
-            "other",
-            240000
-        ]
+    "EU":[
+        ["UKI-SOUTHGRID-BHAM-HEP_VP_DISK",1000],
+        ["UKI-SOUTHGRID-OX-HEP_VP_DISK",1000],
+        ["LRZ-LMU_VP_DISK",2000],
+        ["WUPPERTAL_VP_DISK",500],
+        ["UKI-LT2-RHUL_VP_DISK",1000]
     ],
-    "US": [
-        [
-            "MWT2_VP_DISK",
-            2000
-        ],
-        [
-            "AGLT2_VP_DISK",
-            2000
-        ],
-        [
-            "BNL-ATLAS_VP_DISK",
-            1000
-        ],
-        [
-            "SWT2_CPB_VP_DISK",
-            1000
-        ],
-        [
-            "NET2_VP_DISK",
-            1000
-        ]
-    ],
-    "EU": [
-        [
-            "PRAGUELCG2_VP_DISK",
-            100
-        ],
-        [
-            "LRZ-LMU_VP_DISK",
-            2000
-        ]
-    ]
-}
+    "US":[
+        ["SWT2_CPB_VP_DISK",1000],
+        ["MWT2_VP_DISK",5000],
+        ["AGLT2_VP_DISK",2000],
+        ["BNL-ATLAS_VP_DISK",20000],
+        ["NERSC_VP_DISK",1],
+        ["NET2_VP_DISK",1]
+    ],"other":[["other",100000]]}

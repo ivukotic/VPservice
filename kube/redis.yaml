@@ -47,9 +47,9 @@ spec:
             - containerPort: 6379
           volumeMounts:
             - mountPath: "/data"
-              name: redis-cinder-pvc
+              name: redis-vol
       volumes:
-        - name: redis-cinder-pvc
-          cinder:
-            volumeID: 028c046b-d61d-47fd-b3d5-e4c999cf6fe1
-            fsType: ext4
+        - name: redis-vol
+          persistentVolumeClaim:
+            claimName: vp-manila-vol
+            readOnly: false
