@@ -20,6 +20,10 @@ kubectl create secret generic tokens --from-file=secrets/tokens.json
 echo "create loadbalancer"
 kubectl create -f loadbalancer.yaml
 
+# echo "create volume for redis if not already there"
+# openstack volume create --size 100 vps
+# echo "volume id should be given to redis.yaml deployment"
+
 echo "Start redis"
 kubectl create -f redis.yaml 
 # kubectl create -f redis-slave.yaml
